@@ -5,3 +5,4 @@ Old Hashnode: read.darkshield.co.in (RSS source in source/, gitignored). Ghost s
 After adding a post: `node og.js` (makes static/og/<slug>.png for LinkedIn/OG; needs Edge or Chrome) then `node build.js`. Profile photo: drop static/img/alok.jpg and it replaces the "AC" initials avatar automatically.
 Theme: dark default, follows system light/dark until visitor toggles (localStorage dark|light).
 - Assets are cache-busted (?v=hash) in build.js: if a visitor sees unstyled new elements it was a stale cached CSS.
+Diagrams: source of truth is github.com/alokchatterji5/drawio (render/). tools/sync-diagrams.js pulls them into static/img at CI build; to change a diagram, edit it in that repo.
