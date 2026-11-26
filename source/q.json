@@ -1,0 +1,1 @@
+{"query":"{ publication(host:\"read.darkshield.co.in\"){ title about{markdown} posts(first:50){ totalDocuments edges{ node{ title slug brief publishedAt series{name slug} tags{name} coverImage{url} content{markdown} url } } } } }"}

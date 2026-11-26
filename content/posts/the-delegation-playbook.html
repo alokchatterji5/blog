@@ -1,0 +1,64 @@
+<!--meta
+{"title":"The Delegation Playbook","subtitle":"What I hand to AI completely, and what I never do","date":"2026-11-16","summary":"One question decides what AI gets to do on my homelab: can this be undone? Everything else follows from it.","category":"AI-Led Homelab","series":"AI-Led Homelab","part":3,"tags":["ai","homelab","delegation","guardrails"]}
+-->
+<div class="tldr"><h4>The short version</h4><p>I don't keep a list of allowed and banned tasks. I ask one question: can this be undone? If yes, AI gets a long leash. If no, the decision is mine, every time.</p></div>
+
+<p>The question I get asked most about this project isn't "what did you build." It's "wait, you let AI do <em>what</em>?" Fair. The honest answer is a lot more than people expect and a lot less than people fear, and the line between the two isn't drawn by task type. It's drawn by one question.</p>
+
+<h2>The only rule that matters</h2>
+<p><strong>Can this be undone?</strong></p>
+<p>That single distinction does more work than any list of allowed and disallowed tasks, because it scales. New situations come up constantly in a project like this. Instead of writing a new rule for each, I ask the same question.</p>
+
+<div class="tabs">
+<section data-title="Yes: long leash">
+<p>Provisioning something new, drafting a doc, proposing a design, running a check, spinning up a container that doesn't touch anything live. AI can just go.</p>
+<ul>
+<li>A new container gets provisioned, configured and brought up to the project's standards without me typing a command.</li>
+<li>A first draft of how a new service should sit behind the reverse proxy and identity layer gets written before I've thought about it.</li>
+<li>Docs and trackers stay current as a side effect of the work, not as a separate chore.</li>
+</ul>
+<p>None of that touches anything that currently works. That is what makes the leash safe to extend.</p>
+</section>
+<section data-title="No: short leash">
+<p>Anything that touches the existing, working homelab, anything that deletes or overwrites, anything involving credentials, any call on architecture that's already settled. Not "AI drafts it and I rubber-stamp it." Mine, deliberately.</p>
+<ul>
+<li>Nothing gets deleted, disabled or overwritten on the running homelab without me explicitly saying go.</li>
+<li>Credentials and tokens are never held by AI between sessions. They're provided fresh, used, and gone.</li>
+<li>A proposal that touches something we already settled, like an architecture decision or an access policy, is a conversation, not an execution.</li>
+</ul>
+</section>
+</div>
+
+<h2>Try the question</h2>
+<p>A small sorter. Pick an action and see which side of the line it lands on.</p>
+<div class="dp-box">
+<div class="dp-btns"></div>
+<p class="dp-out" aria-live="polite">Pick an action above.</p>
+</div>
+
+<h2>Access is a design decision</h2>
+<p>This only works because access itself was scoped on purpose. AI in this project can reach the actual hypervisor: SSH in, provision containers, work inside them. That is real infrastructure access, not "helped me write a script I then ran myself." Real access is what made the reversible/irreversible rule non-negotiable. The more capable the access, the more that one rule has to hold.</p>
+
+<h2>Why this beats either extreme</h2>
+<p>The two failure modes are obvious in hindsight. Give AI no real access and you've built a slower version of copy-pasting from a chat window: all the thinking, none of the leverage. Give it unscoped access and you're one confidently wrong suggestion away from a bad night.</p>
+<p>The playbook is wide open on anything that can be undone and tight on anything that can't. That turns out to cover almost everything a homelab needs, most of the time, without me being in the loop for all of it.</p>
+
+<style>
+.dp-box{border:1px solid var(--line);border-radius:var(--r);padding:14px 18px;background:var(--card)}
+.dp-btns{display:flex;flex-wrap:wrap;gap:8px}
+.dp-btns button{font:inherit;font-size:14px;background:var(--bg2);color:var(--fg);border:1px solid var(--line);border-radius:99px;padding:5px 13px;cursor:pointer}
+.dp-btns button.on{border-color:var(--accent)}
+.dp-out{margin:12px 0 0}.dp-out b.long{color:#22c55e}.dp-out b.short{color:#ef4444}
+</style>
+<script>
+(()=>{const items=[
+["Provision a new container",1,"Additive and reversible. Nothing live is touched."],
+["Draft a design doc",1,"A draft can be thrown away."],
+["Run a check",1,"Read-only, so nothing to undo."],
+["Delete something on the running lab",0,"Subtractive. I say go, or I do it myself."],
+["Overwrite a working config",0,"It touches something that currently works."],
+["Hold a credential between sessions",0,"Credentials are provided fresh and never kept."],
+["Change a settled architecture decision",0,"Settled means a conversation, not an execution."]];
+const b=document.querySelector('.dp-btns'),o=document.querySelector('.dp-out');
+items.forEach(([t,l,w])=>{const x=document.createElement('button');x.textContent=t;x.onclick=()=>{b.querySelectorAll('button').forEach(y=>y.classList.toggle('on',y===x));o.innerHTML=(l?'<b class="long">Long leash.</b> ':'<b class="short">Short leash.</b> ')+w};b.appendChild(x)})})();
+</script>

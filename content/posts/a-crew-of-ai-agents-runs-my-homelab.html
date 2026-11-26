@@ -1,0 +1,163 @@
+<!--meta
+{"title":"A Crew of AI Agents Runs My Homelab","subtitle":"Five agents, three model families, one chat, and a human who still approves the risky bits","date":"2026-10-04","summary":"Five AI agents handle the day-to-day running of my servers while I make the decisions. How they fit together, which models do which job, and what went wrong.","category":"AI-Led Homelab","series":"AI-Led Homelab","part":7,"tags":["homelab","ai","agents","selfhosted","automation"],"cover":"img/1c22c045-0a4c-4267-ab97-ebc594a0999d.svg"}
+-->
+<div class="tldr"><h4>The short version</h4><p>A small crew of AI agents does the legwork on my homelab behind a single chat. A pricier model orchestrates, cheap fast ones do the tool work, and a plain deterministic layer decides what is allowed. The idea in one line: give the AI judgement, not authority.</p></div>
+<div class="toc"></div>
+
+<p>One morning my phone buzzed at 9 a.m. with a message from my homelab. The backup drive was 82% full, fifteen old backups were sitting there with nothing set up to clean them out, and one of the media disks was at 80% and climbing. It listed what it had found, said what it would do about each, and asked if I wanted it to go ahead.</p>
+<p>I read it over coffee and said yes. The space came back.</p>
+<p>I didn't open a dashboard or SSH into anything, and I didn't have to remember which job wrote those backups. I've run this homelab for years and I'm not sure I'd have noticed that drive filling up before it actually filled up. That's the reason I built this.</p>
+<p>What I have now is a small crew of AI agents that handles the day-to-day running of my servers. I make the decisions and they do the legwork. This post covers how it fits together, which models do which job, and what I'd do the same or differently. I've left out configs, addresses and anything that would help someone find my house.</p>
+
+<h2>What's an AI harness?</h2>
+<p>A language model on its own can answer questions, but it can't check a server, read a log or do anything in the world.</p>
+<p>The harness is everything you build around the model so it can. It decides which tools the model gets, what it remembers between conversations, what it's forbidden to touch and how it reaches you. It also handles the dull parts: schedules, retries, budgets and switching to another model when one is down.</p>
+<p>People argue a lot about which model is best and very little about the harness, even though that's where most of the engineering goes. A strong model inside a careless harness is a quick way to delete something you needed.</p>
+
+<h2>Why ZeroClaw</h2>
+<p>I tried a few agent frameworks before settling on ZeroClaw. Some wanted to own my whole stack. Others made a great ten-minute demo and fell over the first time something unexpected happened.</p>
+<p>ZeroClaw is small and runs on my own hardware, in a container, so my data stays at home. It was built for several agents with different jobs, each with its own permissions and model. The safety features I care about come with it: risk levels, a list of commands each agent may run, a cap on actions per hour, and approval flows. It also schedules jobs and talks to me through a chat app.</p>
+<p>Mostly, though, I picked it because it's boring. It starts, it runs, it comes back after a restart. For something watching my servers at 3 a.m., that matters more than any feature list.</p>
+
+<h2>What I actually wanted</h2>
+<p>Not an AI that does everything. I've seen where that ends up. I wanted something closer to a careful colleague: it looks at everything and changes very little without asking. It tells me when it doesn't know something instead of guessing to sound helpful. It doesn't cost much, it gets better over time, and it does real work instead of looking impressive in a screenshot.</p>
+
+<h2>Meet the crew</h2>
+<p>I named the agents after the AI sidekicks from a certain billionaire's workshop. If I'm going to talk to my infrastructure every day, it might as well have some personality. Click an agent to read its job and watch a request travel through the crew.</p>
+
+<figure class="crew">
+<div class="crew-ctl"><button type="button" id="crew-play">Play a request</button><span id="crew-q" class="meta"></span></div>
+<svg id="crew-svg" viewBox="0 0 720 360" role="img" aria-label="Diagram of the crew: you talk to EDITH, who hands work to FRIDAY, VERONICA, JARVIS or DUM-E, who all use a shared toolbox">
+ <g id="crew-links" fill="none" stroke="var(--line)" stroke-width="2"></g>
+ <g id="crew-nodes"></g>
+ <rect x="30" y="300" width="660" height="44" rx="10" fill="var(--bg2)" stroke="var(--line)" stroke-width="1.5" stroke-dasharray="5 4"/>
+ <text x="360" y="320" text-anchor="middle" font-size="14" font-weight="700" fill="var(--fg)">The toolbox: fixed commands, no shell</text>
+ <text x="360" y="337" text-anchor="middle" font-size="11.5" fill="var(--mute)">Proxmox API (read-only) / SSH gate (allowlist) / app APIs</text>
+ <circle id="crew-dot" r="7" fill="var(--accent)" cx="-20" cy="-20"/>
+</svg>
+<figcaption>Click any agent. The dot is the request going out (orange) and the answer coming back (blue).</figcaption>
+</figure>
+<div id="crew-info" class="callout" aria-live="polite"><b>EDITH, the orchestrator</b>I only ever talk to her. She works out what I'm asking for, hands it to the right specialist and brings back one answer instead of four. She never touches the servers herself.</div>
+
+<style>
+.crew-ctl{display:flex;gap:12px;align-items:center;margin-bottom:8px}
+.crew button#crew-play{background:var(--accent);color:var(--bg);border:0;border-radius:99px;padding:6px 16px;font:inherit;font-size:14px;font-weight:600;cursor:pointer}
+.crew svg{width:100%;background:var(--card)}
+.crew .nd{cursor:pointer;outline:none}
+.crew .nd rect{fill:var(--bg2);stroke:var(--line);stroke-width:2;transition:stroke .2s,fill .2s}
+.crew .nd:hover rect,.crew .nd:focus rect{stroke:var(--accent2)}
+.crew .nd.on rect{stroke:var(--accent);fill:var(--card);stroke-width:3}
+.crew .nd.pulse rect{stroke:var(--accent);stroke-width:4}
+.crew .nd text{fill:var(--fg);font-weight:700;font-size:15px;text-anchor:middle;pointer-events:none}
+.crew .nd .m{font-weight:400;font-size:11px;fill:var(--mute)}
+.crew .lk.hot{stroke:var(--accent);stroke-width:3}
+</style>
+<script>
+(()=>{
+const A={
+me:{n:'You',x:80,y:50,w:110,m:'Telegram',t:'You',d:'One chat app is the only door. Approvals happen here too, with Approve and Deny buttons.'},
+edith:{n:'EDITH',x:360,y:50,w:140,m:'Claude Sonnet 5.5',t:'EDITH, the orchestrator',d:'I only ever talk to her. She works out what I am asking for, hands it to the right specialist and brings back one answer instead of four. She never touches the servers herself. She gets the stronger model because understanding vague requests and deciding who handles them is where it pays for itself.'},
+friday:{n:'FRIDAY',x:100,y:180,w:130,m:'Gemini 3.7 Flash',t:'FRIDAY, watcher',d:'Health, stats, logs, backups, disk space. Strictly read-only, and every report ends with a one-line verdict so I can skim. She cannot delete anything because she has no way to.',q:'"Are my backups ok?"'},
+veronica:{n:'VERONICA',x:275,y:180,w:130,m:'Gemini 3.7 Flash',t:'VERONICA, media',d:'What is in the library, what is new, what is stuck, what someone has requested.',q:'"What is new in the library?"'},
+jarvis:{n:'JARVIS',x:450,y:180,w:130,m:'Gemini 3.7 Flash',t:'JARVIS, identity and access',d:'Accounts, groups and who gets in where. He asks before he changes anything, and he cannot restart a service.',q:'"Who has access to the media app?"'},
+dume:{n:'DUM-E',x:625,y:180,w:130,m:'Gemini 3.7 Flash',t:'DUM-E, builder',d:'In the films he is the clumsy robot arm that sprays the fire extinguisher at everyone. Mine is fully enabled and a lot less chaotic than the original. It does the hands-on build work under the same rules as the rest of the crew.',q:'"Set up that new container."'}};
+const NS='http://www.w3.org/2000/svg',svg=document.getElementById('crew-svg'),nodes=document.getElementById('crew-nodes'),links=document.getElementById('crew-links'),dot=document.getElementById('crew-dot'),info=document.getElementById('crew-info'),qEl=document.getElementById('crew-q');
+const el=(t,a,p)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);p&&p.appendChild(e);return e};
+const Y2=300,H=56;let L={};
+const line=(id,x1,y1,x2,y2)=>{L[id]=el('line',{x1,y1,x2,y2,class:'lk'},links)};
+line('me-edith',A.me.x+55,A.me.y,A.edith.x-70,A.me.y);
+['friday','veronica','jarvis','dume'].forEach(k=>{line('edith-'+k,A.edith.x,A.edith.y+H/2,A[k].x,A[k].y-H/2);line(k+'-tool',A[k].x,A[k].y+H/2,A[k].x,Y2)});
+const N={};
+for(const k in A){const a=A[k],g=el('g',{class:'nd',tabindex:0,role:'button','aria-label':a.t},nodes);
+ el('rect',{x:a.x-a.w/2,y:a.y-H/2,width:a.w,height:H,rx:10},g);
+ const t=el('text',{x:a.x,y:a.y-3},g);t.textContent=a.n;const m=el('text',{x:a.x,y:a.y+15,class:'m'},g);m.textContent=a.m;
+ g.onclick=()=>pick(k,true);g.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();pick(k,true)}};N[k]=g}
+const set=k=>{const a=A[k];info.innerHTML='<b></b>';info.firstChild.textContent=a.t;info.append(a.d)};
+let run=0;
+const ease=(a,b,t)=>a+(b-a)*t;
+const move=(p,q,ms,run0)=>new Promise(res=>{const s=performance.now();(function f(n){if(run0!==run)return res();const t=Math.min(1,(n-s)/ms);dot.setAttribute('cx',ease(p[0],q[0],t));dot.setAttribute('cy',ease(p[1],q[1],t));t<1?requestAnimationFrame(f):res()})(s)});
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
+async function play(k){const me=++run,a=A[k];
+ Object.values(L).forEach(l=>l.classList.remove('hot'));qEl.textContent=a.q||'';
+ const path=[['me',[A.me.x+55,A.me.y],[A.edith.x-70,A.me.y],'me-edith','edith'],['edith',[A.edith.x,A.edith.y+H/2],[a.x,a.y-H/2],'edith-'+k,k],[k,[a.x,a.y+H/2],[a.x,Y2],k+'-tool',null]];
+ dot.setAttribute('fill','var(--accent)');
+ for(const [,p,q,id,to] of path){if(me!==run)return;L[id].classList.add('hot');await move(p,q,600,me);if(to){N[to].classList.add('pulse');setTimeout(()=>N[to].classList.remove('pulse'),700)}}
+ if(me!==run)return;await wait(250);dot.setAttribute('fill','var(--accent2)');
+ for(const [,p,q,id,to] of path.slice().reverse()){if(me!==run)return;await move(q,p,450,me)}
+ if(me===run){Object.values(L).forEach(l=>l.classList.remove('hot'));dot.setAttribute('cx',-20)}}
+function pick(k,go){Object.values(N).forEach(n=>n.classList.remove('on'));N[k].classList.add('on');set(k);if(go&&k!=='me'&&k!=='edith')play(k)}
+const order=['friday','veronica','jarvis','dume'];let i=0;
+document.getElementById('crew-play').onclick=()=>{const k=order[i++%4];pick(k,true)};
+pick('edith',false);
+})();
+</script>
+
+<h2>Which models run which agent</h2>
+<p>This is the question I'd have wanted answered when I started.</p>
+<table>
+<tr><th>Job</th><th>Model</th><th>Why</th></tr>
+<tr><td>EDITH, the orchestrator</td><td><b>Claude Sonnet 5.5</b> (Anthropic)</td><td>She does the thinking: understanding vague requests, picking who handles them, deciding what an answer means. That's where a stronger model pays for itself.</td></tr>
+<tr><td>FRIDAY, VERONICA, JARVIS, DUM-E</td><td><b>Gemini 3.7 Flash</b> (Google)</td><td>Their work is mostly "run the tool, read the output, report back". A fast, cheap model does that well.</td></tr>
+<tr><td>Alert triage and log summaries</td><td><b>Gemini 3.1 Flash-Lite</b> (Google)</td><td>Sorting and summarising is simple work, so it goes to the smallest model I have.</td></tr>
+</table>
+<p>Using two vendors is deliberate. It keeps the bill down, and one provider having a bad day doesn't take everything with it.</p>
+<div class="callout warn"><b>Learned the hard way</b>The very smallest models are good at summarising and bad at driving tools. In my setup they'd write a tool call out as plain text and never run it. So Flash-Lite only sorts and summarises. It never operates anything.</div>
+
+<h2>How it all fits together</h2>
+<p>Here's the whole picture. Follow the moving dashes.</p>
+<figure><img src="../img/00-how-it-fits-together.svg" alt="Animated diagram: Telegram to the ZeroClaw gateway, the agents, the toolbox, and from there to Proxmox, an SSH gate and app APIs, with model providers across the top"><figcaption>One request, left to right.</figcaption></figure>
+<p>I send a message in Telegram. It lands in the <b>ZeroClaw gateway</b>, the container that hosts all the agents. EDITH reads it, asks Claude what to do, and hands the job to the right specialist, who calls Gemini to work out the details.</p>
+<p>Then the part I care about most. The specialist doesn't get a terminal. It can only call the <b>toolbox</b>, a set of purpose-built commands: show stats, show backup status, read a container's logs, look up the media library. Each command does one job, refuses odd input and strips secrets from its output.</p>
+<p>The toolbox reaches the homelab by three narrow paths: the <b>Proxmox API</b> with a read-only token, an <b>SSH gate</b> (a locked-down login that can only run a short list of approved actions), and the <b>APIs of the apps themselves</b>: Jellyfin, Jellyseerr, Authentik and Netdata.</p>
+<p>Approvals mostly happen in the Telegram chat. When something needs my say-so, EDITH posts what she wants to do with Approve and Deny buttons, and nothing happens until I tap one. For the riskiest changes there's a second check: a one-time code sent over a separate private ntfy channel, which I have to send back before the action runs. At the top, the model providers are lined up in the order they take over when the one before goes down.</p>
+<p>Two boxes inside the gateway don't take part in a request. <b>Playbooks and memory</b> hold the skills and runbooks the agents read, plus the lessons from the weekly review. <b>Guardrails</b> hold the risk profiles, the command allowlist and the hourly action cap.</p>
+
+<h2>What they actually do</h2>
+<p>Every morning there's a briefing: what ran overnight, what failed, what needs a decision. During the day, alerts get sorted so only the ones worth interrupting me reach my phone. When I'm curious ("how are the servers doing?", "what's new in the library?", "add that movie") I ask in the same chat and the right agent picks it up. If something breaks, the agent proposes a fix. Small fixes it can make within limits, and bigger ones wait for me. Afterwards it checks the app actually came back, because "I ran the command" and "it worked" are different statements.</p>
+<p>Roughly what a conversation looks like, lightly edited:</p>
+<blockquote><p><b>Me:</b> are my backups ok?</p><p><b>EDITH:</b> Checking with FRIDAY.</p><p><b>EDITH:</b> Mostly good. 21 of 22 systems have a backup from the last day. The router's is six days old, but that's its weekly schedule, so it's fine. One system has no backup I can actually prove from the logs. I'm calling that unknown, not fine. Want me to dig in?</p></blockquote>
+<p>That last bit matters more than it looks. Early on, it filled gaps with confident guesses. Teaching it to say "unknown" was the most useful change I made.</p>
+<p>There's also a weekly review where the crew looks back over its own week and writes down what it learned, which it reads next time. It's early days for that part, so I won't oversell what it has taught itself so far.</p>
+
+<h2>Why delegate instead of one big agent</h2>
+<p>The tempting design is a single super-agent with every tool and permission. I'd talk you out of it. A narrow job means short instructions, and short instructions mean fewer mistakes. It keeps the damage small when something does go wrong: FRIDAY can't delete anything, and JARVIS can't restart a service. Routine work doesn't need the most expensive model. And when one agent misbehaves I know which one to fix, instead of untangling a four-thousand-word prompt.</p>
+<p>It's the same reason you don't give the intern the root password. Nobody thinks the intern is bad, but the setup shouldn't depend on it.</p>
+
+<h2>Give the AI judgement, not authority</h2>
+<p>If I had to compress the design into one sentence, that would be it. The model decides what's worth doing. A plain, deterministic layer decides whether it's allowed. The model can be as creative as it likes, because the rules aren't in its prompt where it could talk itself around them. They're enforced somewhere it can't reach.</p>
+<p>Two decisions carry most of the weight. The agents don't get a shell at all, only the toolbox, so you can't trick one into running something it was never given. And access is narrow on purpose: each agent connects through a path that allows a short list of actions on specific machines, and the read-only agent's credentials really are read-only.</p>
+
+<h2>How the bill stays small</h2>
+<p>Every question goes to the cheapest thing that can answer it properly. Plenty don't need a model at all: if a script can work out whether a disk is over 80% full, it does, and that costs nothing. Routine jobs go to Gemini 3.7 Flash, sorting and summarising goes to Flash-Lite, and Claude is kept for the thinking. Instructions that never change are cached, so I'm not paying to re-read the same playbook with every message, and a cap on actions per hour stops a runaway loop before it gets expensive.</p>
+<p>I won't quote my bill, because it moves around and would date this post. The split above is what keeps it from being alarming.</p>
+
+<h2>The fallback plan</h2>
+<p>Models go down, APIs get rate-limited, providers have bad days. If everything depended on one vendor I'd have swapped a single point of failure on a server for one on a subscription.</p>
+<ol><li>Claude goes first.</li><li>If it's unavailable, the request moves to Gemini.</li><li>Then OpenRouter, a marketplace that fronts many providers.</li><li>Finally a LiteLLM gateway that I host myself.</li></ol>
+<p>That last step is the one I'm still finishing, so right now it's three deep with a fourth on the way. I still get an answer when one fails. It might just read less well.</p>
+
+<h2>Human in the loop</h2>
+<p>This is the part I'm proudest of, and the reason I'm comfortable leaving it running. Every action is sorted into one of three tiers by a policy, not by the AI's judgement in the moment.</p>
+<table>
+<tr><th>Tier</th><th>What it covers</th><th>Who decides</th></tr>
+<tr><td><b>0, look</b></td><td>Read-only things: stats, logs, status</td><td>The agent, whenever it likes</td></tr>
+<tr><td><b>1, small fix</b></td><td>Low-risk, reversible things like restarting a misbehaving app, a few times an hour at most, every one logged</td><td>The agent, inside strict limits</td></tr>
+<tr><td><b>2, needs me</b></td><td>Anything bigger</td><td>Me. Usually an Approve or Deny tap in Telegram. The riskiest restarts also need a one-time code sent to my phone over a separate channel, which expires after a few minutes and allows only a few tries</td></tr>
+</table>
+<p>On top of that there's a list of things no agent may restart, ever, like databases. No clever phrasing changes that, because the rule isn't in the prompt. And after any change, the agent checks that it worked and tells me, rather than just saying it's done.</p>
+
+<h2>What went wrong</h2>
+<p>Plenty did, which is why I trust it more now.</p>
+<details open><summary>It guessed nobody was watching the media server</summary><p>I asked about the media server and an agent said nobody was watching anything, because the CPU was quiet. It had no way of knowing that. It was guessing and presenting the guess as fact. Now it reads actual session data, and "never infer what you can look up" is in its instructions.</p></details>
+<details><summary>The backup checker reported everything missing</summary><p>It reported nearly every system as missing a backup. The backups were fine. The agent's read-only access just couldn't see them, and my tool had treated "I can't see it" as "it doesn't exist". That's where the unknown rule came from. Now it reads the job logs as evidence, and when it can't prove something it says so.</p></details>
+<details><summary>A deploy silently failed over line endings</summary><p>A line-ending difference between Windows and Linux meant a new command the agent needed was silently refused. Nothing crashed. I only found out by testing with a real question, which taught me to check that a change actually landed.</p></details>
+<p>Each of these became a rule, a test or a note the crew reads.</p>
+
+<h2>What it can't do, deliberately</h2>
+<p>It won't make a serious change without a code from me. It won't touch the databases. It won't give me a confident answer it can't back up, and it never gets to see my secrets. I used to think of those as limitations, but they're what make it safe to leave running.</p>
+
+<h2>Once you have the platform</h2>
+<p>The first agent is the hard one. After that every idea is a small step, because the harness, the guardrails and the chat already exist, and a new capability is just another role with another narrow toolbox.</p>
+<p>I'm looking at smart-home awareness, so the house and the lab can see each other, and at alerts that get smarter about what deserves my attention. The agents already search my own documentation, so "how did I set this up again?" has an answer. I run self-tests after changes to check the whole crew still behaves, and more specialists (networking, security reviews, cost reports) are an obvious next step.</p>
+<p>If I started over, I'd begin read-only and let the agents earn trust before giving them anything that can change state. I'd build commands rather than hand over a shell. I'd treat "I don't know" as a perfectly good answer, and I'd put a human on the small slice of actions that can really hurt. Everything else I'd automate.</p>
+<p>My homelab used to be something I maintained. Now it's something I supervise, which is a better job. If you build your own crew, I'd like to hear what you call them.</p>

@@ -1,0 +1,53 @@
+<!--meta
+{"title":"Building Your Own Personal Photo Cloud","subtitle":"Two TrueNAS boxes, a VPN tunnel, and no more storage upgrade emails","date":"2025-11-02","summary":"How I replaced paid photo storage with Immich and Nextcloud on two TrueNAS servers that back each other up every night.","category":"Storage & Backup","series":"Homelab","tags":["homelab","self-hosted","immich","nextcloud","backup"],"cover":"img/d96c27c74804e98fc2988be8cc2bfb68.jpeg"}
+-->
+<div class="tldr"><h4>The short version</h4><p>My family's photos live on a TrueNAS server at home, get copied locally, and replicate every night to a second TrueNAS in another location over WireGuard. Immich is the main phone app, Nextcloud Photos runs alongside it, and I pay no recurring fee.</p></div>
+
+<p>Google Photos and iCloud both want a bigger plan sooner or later, or a lower photo quality. I wanted storage with no ceiling, my own rules, and access for family and close friends without handing each of them a subscription. It also turned out to be a good way to learn server management and network security, which I did not mind.</p>
+
+<h2>The setup</h2>
+<p>Two TrueNAS servers in different places. The primary holds the important data in a RAID10 dataset. A second dataset on the same box keeps a local copy, so a recovery does not mean pulling everything over the internet. Every night a batch job replicates the important data to the second server, over SSH keys inside a WireGuard tunnel.</p>
+
+<figure>
+<svg class="pc-svg" viewBox="0 0 760 300" role="img" aria-label="Phones upload to Immich and Nextcloud on the primary TrueNAS, which keeps a local copy and replicates nightly over WireGuard to the secondary TrueNAS">
+<style>
+.pc-svg text{fill:var(--fg);font:13px ui-sans-serif,system-ui,sans-serif}.pc-svg .m{fill:var(--mute);font-size:11.5px}
+.pc-svg .b{fill:var(--card);stroke:var(--line);stroke-width:1.5}.pc-svg .a{stroke:var(--accent);fill:none;stroke-width:2}
+.pc-svg .t{stroke:var(--accent2);fill:none;stroke-width:2;stroke-dasharray:6 6;animation:pc-d 1.2s linear infinite}
+@keyframes pc-d{to{stroke-dashoffset:-12}}
+</style>
+<rect class="b" x="10" y="110" width="110" height="80" rx="10"/><text x="65" y="148" text-anchor="middle">Phones</text><text class="m" x="65" y="166" text-anchor="middle">family + friends</text>
+<rect class="b" x="190" y="30" width="170" height="240" rx="12"/><text x="275" y="55" text-anchor="middle" font-weight="700">Primary TrueNAS</text>
+<rect class="b" x="205" y="70" width="140" height="38" rx="8"/><text x="275" y="94" text-anchor="middle">Immich</text>
+<rect class="b" x="205" y="116" width="140" height="38" rx="8"/><text x="275" y="140" text-anchor="middle">Nextcloud Photos</text>
+<rect class="b" x="205" y="165" width="140" height="42" rx="8"/><text x="275" y="183" text-anchor="middle">RAID10 dataset</text><text class="m" x="275" y="198" text-anchor="middle">important data</text>
+<rect class="b" x="205" y="218" width="140" height="38" rx="8"/><text x="275" y="242" text-anchor="middle">local copy dataset</text>
+<rect class="b" x="560" y="90" width="190" height="120" rx="12"/><text x="655" y="130" text-anchor="middle" font-weight="700">Secondary TrueNAS</text><text class="m" x="655" y="150" text-anchor="middle">other location</text><text class="m" x="655" y="168" text-anchor="middle">off-site copy</text>
+<path class="a" d="M120 140 H190"/><path class="a" d="M120 160 H190"/>
+<path class="t" d="M360 186 H560"/><text class="m" x="460" y="174" text-anchor="middle">nightly replication</text><text class="m" x="460" y="212" text-anchor="middle">SSH keys inside WireGuard</text>
+<circle r="5" fill="var(--accent)"><animateMotion dur="3s" repeatCount="indefinite" path="M360 186 H560"/></circle>
+</svg>
+<figcaption>Phones in, nightly copy out. The off-site leg is the dashed one.</figcaption></figure>
+
+<h2>Two apps, on purpose</h2>
+<p>For phone backup I run Immich and Nextcloud Photos (the Memories app) side by side. Photos are the one thing I cannot recreate, so I would rather have two working paths than trust one. It also lets me compare them. So far Immich is winning.</p>
+
+<div class="tabs">
+<section data-title="Immich">
+<p>Open-source, self-hosted, and a modern stand-in for Google Photos. Mobile backup can be set to Wi-Fi only and charging only, and the interface is a pleasure to use.</p>
+<p>The standout is the AI side. It uses my local AI stack and the server GPU for face and object recognition. I find its face recognition better and more accurate than Google Photos, and it groups faces and finds objects without fuss.</p>
+<p><a href="https://immich.app/">immich.app</a> · <a href="https://demo.immich.app/">live demo</a></p>
+</section>
+<section data-title="Nextcloud Photos">
+<p>Photos are one piece of Nextcloud, which also does file sync, calendar, contacts and document editing, like a self-hosted Dropbox or Google Drive. It has the same Wi-Fi and charging options for mobile backup, a big app ecosystem, and is wired to my AI stack and GPU for face and object recognition too.</p>
+<p><a href="https://nextcloud.com/">nextcloud.com</a> · <a href="https://try.nextcloud.com/">live demo</a></p>
+</section>
+</div>
+
+<p>Both sign in with Google OAuth, so nobody has to remember another password.</p>
+
+<h2>What is not great</h2>
+<div class="callout warn"><b>Honest costs</b>
+You need real technical knowledge to set this up and keep it running. Self-hosting carries a risk of data loss if you manage it badly; the backup layout above is how I cut that down. And a homelab will not match the uptime of a commercial provider.</div>
+<p>Next on my list is load balancing the services across several servers, mainly to improve uptime and responsiveness for Immich and Nextcloud.</p>
+<p>The effort up front is real. The payoff is storage with no ceiling, full control, and no monthly bill for my own photos.</p>

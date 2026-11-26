@@ -1,0 +1,71 @@
+<!--meta
+{"title":"Build Your Own Netflix","subtitle":"A return to the golden age of media ownership","date":"2025-11-02","summary":"A self-hosted request-to-playback pipeline with Ombi, the *Arr apps, qBittorrent, TrueNAS and Jellyfin, so you own your library instead of renting it.","category":"Homelab Foundations","series":"Homelab","tags":["self-hosted","homelab","jellyfin","arr-stack"],"cover":"img/f3a2d426df3b53f2e9241f3fbc98e53a.jpeg"}
+-->
+<div class="tldr"><h4>The short version</h4><p>Streaming promised one subscription and delivered a dozen, with shows that vanish overnight. A self-hosted stack turns a request into a finished, sorted, streamable file with no manual steps: Ombi, the *Arr apps, qBittorrent behind a VPN, TrueNAS and Jellyfin. You own the library, and you pick up Docker, sysadmin and networking skills on the way.</p></div>
+
+<p>Streaming services promised a single, simple replacement for cable. Today your shows are scattered across a dozen apps, each with its own subscription. A show's first season is on one service and new seasons are exclusive to another. Content can disappear without warning. You're paying, but you don't own anything. You're renting access.</p>
+<p>The alternative is owning your media like a DVD collection, with the convenience of streaming: total control, true ownership, a personal experience. Call it digital independence.</p>
+
+<h2>What you get</h2>
+<ul>
+<li><strong>Control and ownership.</strong> You decide what's in the library and it stays. No licensing agreements or deletions.</li>
+<li><strong>Convenience.</strong> Set it and forget it. No more searching, downloading and organizing by hand.</li>
+<li><strong>Skills.</strong> Docker, system administration (an old PC or a Raspberry Pi will do), networking and automation, all hands-on.</li>
+</ul>
+
+<h2>How a request travels</h2>
+<p>You or a family member asks for something to watch. The system searches, coordinates a secure and private download, sorts and renames the file into the right place, and tells you it's ready to stream on any device. Click a step below to see which tool does it.</p>
+
+<figure class="nf-fig">
+<style>
+.nf-fig svg{width:100%;background:var(--bg2)}
+.nf-fig .n{fill:var(--card);stroke:var(--line);stroke-width:1.5}
+.nf-fig g.nd{cursor:pointer}.nf-fig g.nd:hover .n,.nf-fig g.nd.on .n{stroke:var(--accent);stroke-width:3}
+.nf-fig text{fill:var(--fg);font:13px ui-sans-serif,system-ui,sans-serif;pointer-events:none}
+.nf-fig .lbl{fill:var(--mute);font-size:12px}
+.nf-fig .rt{stroke:var(--mute);stroke-width:2;fill:none;stroke-dasharray:4 5}
+.nf-fig .pk{fill:var(--accent)}
+#nf-info{margin:8px 0 0;padding:10px 14px;background:var(--card);border:1px solid var(--line);border-radius:var(--r);font-size:15px;min-height:3em}
+</style>
+<svg viewBox="0 0 760 270" role="img" aria-label="Pipeline: Ombi request, the Arr apps search via Prowlarr and Jackett, qBittorrent downloads, TrueNAS stores, Jellyfin serves, notifications go out and you watch.">
+<path id="nf-p" class="rt" d="M95 52H665V192H285"/>
+<g class="nd" data-k="ombi"><rect class="n" x="20" y="30" width="150" height="44" rx="8"/><text x="34" y="57">1. Ombi</text></g>
+<g class="nd" data-k="arr"><rect class="n" x="210" y="30" width="150" height="44" rx="8"/><text x="224" y="57">2. *Arr apps</text></g>
+<g class="nd" data-k="idx"><rect class="n" x="210" y="105" width="150" height="40" rx="8"/><text x="224" y="130">Prowlarr / Jackett</text></g>
+<path class="rt" d="M285 74V105"/>
+<g class="nd" data-k="qb"><rect class="n" x="400" y="30" width="150" height="44" rx="8"/><text x="414" y="57">3. qBittorrent</text></g>
+<g class="nd" data-k="nas"><rect class="n" x="590" y="30" width="150" height="44" rx="8"/><text x="604" y="57">4. TrueNAS</text></g>
+<g class="nd" data-k="jf"><rect class="n" x="590" y="170" width="150" height="44" rx="8"/><text x="604" y="197">5. Jellyfin</text></g>
+<g class="nd" data-k="note"><rect class="n" x="400" y="170" width="150" height="44" rx="8"/><text x="414" y="197">6. Notification</text></g>
+<g class="nd" data-k="you"><rect class="n" x="210" y="170" width="150" height="44" rx="8"/><text x="224" y="197">7. You, watching</text></g>
+<text class="lbl" x="20" y="250">The admin can approve requests and check on everything from the NZB 360 mobile app.</text>
+<circle class="pk" r="5"><animateMotion dur="8s" repeatCount="indefinite"><mpath href="#nf-p"/></animateMotion></circle>
+</svg>
+<div id="nf-info">Click a box.</div>
+<figcaption>From request to playback. Simplified from my full diagram.</figcaption>
+</figure>
+<script>
+(()=>{const I={ombi:"The public-facing portal. You and your family log in and request a movie or TV show. The admin checks and approves requests.",arr:"Radarr, Sonarr, Lidarr and Readarr: the brains. They search for, monitor and acquire movies, TV, music and books, and find the right version.",idx:"Prowlarr and Jackett act as indexers for the *Arr apps. They connect to various sources and help find the media.",qb:"A lightweight, powerful torrent client that does the downloading, running behind a Surfshark VPN.",nas:"All downloaded media is stored here. The single source of truth for the library.",jf:"The personal streaming server. An open-source alternative to Plex that streams to any device.",note:"Gotify or Discord pings your phone or computer when the content is ready, and Ombi sends an email.",you:"Request done. Open Jellyfin on any device and press play."};
+const box=document.getElementById('nf-info');document.querySelectorAll('.nf-fig g.nd').forEach(g=>g.onclick=()=>{document.querySelectorAll('.nf-fig g.nd').forEach(x=>x.classList.toggle('on',x===g));box.textContent=I[g.dataset.k]})})();
+</script>
+
+<details><summary>The tools, one line each</summary>
+<ul>
+<li><strong>Ombi:</strong> the request portal.</li>
+<li><strong>Radarr, Sonarr, Lidarr, Readarr:</strong> automatic search, monitoring and acquisition.</li>
+<li><strong>Prowlarr / Jackett:</strong> indexers for the *Arr apps.</li>
+<li><strong>qBittorrent:</strong> the downloader, with Surfshark VPN.</li>
+<li><strong>TrueNAS:</strong> storage, the single source of truth.</li>
+<li><strong>Jellyfin:</strong> streaming to any device.</li>
+<li><strong>Gotify / Discord / email:</strong> notifications.</li>
+<li><strong>NZB 360:</strong> mobile app for admins.</li>
+</ul>
+</details>
+
+<h2>What's next</h2>
+<p>A self-hosted system is yours to extend. Ideas on my list:</p>
+<ul>
+<li><strong>Transcode on the fly:</strong> a tool like Tdarr to convert files so they play smoothly on any device.</li>
+<li><strong>Automated backups:</strong> back up the whole library to the cloud.</li>
+<li><strong>Sharing:</strong> share your library privately and securely with friends and family.</li>
+</ul>

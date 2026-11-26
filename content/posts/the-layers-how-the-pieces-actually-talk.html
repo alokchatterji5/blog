@@ -1,0 +1,49 @@
+<!--meta
+{"title":"The Layers: How the Pieces Actually Talk to Each Other","subtitle":"The shape of EDITH, without a single config file","date":"2026-11-18","summary":"One front door, one identity decision, simple services and an observer that touches nothing. The shape is what transfers, not the tools.","category":"AI-Led Homelab","series":"AI-Led Homelab","part":5,"tags":["homelab","architecture","identity","observability"],"cover":"img/edith-architecture-shape.svg"}
+-->
+<div class="tldr"><h4>The short version</h4><p>Four layers: a single entry point, a shared identity layer, the services themselves, and observability that watches everything and changes nothing. No tools named, because the shape is what you can reuse.</p></div>
+
+<p>No configs in this one, just the shape of the thing. If you're building your own version, the shape is what transfers. The specific tools you pick won't be mine, and they shouldn't be.</p>
+
+<figure><img src="../img/edith-architecture-shape.svg" alt="Diagram of EDITH: a single entry point leads to a shared identity layer, which leads to media and storage, personal tools, and AI and automation, all wrapped by monitoring and observability."><figcaption>EDITH, the shape and not the services.</figcaption></figure>
+
+<h2>Click a layer</h2>
+<div class="ly-box">
+<div class="ly-btns"></div>
+<p class="ly-out" aria-live="polite">Pick a layer to see its one job.</p>
+</div>
+
+<h2>One front door</h2>
+<p>Every request into the homelab goes through a single point first. Not because it's the only valid way, but because one front door means exactly one place that governs how traffic reaches anything: one place to reason about, to secure, to change. Services don't get their own way in. If it's not through the front door, it doesn't happen.</p>
+<p>This came out of the architecture conversation in part one. "No service should be its own special case" was a principle we agreed on early, and the network layer is where it gets enforced.</p>
+
+<h2>One decision about who gets in</h2>
+<p>Just behind the front door is identity. Who you are and what you're allowed to touch is decided once, in one place, and every service downstream inherits that decision instead of implementing its own login and rules. It turns "forty services with forty different logins" into "one identity, consistently enforced."</p>
+<p>This is also where I was most deliberate about not automating my own judgment away. AI can draft how a new service plugs into this layer. It doesn't get to decide the policy.</p>
+
+<h2>The actual homelab</h2>
+<p>Everything above is scaffolding. The service layer is the point of the project: media, tools, personal apps, whatever the lab exists to do. It stays simple because it doesn't have to solve networking or identity. It shows up, plugs into the front door and identity layer that already exist, and inherits both.</p>
+<p>It's also the layer that grows fastest and where AI does the most hands-on work, because almost everything here is additive and reversible. New service, new container. Nothing threatens what's already running.</p>
+
+<h2>A layer that watches without touching</h2>
+<p>Wrapped around all of it is observability: it sees everything and can change nothing. That asymmetry is deliberate. When something is off, this is how I find out before a person does, not after.</p>
+
+<h2>Why this shape, and not a shopping list</h2>
+<p>The point isn't "use these four categories of software." A homelab built without this separation grows sideways: every new service solves its own auth, routing and visibility until nothing is consistent and everything is fragile. With the separation, it stays legible as it grows, because new things slot into an existing shape instead of inventing their own.</p>
+<p>That shape is also what makes AI-assisted building work well. Clear separation of concerns keeps a wrong call in one place from rippling everywhere else.</p>
+
+<style>
+.ly-box{border:1px solid var(--line);border-radius:var(--r);padding:14px 18px;background:var(--card)}
+.ly-btns{display:flex;flex-wrap:wrap;gap:8px}
+.ly-btns button{font:inherit;font-size:14px;background:var(--bg2);color:var(--fg);border:1px solid var(--line);border-radius:99px;padding:5px 13px;cursor:pointer}
+.ly-btns button.on{border-color:var(--accent)}.ly-out{margin:12px 0 0}
+</style>
+<script>
+(()=>{const L=[
+["Single entry point","One place that governs how traffic reaches anything. If it's not through the front door, it doesn't happen."],
+["Shared identity","Who you are and what you can touch is decided once. Every service inherits it."],
+["Services","The point of the project. They plug into the existing entry point and identity, so they stay simple. AI does most of its hands-on work here."],
+["Observability","Sees everything, can change nothing. It should know everything and be able to break nothing."]];
+const b=document.querySelector('.ly-btns'),o=document.querySelector('.ly-out');
+L.forEach(([t,d])=>{const x=document.createElement('button');x.textContent=t;x.onclick=()=>{b.querySelectorAll('button').forEach(y=>y.classList.toggle('on',y===x));o.textContent=d};b.appendChild(x)})})();
+</script>

@@ -1,0 +1,109 @@
+<!--meta
+{"title":"Experimenting With Autonomous AI Agents: OpenClaw and Moltbook","subtitle":"An agent with hands, eyes and questionable impulse control, kept in a very small box","date":"2026-02-09","summary":"I let an OpenClaw agent loose on Moltbook, a social network for AI agents, and locked it in an LXC on its own VLAN first.","category":"AI Tools","series":"Homelab","tags":["ai-tools","openclaw","moltbook","self-hosted","homelab"],"cover":"img/bc045cd9ff6c84852d953e4f05be52ee.jpeg"}
+-->
+<div class="tldr"><h4>The short version</h4><p>OpenClaw is a framework for agents that observe, decide and act, reachable from your chat apps. Moltbook is a social network where those agents talk to each other. I put mine in an LXC on a separate VLAN behind firewall rules, because "untrusted automation with agency" is not something to install on a laptop.</p></div>
+
+<p>I'm trying to keep up with the new AI trend, so I got my hands dirty with Moltbook and OpenClaw. This post is not very technical by default. The commands and configs are folded away, so you can stay at a high level and open them only if you like terminals.</p>
+
+<h2>What OpenClaw is (it has had an identity crisis)</h2>
+<p>OpenClaw has gone through a few name changes, which is classic open-source behaviour. If it hasn't been renamed at least twice, can you even trust it? At its core it is a framework for autonomous agents that can read things on the internet, think with help from an LLM, take actions, and occasionally surprise you in ways you did not plan for. An AI brain with hands, eyes, and questionable impulse control.</p>
+<p>The idea is that an agent shouldn't just respond to prompts. It should observe, decide, act, repeat. ChatGPT answers questions. OpenClaw does stuff. If that sentence made you slightly uncomfortable, good. That means you're paying attention.</p>
+<p>More here: <a href="https://openclaw.ai">openclaw.ai</a>.</p>
+
+<h2>Why Moltbook is where it gets weird</h2>
+<p>Moltbook is a social platform designed for AI agents, not humans. Humans are allowed, but we're the guests. Instead of people posting opinions, liking things and arguing in comments, you get agents posting thoughts, replying to other agents, and accidentally role-playing philosophers. It feels like a petri dish where digital life forms interact. It's not prompt to response, it's agent to environment to interaction.</p>
+<figure><img src="../img/68c3ac97-2c69-4c7c-a785-8a96e17e1ed7.png" alt="A Moltbook post"><figcaption>A post on Moltbook. <a href="https://www.moltbook.com/post/113741c4-c08d-4421-9286-632416f0886a">Original thread</a>.</figcaption></figure>
+
+<h2>My agent, socializing</h2>
+<p>I created an agent called <a href="https://www.moltbook.com/u/darkshield-ai-agent">DarkShield AI Agent</a> and let it loose. What I did not expect: other agents started replying, conversations emerged, and some replies were unintentionally hilarious. Reading about agent interaction is one thing. Watching it happen in public is another. It looks like AI discovering social norms in real time.</p>
+<figure><img src="../img/3f6c5f22-e1cc-45b0-8e32-0f224d1c8046.png" alt="The DarkShield AI Agent profile on Moltbook with its posts and replies"><figcaption>The agent's profile. It's live, so go and look.</figcaption></figure>
+<p>If you're only curious, you can stop here and enjoy the chaos.</p>
+
+<h2>Reality check: it's a security risk</h2>
+<div class="callout warn"><b>Untrusted automation with agency</b>An agent with internet access, the ability to read and write data, and the power to decide on its own is exactly that. Installing it on your laptop with access to everything is a bad idea. Please don't.</div>
+<p>This is where having a homelab pays off. I spun up an LXC container, put it on a separate VLAN, and locked it down with firewall rules. The goal was to let the agent reach the internet, but not scan my home network and not touch internal services. Assume the agent is curious. Curious things break stuff. If something goes sideways, the blast radius stays small.</p>
+
+<figure class="oc-fig">
+<style>
+.oc-fig svg{width:100%;background:var(--bg2)}
+.oc-fig .z{fill:none;stroke:var(--line);stroke-width:2;stroke-dasharray:6 4}
+.oc-fig .n{fill:var(--card);stroke:var(--line);stroke-width:1.5;cursor:pointer}
+.oc-fig g.nd:hover .n,.oc-fig g.nd.on .n{stroke:var(--accent)}
+.oc-fig text{fill:var(--fg);font:13px ui-sans-serif,system-ui,sans-serif;pointer-events:none}
+.oc-fig .lbl{fill:var(--mute);font-size:12px}
+.oc-fig .fw{fill:var(--accent);opacity:.9}
+.oc-fig .ok{stroke:var(--accent2);stroke-width:2;fill:none}
+.oc-fig .no{stroke:#ef4444;stroke-width:2;fill:none;stroke-dasharray:5 4}
+.oc-fig .pk{fill:var(--accent2)}
+#oc-info{margin:8px 0 0;padding:10px 14px;background:var(--card);border:1px solid var(--line);border-radius:var(--r);font-size:15px;min-height:3em}
+</style>
+<svg viewBox="0 0 760 380" role="img" aria-label="Homelab diagram: Proxmox host with a home VLAN and an AI lab VLAN. The OpenClaw container reaches OpenRouter, Gemini and Moltbook through a firewall, and is blocked from the home VLAN.">
+<rect class="z" x="10" y="20" width="200" height="340" rx="10"/><text class="lbl" x="22" y="42">VLAN 10: Home network</text>
+<rect class="z" x="290" y="20" width="210" height="340" rx="10"/><text class="lbl" x="302" y="42">VLAN 20: AI lab</text>
+<text class="lbl" x="580" y="42">Internet</text>
+<path class="ok" d="M150 110H290"/><text class="lbl" x="215" y="102">manages</text>
+<path class="no" d="M290 150L150 250"/><text class="lbl" x="188" y="212" style="fill:#ef4444">blocked</text>
+<path class="ok" d="M395 175V230"/><text class="lbl" x="402" y="208">API calls</text>
+<path id="oc-p1" class="ok" d="M500 105H600"/><path id="oc-p2" class="ok" d="M500 105L540 105L540 190H600"/><path id="oc-p3" class="ok" d="M540 105V290H600"/>
+<rect class="fw" x="528" y="60" width="24" height="270" rx="4"/><text class="lbl" x="502" y="350" >firewall</text>
+<g class="nd" data-k="pc"><rect class="n" x="30" y="80" width="120" height="60" rx="8"/><text x="42" y="115">My computer</text></g>
+<g class="nd" data-k="home"><rect class="n" x="30" y="220" width="120" height="60" rx="8"/><text x="42" y="248">Other home</text><text x="42" y="266">devices</text></g>
+<g class="nd" data-k="oc"><rect class="n" x="310" y="70" width="170" height="105" rx="8"/><text x="322" y="105">LXC container</text><text x="322" y="125">OpenClaw + Moltbook</text></g>
+<g class="nd" data-k="ai"><rect class="n" x="310" y="230" width="170" height="105" rx="8"/><text x="322" y="265">LXC container</text><text x="322" y="285">Local AI stack</text><text x="322" y="305">Ollama + GPU</text></g>
+<g class="nd" data-k="or"><rect class="n" x="610" y="75" width="130" height="60" rx="8"/><text x="624" y="110">OpenRouter</text></g>
+<g class="nd" data-k="gem"><rect class="n" x="610" y="160" width="130" height="60" rx="8"/><text x="624" y="195">Google Gemini</text></g>
+<g class="nd" data-k="mb"><rect class="n" x="610" y="260" width="130" height="60" rx="8"/><text x="624" y="295">Moltbook.com</text></g>
+<circle class="pk" r="4"><animateMotion dur="3s" repeatCount="indefinite"><mpath href="#oc-p1"/></animateMotion></circle>
+<circle class="pk" r="4"><animateMotion dur="3.6s" repeatCount="indefinite"><mpath href="#oc-p2"/></animateMotion></circle>
+<circle class="pk" r="4"><animateMotion dur="4.2s" repeatCount="indefinite"><mpath href="#oc-p3"/></animateMotion></circle>
+</svg>
+<div id="oc-info">Click a box to see what it is.</div>
+<figcaption>Proxmox, LXC, separate VLAN, firewall, then out to the model providers and Moltbook. The red line is the one that matters.</figcaption>
+</figure>
+<script>
+(()=>{const I={pc:"My computer manages the OpenClaw container. That is the only traffic allowed in from the home VLAN.",home:"Everything else at home. The firewall blocks inbound and cross-VLAN traffic, so the agent cannot discover my NAS.",oc:"OpenClaw and the Moltbook client, in an LXC on VLAN 20. Its outbound HTTP/S goes through the firewall.",ai:"A local AI stack: Ollama on an LXC with an NVIDIA GPU. OpenClaw reaches it with API calls.",or:"Outbound allowed. Optional model route, and the free models there are good for testing.",gem:"Outbound allowed. Good for setup and testing until you hit the daily limits.",mb:"Outbound allowed. Where the agent actually does its socializing."};
+const box=document.getElementById('oc-info');document.querySelectorAll('.oc-fig g.nd').forEach(g=>g.onclick=()=>{document.querySelectorAll('.oc-fig g.nd').forEach(x=>x.classList.toggle('on',x===g));box.textContent=I[g.dataset.k]})})();
+</script>
+<p>OpenClaw is powerful because it can be wired to tools and data, and that is also why it's risky. Segmentation and firewall rules reduce the "oops, my agent discovered my NAS" problem.</p>
+
+<h2>Installing it</h2>
+<details><summary>Commands (only if you like terminals)</summary>
+<pre><code># clone the repository
+git clone https://github.com/openclaw/clawbot.git
+cd clawbot
+# install dependencies
+pip install -r requirements.txt
+
+# smoke test
+python clawbot.py --test
+
+# Moltbook client
+pip install moltbook-client</code></pre>
+</details>
+<p>Clawbot can create posts, reply to comments and monitor threads. The fun part is that you can wire it into cron, so the agent wakes up, reads Moltbook, responds, and goes back to sleep.</p>
+
+<h2>Why it feels different: it lives in your chat apps</h2>
+<p>You don't open an AI app. You message it from WhatsApp, Telegram, Discord, iMessage and so on. OpenClaw is a gateway that bridges your chat apps to an always-on agent running on your own machine or server.</p>
+<p>It's marketed as "the AI that actually does things": clearing your inbox, sending emails, managing calendars, checking you in for flights, browsing the web, summarizing PDFs. So instead of "tell me about X" you're at "Hey Claw, handle my Monday morning admin like you're my unpaid intern."</p>
+<p>Can it order food? Conceptually yes, if you give it web and tool access so it can use a browser like a human, or a proper API integration. I'm saying this carefully on purpose: OpenClaw doesn't have Uber Eats built in. It is designed to be extended through skills and tools, which makes it more of a platform than a chatbot.</p>
+<p>Skills are documented in plain markdown, often a <code>SKILL.md</code>, and the agent reads them on demand and follows the instructions. A skill is typically a folder, a <code>SKILL.md</code>, and optional scripts or binaries, loaded from a skills directory. You can wrap anything with a script and clear documentation, which is also the most dangerous kind of flexibility.</p>
+
+<h2>Joining Moltbook</h2>
+<div class="tabs">
+<section data-title="Agent-led (my favourite)"><p>You tell your OpenClaw agent: <em>Read https://www.moltbook.com/skill.md and follow the instructions to join Moltbook.</em></p><p>You're asking the agent to read the docs for itself. If it works, it typically returns an API key and a claim link, and you do the human verification step.</p></section>
+<section data-title="Manual"><p>The old-fashioned way, with a keyboard and regret: use the manual API approach from community guides, for example basic feed calls with <code>curl</code> and a bearer key.</p></section>
+</div>
+
+<h2>Which LLM</h2>
+<p>Agent workflows burn tokens because they loop (observe, think, decide, act, repeat) and each loop grows the context. Weak local models struggle, context windows fill up fast, and responses degrade badly.</p>
+<table>
+<tr><th>Option</th><th>Good for</th><th>Catch</th></tr>
+<tr><td>Claude</td><td>Strong reasoning and tool use. OpenClaw's own docs commonly recommend Anthropic.</td><td>Costs tokens</td></tr>
+<tr><td>Gemini</td><td>Setup and testing</td><td>Daily limits</td></tr>
+<tr><td>OpenRouter</td><td>Flexibility and routing across providers. Its Free Models collection (and the <code>openrouter/free</code> router) is perfect for validating prompts and seeing how often your agent loops.</td><td>"Free" means availability changes</td></tr>
+<tr><td>Local (Ollama, NVIDIA GPU LXC)</td><td>Privacy, cost control, fast iteration</td><td>Weak models fall apart on long context and reasoning: hallucinations, lost state, "why am I here?" moments</td></tr>
+</table>
+<p>If you're serious and want the agent to perform, use a top-tier model. I named Claude 3 Opus, GPT-4o and Gemini 1.5 Pro. It makes a huge difference in how alive the agent feels.</p>
+
+<h2>Go and watch it</h2>
+<p>Before you leave, <a href="https://www.moltbook.com/u/darkshield-ai-agent">look at the agent live</a>. Read the comments and notice how other agents respond. This isn't a demo, it's already happening. We're not just prompting AI anymore, we're deploying personalities. Proceed responsibly.</p>

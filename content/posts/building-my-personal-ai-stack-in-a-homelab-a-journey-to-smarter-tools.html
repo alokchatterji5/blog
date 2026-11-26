@@ -1,0 +1,85 @@
+<!--meta
+{"title":"My Personal AI Stack in a Homelab","subtitle":"Ollama, OpenWeb-UI, LiteLLM and Stable Diffusion, wired into everything else","date":"2025-11-02","summary":"The local AI stack I run in my homelab: what each piece does, what plugs into it, and the modest GPU behind it.","category":"AI Tools","series":"Homelab","tags":["ai","homelab","ollama","litellm","self-hosted"],"cover":"img/59d8adddfdccafd5928702597462328e.jpeg"}
+-->
+<div class="tldr"><h4>The short version</h4><p>LiteLLM sits in the middle and routes every request, either to local models in Ollama or to cloud providers. Obsidian, VS Code, Nextcloud, Home Assistant and n8n all talk to it. A GTX 1660 Super does the local work.</p></div>
+
+<p>Most AI tools are cloud-locked and capped by usage. I wanted something private and local that I could shape, for brainstorming, coding, automation and organising my life. This is how it is put together. Click a box to see what it does.</p>
+
+<figure>
+<svg class="ai-svg" viewBox="0 0 780 410" role="img" aria-label="Architecture of the AI stack: tools feed LiteLLM, which routes to Ollama or cloud LLMs">
+<style>
+.ai-svg text{fill:var(--fg);font:13px ui-sans-serif,system-ui,sans-serif;pointer-events:none}
+.ai-svg .n rect{fill:var(--card);stroke:var(--line);stroke-width:1.5}.ai-svg .n{cursor:pointer;outline:none}
+.ai-svg .n:hover rect,.ai-svg .n:focus rect,.ai-svg .n.on rect{stroke:var(--accent);stroke-width:2.5}
+.ai-svg .core rect{fill:var(--bg2);stroke:var(--accent2)}
+.ai-svg .e{stroke:var(--mute);fill:none;stroke-width:1.4;stroke-dasharray:5 5;animation:ai-d 1.4s linear infinite}
+@keyframes ai-d{to{stroke-dashoffset:-10}}
+</style>
+<path class="e" d="M150 40 C240 40 240 160 320 160"/><path class="e" d="M150 100 C240 100 240 160 320 160"/><path class="e" d="M150 160 H320"/><path class="e" d="M150 220 C240 220 240 160 320 160"/><path class="e" d="M150 280 C240 280 240 160 320 160"/>
+<path class="e" d="M450 160 C525 160 525 50 600 50"/><path class="e" d="M450 160 C525 160 525 120 600 120"/><path class="e" d="M450 160 C525 160 525 190 600 190"/><path class="e" d="M450 160 C525 160 525 260 600 260"/>
+<path class="e" d="M80 350 V320 H385 V335"/><path class="e" d="M385 335 V185"/><path class="e" d="M450 360 H600"/>
+<g class="n" tabindex="0" data-k="obs"><rect x="10" y="20" width="140" height="40" rx="8"/><text x="80" y="45" text-anchor="middle">Obsidian</text></g>
+<g class="n" tabindex="0" data-k="vsc"><rect x="10" y="80" width="140" height="40" rx="8"/><text x="80" y="105" text-anchor="middle">VS Code</text></g>
+<g class="n" tabindex="0" data-k="nc"><rect x="10" y="140" width="140" height="40" rx="8"/><text x="80" y="165" text-anchor="middle">Nextcloud</text></g>
+<g class="n" tabindex="0" data-k="ha"><rect x="10" y="200" width="140" height="40" rx="8"/><text x="80" y="225" text-anchor="middle">Home Assistant</text></g>
+<g class="n" tabindex="0" data-k="n8n"><rect x="10" y="260" width="140" height="40" rx="8"/><text x="80" y="285" text-anchor="middle">n8n</text></g>
+<g class="n" tabindex="0" data-k="exp"><rect x="10" y="350" width="140" height="40" rx="8"/><text x="80" y="375" text-anchor="middle">Experiments</text></g>
+<g class="n core" tabindex="0" data-k="lite"><rect x="320" y="135" width="130" height="50" rx="10"/><text x="385" y="165" text-anchor="middle">LiteLLM</text></g>
+<g class="n core" tabindex="0" data-k="owu"><rect x="320" y="335" width="130" height="50" rx="10"/><text x="385" y="365" text-anchor="middle">OpenWeb-UI</text></g>
+<g class="n" tabindex="0" data-k="oll"><rect x="600" y="30" width="150" height="40" rx="8"/><text x="675" y="55" text-anchor="middle">Ollama</text></g>
+<g class="n" tabindex="0" data-k="oai"><rect x="600" y="100" width="150" height="40" rx="8"/><text x="675" y="125" text-anchor="middle">OpenAI</text></g>
+<g class="n" tabindex="0" data-k="gem"><rect x="600" y="170" width="150" height="40" rx="8"/><text x="675" y="195" text-anchor="middle">Gemini</text></g>
+<g class="n" tabindex="0" data-k="oth"><rect x="600" y="240" width="150" height="40" rx="8"/><text x="675" y="265" text-anchor="middle">Other providers</text></g>
+<g class="n" tabindex="0" data-k="sd"><rect x="600" y="340" width="150" height="40" rx="8"/><text x="675" y="365" text-anchor="middle">Stable Diffusion</text></g>
+</svg>
+<figcaption>Dashed lines are request paths. Not drawn: Experiments also hit Ollama directly, and n8n reads a Postgres pgvector database for RAG.</figcaption></figure>
+<div class="callout" id="ai-info"><b>Click a box</b>Each one says what it does in my setup.</div>
+
+<h2>The core four</h2>
+<ul>
+<li><b>Ollama</b> runs LLMs locally on my hardware. It is efficient and supports open models like LLaMA and Mistral.</li>
+<li><b>OpenWeb-UI</b> is the chat front end. It connects to Ollama or goes through LiteLLM. I like the clean design, the chat history and the plugins.</li>
+<li><b>LiteLLM</b> is the API orchestrator: key and quota management, routing between local and cloud models, and load balancing across models and endpoints. It handles multiple OpenAI and Gemini keys.</li>
+<li><b>Stable Diffusion</b> generates images from local models, wired into OpenWeb-UI for text-to-image, with nothing sent to the cloud.</li>
+</ul>
+
+<h2>What I use it for</h2>
+<ul>
+<li><b>Obsidian:</b> AI plugins for content, summaries and brainstorming in my notes.</li>
+<li><b>VS Code:</b> the Cline extension for code generation, debugging help and explanations. ChatGPT-style, but self-hosted.</li>
+<li><b>Nextcloud:</b> summarising documents, writing reports and generating slides, privately.</li>
+<li><b>Home Assistant:</b> talking to the house in natural language, like "Turn off all the lights and summarize today's news."</li>
+<li><b>n8n:</b> automated workflows such as auto-generated replies, email summaries and blog outlines from notes.</li>
+<li><b>Experiments:</b> a test bench for PDF summarisers, chatbots and creative writing tools, quickly and without limits.</li>
+</ul>
+
+<h2>The hardware</h2>
+<table>
+<tr><th>Component</th><th>Details</th></tr>
+<tr><td>GPU</td><td>NVIDIA GTX 1660 Super</td></tr>
+<tr><td>Host</td><td>Linux container (LXC/Docker)</td></tr>
+<tr><td>AI support</td><td>NVIDIA Docker + CUDA libraries</td></tr>
+<tr><td>Models</td><td>LLaMA, Mistral, OpenAI GPT, Gemini</td></tr>
+<tr><td>Image models</td><td>Stable Diffusion, SDXL, DreamShaper</td></tr>
+</table>
+<p>That is more than enough for most personal LLM and image work. You do not need enterprise GPUs, just some curiosity. Building this was one of the more empowering things I have done recently: full control, endless ways to tinker, and generative AI that stays private.</p>
+
+<script>
+(()=>{const I={
+obs:["Obsidian","AI plugins connect to LiteLLM to generate content, summaries and ideas for journaling and notes."],
+vsc:["VS Code","The Cline extension talks to LiteLLM for code generation, debugging help and explanations."],
+nc:["Nextcloud","Document summaries, reports and slides generated with AI help, on my own backend."],
+ha:["Home Assistant","Natural-language control of the house through LiteLLM."],
+n8n:["n8n","Automation workflows through LiteLLM. For RAG it also reads a Postgres pgvector database."],
+exp:["Experiments","Prototypes like PDF summarisers and chatbots, using OpenWeb-UI, LiteLLM and Ollama directly."],
+lite:["LiteLLM","Routes requests between Ollama and cloud providers, manages keys and quotas, and load-balances models and endpoints."],
+owu:["OpenWeb-UI","The chat interface. Goes through LiteLLM, and calls Stable Diffusion for images."],
+oll:["Ollama","Runs open models like LLaMA and Mistral locally on the GPU."],
+oai:["OpenAI","Cloud provider, reached through LiteLLM with multiple keys."],
+gem:["Gemini","Cloud provider, reached through LiteLLM with multiple keys."],
+oth:["Other providers","More cloud LLMs, reached through LiteLLM with multiple keys."],
+sd:["Stable Diffusion","Local image generation, driven from OpenWeb-UI."]};
+const box=document.getElementById('ai-info'),ns=[...document.querySelectorAll('.ai-svg .n')];
+const pick=n=>{ns.forEach(x=>x.classList.toggle('on',x===n));const [t,d]=I[n.dataset.k];box.innerHTML='<b></b><span></span>';box.firstChild.textContent=t;box.lastChild.textContent=d};
+ns.forEach(n=>{n.onclick=()=>pick(n);n.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();pick(n)}}});})();
+</script>

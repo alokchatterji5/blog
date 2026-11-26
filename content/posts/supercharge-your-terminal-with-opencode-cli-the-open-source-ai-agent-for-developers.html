@@ -1,0 +1,41 @@
+<!--meta
+{"title":"Supercharge Your Terminal with OpenCode CLI","subtitle":"An open-source AI coding agent that doesn't care whose model you use","date":"2025-11-09","summary":"OpenCode is an open-source terminal AI agent that works with cloud models, Groq or local Ollama, so you aren't locked to one vendor.","category":"AI Tools","series":"Homelab","tags":["opencode","ai-tools","genai","gemini","local-llm","self-hosted"],"cover":"img/3e41858a36d36d58430667796e4771f7.jpeg"}
+-->
+<div class="tldr"><h4>The short version</h4><p>OpenCode is an open-source coding agent for the terminal. It installs in a minute, works with Gemini, OpenAI, Anthropic, free Groq models or local Ollama, shows diffs before editing, and asks before touching the file system. I'm using it as my daily driver.</p></div>
+
+<p>AI assistants in the terminal are the new frontier, but many come with vendor lock-in: a specific set of models and a proprietary ecosystem. I wanted an agent that is open-source and model-agnostic, where I can use my favourite provider or my own local LLMs. That is what I found in OpenCode.</p>
+<div class="callout"><b>Docs</b><a href="https://opencode.ai/docs/">opencode.ai/docs</a></div>
+<figure><img src="../img/d394e62b-93b1-4024-b05b-cafd1dac791d.png" alt="The OpenCode CLI"><figcaption>OpenCode in the terminal.</figcaption></figure>
+<figure><img src="../img/38de29de-64bd-4412-a14b-67818186e477.gif" alt="OpenCode TUI session animation"></figure>
+
+<h2>Setup</h2>
+<p>It took a few minutes from install to a working agent.</p>
+<div class="tabs">
+<section data-title="1. Install"><p>One command downloads and runs the install script. It completed without any hitches for me.</p><pre><code>curl -fsSL https://opencode.ai/install | bash</code></pre></section>
+<section data-title="2. Authenticate"><p>This opens a browser window to log in or create an account.</p><pre><code>opencode auth login</code></pre></section>
+<section data-title="3. Init"><p>Go to your project directory, run <code>opencode</code>, then use <code>/init</code> inside the session. It scans the project, builds a context map and prepares the agent to work with awareness of the codebase.</p><pre><code>/init</code></pre></section>
+</div>
+
+<h2>Model freedom</h2>
+<p>This is where it sets itself apart. Being open source gives it a transparency that proprietary tools can't match, and it's provider-agnostic:</p>
+<ul>
+<li><strong>Cloud models:</strong> Gemini, OpenAI or Anthropic, using my existing API keys.</li>
+<li><strong>Local LLMs:</strong> I've been experimenting with Ollama and OpenCode connects to my local models seamlessly. Good for privacy, offline work and cost.</li>
+<li><strong>Fast free models:</strong> out of the box it is configured to use free Groq models, which are quick and responsive.</li>
+<li><strong>Any provider:</strong> I can switch models and providers as my needs change.</li>
+</ul>
+
+<h2>The Zen agent framework</h2>
+<p>It's more than a chat wrapper. The <a href="https://opencode.ai/docs/zen/">Zen agent framework</a> gives it tool use (reading and writing files, running commands), planning (I can see a step-by-step plan before it changes anything on complex tasks), and safety (it asks permission before modifying the file system).</p>
+
+<h2>Features I use daily</h2>
+<ul>
+<li><strong>Diff-first edits.</strong> Seeing the diff before it's applied is a big confidence boost.</li>
+<li><strong>TUI.</strong> The interactive terminal UI makes it easy to manage the conversation and review work.</li>
+<li><strong>Session persistence.</strong> Close the terminal, come back later, the session is still there.</li>
+<li><strong>LSP awareness.</strong> It uses my LSP for context-aware suggestions.</li>
+</ul>
+<p>The <a href="https://opencode.ai/docs/github/">GitHub integration</a> lets me review pull requests and get detailed analysis from the terminal, like a dedicated AI reviewer on the team.</p>
+
+<h2>What's next</h2>
+<p>I'm now looking at using its filesystem awareness to run multiple agent terminals on the same project: one planning a feature, a second writing the code, a third reviewing the output.</p>

@@ -1,0 +1,127 @@
+<p>Ever dreamt of having your own AI stack that you can control, tweak, and build upon — without relying entirely on cloud APIs? That's what I’ve done with my homelab. This post walks you through the components of my AI stack, how I use it across different tools, and hopefully inspires you to build your own.</p>
+<hr />
+<h2 id="heading-why-i-built-a-personal-ai-stack"><strong>🚀 Why I Built a Personal AI Stack</strong></h2>
+<p>In a world where most AI tools are cloud-locked and usage-limited, I wanted something private, flexible, and local — an AI assistant I could shape to my needs. Whether I'm brainstorming, coding, automating, or organizing my life — this stack powers it all.</p>
+<pre><code class="lang-mermaid">flowchart TD
+ subgraph subGraph0["Core AI Stack"]
+        Ollama["Ollama Local LLM Engine"]
+        OpenWeb["OpenWeb-UI Chat Interface"]
+        LiteLLM["LiteLLM API Manager (LLM request routing)"]
+        SD["Stable Diffusion Image Generator"]
+        n10["Postgres pgvector"]
+  end
+ subgraph subGraph1["Use cases"]
+        Obsidian["Obsidian - Note-taking with AI"]
+        VSCode["VS Code - AI Coding Assistant"]
+        Nextcloud["Nextcloud Smart Office Tools"]
+        HA["Home Assistant"]
+        n8n["n8n - Automated Workflows"]
+        Experiments["Learning - Testing AI Features"]
+  end
+ subgraph s1["Cloud LLMs"]
+        OpenAI["OpenAI"]
+        n9["Others"]
+        Gemini["Gemini"]
+  end
+    OpenWeb --&gt; LiteLLM
+    OpenWeb -- Image generation --&gt; SD
+    LiteLLM -- Multiple OpenAI keys --&gt; OpenAI
+    LiteLLM -- Multiple keys --&gt; n9
+    LiteLLM -- Multiple Gemini keys --&gt; Gemini
+    Obsidian --&gt; LiteLLM
+    VSCode --&gt; LiteLLM
+    Nextcloud --&gt; LiteLLM
+    HA --&gt; LiteLLM
+    n8n --&gt; LiteLLM
+    n8n -- for RAG --&gt; n10
+    Experiments --&gt; OpenWeb &amp; LiteLLM &amp; Ollama
+    LiteLLM -- for local LLM --&gt; Ollama
+    n10[(Database)]
+    OpenAI[[OpenAI]]
+    Gemini[[Gemini]]
+    n9[[Others]]
+    style Ollama fill:#729ef7
+    style OpenWeb fill:#729ef7
+    style LiteLLM fill:#729ef7
+    style subGraph0 fill:transparent
+</code></pre>
+<h2 id="heading-core-components-explained"><strong>🛠️ Core Components Explained</strong></h2>
+<h3 id="heading-ollama-local-llm-runner"><strong>🧠 Ollama – Local LLM Runner</strong></h3>
+<p>Ollama acts as the engine to run Large Language Models (LLMs) locally on my hardware. It's optimized, efficient, and supports multiple open-source models like LLaMA, Mistral, and more.</p>
+<h3 id="heading-openweb-ui-the-friendly-face"><strong>💬 OpenWeb-UI – The Friendly Face</strong></h3>
+<p>This is the user interface for chatting with LLMs. It connects to Ollama or routes through LiteLLM. I like it for its clean design, chat history, and plugin support.</p>
+<h3 id="heading-litellm-api-management-amp-routing"><strong>🔑 LiteLLM – API Management &amp; Routing</strong></h3>
+<p>This server is the smart API orchestrator. It allows:</p>
+<ul>
+<li><p>Key &amp; quota management</p>
+</li>
+<li><p>Routing requests between local (Ollama) and cloud providers (OpenAI, Gemini)</p>
+</li>
+<li><p>Load balancing between different models and endpoints</p>
+</li>
+</ul>
+<p>Perfect for managing API usage in a multi-service setup.</p>
+<h3 id="heading-stable-diffusion-ai-art-generator"><strong>🎨 Stable Diffusion – AI Art Generator</strong></h3>
+<p>Using local models, I can generate stunning AI images without sending data to the cloud. It integrates well with OpenWeb-UI for seamless text-to-image tasks.</p>
+<hr />
+<h2 id="heading-how-i-use-this-stack-daily"><strong>🧠 How I Use This Stack Daily</strong></h2>
+<h3 id="heading-obsidian-smart-note-taking"><strong>✍️ Obsidian – Smart Note-Taking</strong></h3>
+<p>With AI-powered plugins, Obsidian connects to my stack to generate content, summaries, and brainstorm ideas. It’s like having a creative co-pilot for journaling and knowledge management.</p>
+<h3 id="heading-vs-code-code-with-a-brain"><strong>💻 VS Code – Code with a Brain</strong></h3>
+<p>Using the <strong>Cline extension</strong>, my VSCode connects to the stack for code generation, debugging help, and explanations. It’s like ChatGPT, but self-hosted and customized for my workflows.</p>
+<h3 id="heading-nextcloud-office-but-smarter"><strong>🗂️ Nextcloud – Office, but Smarter</strong></h3>
+<p>Think Google Docs or MS Office with AI — powered by my own backend. Summarizing documents, writing reports, or generating slides with AI help — all done privately.</p>
+<h3 id="heading-home-assistant-my-smart-home-butler"><strong>🏠 Home Assistant – My Smart Home Butler</strong></h3>
+<p>By integrating with Home Assistant, I can interact with my home using natural language:</p>
+<blockquote>
+<p><em>“Hey Jarvis, how’s the weather?”<br />“Turn off all the lights and summarize today’s news.”</em></p>
+</blockquote>
+<h3 id="heading-n8n-automated-ai-workflows"><strong>🔄 n8n – Automated AI Workflows</strong></h3>
+<p>This no-code/low-code automation platform connects with my stack to run tasks like:</p>
+<ul>
+<li><p>Auto-generating replies</p>
+</li>
+<li><p>Summarizing emails</p>
+</li>
+<li><p>Creating blog outlines from notes</p>
+</li>
+</ul>
+<h3 id="heading-experiments"><strong>🧪 Experiments</strong></h3>
+<p>My AI lab wouldn't be complete without a test bench. I use my stack to prototype new AI use cases — like PDF summarizers, chatbots, or creative writing tools — quickly and without limits.</p>
+<hr />
+<h2 id="heading-hardware-software-stack"><strong>🧰 Hardware + Software Stack</strong></h2>
+<div class="hn-table">
+<table>
+<thead>
+<tr>
+<td><strong>Component</strong></td><td><strong>Details</strong></td></tr>
+</thead>
+<tbody>
+<tr>
+<td>GPU</td><td><strong>NVIDIA GTX 1660 Super</strong></td></tr>
+<tr>
+<td>Host</td><td>Linux container (LXC/Docker)</td></tr>
+<tr>
+<td>AI Support</td><td>NVIDIA Docker + CUDA libraries</td></tr>
+<tr>
+<td>Models</td><td>LLaMA, Mistral, OpenAI GPT, Gemini</td></tr>
+<tr>
+<td>Image Models</td><td>Stable Diffusion, SDXL, DreamShaper</td></tr>
+</tbody>
+</table>
+</div><p>This setup balances power and affordability — and is more than enough for most personal LLM and image generation tasks.</p>
+<hr />
+<h2 id="heading-final-thoughts"><strong>🌟 Final Thoughts</strong></h2>
+<p>Building my own AI stack was one of the most empowering things I’ve done in recent years. It gave me:</p>
+<ul>
+<li><p>Full control over AI tools</p>
+</li>
+<li><p>Endless ways to innovate</p>
+</li>
+<li><p>A privacy-first way to use generative AI</p>
+</li>
+</ul>
+<p>If you're into homelabs, automation, or just want to explore AI beyond APIs — this setup is a great place to start. And you don’t need enterprise GPUs to get started — just a bit of curiosity and tinkering spirit.</p>
+<hr />
+<h2 id="heading-inspired-to-build-your-own"><strong>💡 Inspired to Build Your Own?</strong></h2>
+<p>Feel free to copy this architecture, tweak it, or even ask me questions. Your personal AI assistant is just a homelab away.</p>

@@ -1,0 +1,28 @@
+<!--meta
+{"title":"What AI Got Wrong (And Why That's the Point)","subtitle":"The honest version of building a homelab with AI","date":"2026-11-19","summary":"AI got things wrong on this build more than once. Most of it was a documentation problem, and the rest is why I stay in the loop.","category":"AI-Led Homelab","series":"AI-Led Homelab","part":6,"tags":["ai","homelab","lessons","documentation"]}
+-->
+<div class="tldr"><h4>The short version</h4><p>Most AI mistakes on this build traced back to a decision that never made it into a document. The rest were confident wrong answers. Both are handled by a log, a catch-up pass, and me staying in command.</p></div>
+
+<p>If the first five posts made this sound like it always goes smoothly, that's on me, not the project. It doesn't. AI has gotten things wrong on this build more than once. I've come to think that's a normal cost of the approach, and worth talking about instead of editing out.</p>
+
+<h2>The two kinds of mistake</h2>
+<div class="tabs">
+<section data-title="Missing context">
+<p>Almost every real mistake traced back to one root cause: something got decided in one conversation and never made it into a document, so a later session, sometimes weeks later, sometimes a different model entirely, didn't know it existed. AI proposed something technically sound that quietly broke a principle we'd already agreed on. Not because it reasoned badly, but because the reasoning had nothing to check itself against.</p>
+<p>That's not really an AI problem. It's a documentation problem wearing an AI costume. It shows up faster and more often when AI does a lot of the day-to-day work, because the volume of decisions goes up.</p>
+</section>
+<section data-title="Overconfidence">
+<p>A plausible, well-explained, wrong answer, delivered in the same tone as a plausible, well-explained, right one. This is the kind that needs me specifically in the loop. AI is good at sounding sure. It's not always right to be.</p>
+<p>The job on my side isn't catching every mistake. It's knowing which categories of claim deserve a second look before they turn into an action, especially anything on the irreversible side of the <a href="../the-delegation-playbook/">delegation rule from part three</a>.</p>
+</section>
+</div>
+
+<h2>What I do differently now</h2>
+<p>Every real mistake goes into a log. Not fix-and-forget, an actual record of what happened and why. Not to keep score, but because the log is what breaks the pattern. A decision that got missed once because it wasn't written down gets written down after the first time it causes a problem, and doesn't cause that problem again.</p>
+<p>I've also gotten more deliberate about which sessions get a "catch me up" moment before real work starts: a quick pass through what's changed and been decided recently, instead of assuming the docs are always perfectly current. They're good. They're not infallible. Neither am I.</p>
+
+<h2>Why I still think this is the right way to build</h2>
+<p>None of this is an argument against building this way. It's an argument for building this way honestly. A solo homelab builder was never going to have a perfect project regardless of tooling. Time was always the constraint, and mistakes were always going to happen somewhere. What changed is that mistakes get caught earlier, logged instead of forgotten, and don't require me to personally remember every decision I've ever made about my own infrastructure.</p>
+<p>The owner still has to hold command. What's changed is what holding command costs day to day, and for a one-person project competing with a full-time job for attention, that is the entire point.</p>
+
+<div class="callout"><b>What's next</b>This closes the core arc of the series. EDITH Dispatch picks up as ongoing field notes, as milestones happen, not on a schedule.</div>

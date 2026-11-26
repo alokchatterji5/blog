@@ -1,0 +1,78 @@
+<p>Are you tired of subscription fees, limited storage, and compromises on photo quality from commercial cloud services? What if I told you that you could build your <strong>very own personal photo cloud</strong>, offering unlimited storage, full control, and advanced features, all while saving money? This blog post will take you through my journey of creating a robust and flexible self-hosted photo backup solution, designed to keep precious memories safe and accessible for my family and friends.</p>
+<h2 id="heading-why-build-a-personal-photo-backup-solution"><strong>Why Build a Personal Photo Backup Solution? 🤔</strong></h2>
+<p>In an era where every digital service seems to come with a recurring fee, the appeal of a self-hosted solution is stronger than ever. Here's why I decided to take the plunge:</p>
+<ul>
+<li><p><strong>Cost Savings &amp; Unlimited Storage:</strong> Commercial services like Google Photos and iCloud often come with storage limits, forcing you into expensive upgrades or compromising on photo quality. With my own setup, storage is virtually unlimited, and I pay no recurring fees.</p>
+</li>
+<li><p><strong>Full Control &amp; Customization:</strong> I have complete control over my data, privacy, and features. I can customize everything to my exact needs, something impossible with off-the-shelf solutions.</p>
+</li>
+<li><p><strong>Sharing with Loved Ones:</strong> My entire family and close friends can utilize this solution, each with their own secure access, ensuring everyone's memories are protected without individual subscription burdens.</p>
+</li>
+<li><p><strong>No More Subscription Models:</strong> This project is a step towards detaching from the ever-growing subscription economy. It's liberating to know my access to my own photos isn't dependent on monthly payments.</p>
+</li>
+<li><p><strong>Learning &amp; Growth:</strong> Beyond the practical benefits, building this system significantly boosted my knowledge and experience in self-hosting, server management, and network security.</p>
+</li>
+</ul>
+<h2 id="heading-my-robust-self-hosted-setup"><strong>My Robust Self-Hosted Setup 💻</strong></h2>
+<p>My personal photo cloud is powered by a resilient two-server setup, ensuring data redundancy.</p>
+<h3 id="heading-my-personal-photo-cloud-flow-diagram"><strong>My Personal Photo Cloud Flow Diagram</strong></h3>
+<p>Here's a visual representation of how my personal photo cloud operates:</p>
+<p><img src="https://raw.githubusercontent.com/alokchatterji5/drawio/refs/heads/main/render/photo-backup.svg" alt /></p>
+<h3 id="heading-storage-amp-backup-strategy"><strong>Storage &amp; Backup Strategy</strong></h3>
+<p>I have <strong>two TrueNAS servers</strong> located in different geographical locations, serving as the backbone of my storage solution. TrueNAS provides enterprise-grade storage management and data integrity.</p>
+<p>My backup strategy is designed for maximum safety and quick recovery:</p>
+<ol>
+<li><p><strong>Primary Dataset (RAID10):</strong> On my primary TrueNAS server, the main dataset for important data is configured as <strong>RAID10</strong>. This provides excellent performance and data redundancy against drive failures.</p>
+</li>
+<li><p><strong>Local Copy:</strong> I maintain a copy of all critical data within another local dataset on the primary server. This significantly speeds up local recoveries or data transfers, avoiding the need to pull data over the internet.</p>
+</li>
+<li><p><strong>Off-site Replication:</strong> Every night, a batch job securely replicates the important data to my secondary TrueNAS server. This off-site backup protects against localized disasters.</p>
+</li>
+<li><p><strong>Secure &amp; Encrypted Transfers:</strong> The connection between my two TrueNAS servers is secured using <strong>SSH keys</strong> within a <strong>WireGuard VPN tunnel</strong>, ensuring all data transfers are encrypted and protected.</p>
+</li>
+</ol>
+<h3 id="heading-photo-management-applications"><strong>Photo Management Applications</strong></h3>
+<p>For managing photos and videos on user phones, I'm currently using two applications: <strong>Immich</strong> and <strong>Nextcloud Photos (Memories App)</strong>. This dual-app approach allows me to experiment, compare features, and ensures I have a reliable backup strategy given the critical nature of personal memories. So far, Immich has been performing fantastically!</p>
+<h4 id="heading-immich-a-modern-photo-backup-solution"><strong>Immich: A Modern Photo Backup Solution 🌟</strong></h4>
+<p><strong>Immich</strong> is an open-source, self-hosted photo and video backup solution designed to be a modern alternative to Google Photos. It's rapidly evolving and offers a sleek interface with powerful features.</p>
+<p><strong>What stands out for Immich:</strong></p>
+<ul>
+<li><p><strong>Amazing AI-Powered Features:</strong> This is where Immich truly shines. It integrates with my local AI stack, leveraging my server's GPU to perform incredible facial and object recognition. Honestly, the results have been phenomenal—I find its facial recognition to be <strong>even better and more accurate than Google Photos</strong>. It effortlessly groups faces and recognizes objects, making searching for specific moments a breeze.</p>
+</li>
+<li><p><strong>Seamless Mobile Backup:</strong> Offers automatic backup of photos and videos from mobile devices with smart options like "backup only on Wi-Fi" and "only when charging."</p>
+</li>
+<li><p><strong>Modern UI/UX:</strong> Provides a beautiful and intuitive user interface for browsing, searching, and managing your media.</p>
+</li>
+</ul>
+<p>Immich home: <a target="_blank" href="https://immich.app/?ref=ghost.darkshield.co.in">https://immich.app/</a><br />Try out a Demo for immich: <a target="_blank" href="https://demo.immich.app/?ref=ghost.darkshield.co.in">https://demo.immich.app/</a></p>
+<h4 id="heading-nextcloud-photos-your-all-in-one-cloud-suite"><strong>Nextcloud Photos: Your All-in-One Cloud Suite ☁️</strong></h4>
+<p><strong>Nextcloud</strong> is a powerful, open-source content collaboration platform that allows you to host your own cloud storage, similar to Dropbox or Google Drive. <strong>Nextcloud Photos</strong> is a component within this suite, offering robust photo management capabilities.</p>
+<p><strong>Relevant Features within my setup:</strong></p>
+<ul>
+<li><p><strong>Comprehensive Cloud Solution:</strong> Beyond photos, Nextcloud offers file syncing, calendar, contacts, and document editing, making it a versatile personal cloud.</p>
+</li>
+<li><p><strong>Mobile Backup:</strong> Like Immich, Nextcloud Photos provides reliable mobile backup features, including options for Wi-Fi and charging conditions.</p>
+</li>
+<li><p><strong>Extensibility:</strong> Nextcloud boasts a vast app ecosystem, allowing for integration with various tools and services.</p>
+</li>
+<li><p><strong>AI Integration:</strong> Configured to leverage my AI stack and GPU for facial and object recognition, providing smart organizational features.</p>
+</li>
+</ul>
+<p>Nextcloud home: <a target="_blank" href="https://nextcloud.com/?ref=ghost.darkshield.co.in">https://nextcloud.com/</a><br />Try out a demo for Nextcloud: <a target="_blank" href="https://try.nextcloud.com/?ref=ghost.darkshield.co.in">https://try.nextcloud.com/</a></p>
+<h3 id="heading-single-sign-on-with-google-oauth"><strong>Single Sign-On with Google OAuth</strong></h3>
+<p>To make the user experience as smooth as possible, I've configured <strong>OAuth with Google authentication</strong> for both Immich and Nextcloud Photos. This means users can simply use their existing Google accounts to sign in, eliminating the need to remember yet another set of usernames and passwords. It's super convenient!</p>
+<h2 id="heading-shortcomings-amp-whats-next"><strong>Shortcomings &amp; What's Next 🚧</strong></h2>
+<p>While building a personal photo cloud offers immense benefits, it's important to acknowledge potential drawbacks:</p>
+<ul>
+<li><p><strong>Technical Expertise:</strong> It requires a certain level of technical knowledge to set up and maintain.</p>
+</li>
+<li><p><strong>Data Loss Risk:</strong> Although mitigated by my robust backup strategy, self-hosting inherently carries the risk of data loss if not properly managed.</p>
+</li>
+<li><p><strong>Uptime:</strong> Achieving 100% uptime can be challenging for a home lab setup, unlike commercial providers with dedicated infrastructure.</p>
+</li>
+</ul>
+<h3 id="heading-whats-in-the-pipeline"><strong>What's in the Pipeline?</strong></h3>
+<p>I'm constantly looking to improve my setup. My next major project is to explore how I can <strong>extend this solution to load balance the services between multiple servers</strong>. This will significantly improve the uptime and responsiveness of Immich and Nextcloud, making the personal photo cloud even more reliable and seamless for all users.</p>
+<h2 id="heading-conclusion"><strong>Conclusion 🎉</strong></h2>
+<p>Building my own personal photo cloud has been an incredibly rewarding experience. It's a testament to the power of self-hosting and the freedom it offers from proprietary, subscription-based services. While it requires an initial investment of time and effort, the long-term benefits of unlimited storage, full control, and digital independence are invaluable.</p>
+<p>I hope this detailed walkthrough inspires you to consider building your own personal photo cloud. It's easier than you might think, and the sense of accomplishment (and savings!) is truly fantastic!</p>

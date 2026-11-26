@@ -1,0 +1,28 @@
+<p>In this blog post, I want to share with you how I implemented a site-to-site WireGuard tunnel for my homelab, which is influenced by Marvel. WireGuard is a modern and secure VPN protocol that allows me to create a private and encrypted network between two servers. TrueNAS is a powerful and reliable NAS (Network Attached Storage) system that allows me to store and backup my data. Replication tasks are a feature of TrueNAS that enables me to sync my data from one server to another.</p>
+<p><img src="https://raw.githubusercontent.com/alokchatterji5/drawio/994077d0fad788bbb58cf253055ae077d2d934d9/render/darkshieldtopologyv2-WireGuardTunnel.drawio.svg" alt class="image--center mx-auto" /></p>
+<p>The main reason why I needed to implement a site-to-site WireGuard tunnel for TrueNAS replication tasks is because I have two servers in different locations, and I want to keep them in sync. One server is my primary server, which is located at my home. The other server is my secondary server, which is located at my friend's house. I use the primary server for my daily activities, such as media streaming, file sharing, and web hosting. I use the secondary server as a backup, in case something happens to my primary server.</p>
+<p>However, to sync my data from the primary server to the secondary server, I need to have a network connection between them. The problem is that both servers have dynamic public IP addresses, which means that they change frequently and unpredictably. This makes it hard to establish a direct connection between them. Moreover, I don't want to expose my servers to the public internet, as that would compromise their security and privacy.</p>
+<p>That's where WireGuard comes in. WireGuard allows me to create a secure and stable network tunnel between my two servers, regardless of their dynamic public IP addresses. WireGuard uses public-key cryptography to authenticate and encrypt the traffic between the servers. WireGuard also uses a lightweight and simple design, which makes it fast and easy to set up and maintain.</p>
+<p>To implement a site-to-site WireGuard tunnel for TrueNAS replication tasks, I followed these steps:</p>
+<ol>
+<li><p>Install WireGuard on both pfSense routers. I used the WireGuard package from the Package Manager on the pfSense web interface.</p>
+</li>
+<li><p>Generate WireGuard keys on both pfSense routers. I used the WireGuard tab on the pfSense web interface to generate a private key and a public key for each router. I copied the public keys and exchanged them between the routers.</p>
+</li>
+<li><p>Configure WireGuard on both pfSense routers. I created a WireGuard tunnel on each router, specifying the interface name, the listening port, the private key, the peer public key, the peer endpoint, and the allowed IPs. I also enabled WireGuard on each router and applied the changes.</p>
+</li>
+<li><p>Configure the WireGuard interface on both pfSense routers. I assigned the WireGuard tunnel to an interface on each router, enabled the interface, and set the IPv4 configuration type to Static IPv4. I assigned an IP address from the same subnet to each interface, and set the MTU as 1420.</p>
+</li>
+<li><p>Configure the firewall rules on both pfSense routers. I added a firewall rule on the WAN interface of each router to allow UDP traffic to the WireGuard port. I also added a firewall rule on the WireGuard interface of each router to allow any traffic from the WireGuard peers.</p>
+</li>
+<li><p>Configure TrueNAS on both servers. I logged into the TrueNAS web interface on each server, and created a dataset for the data that I want to sync. I also created a user account and a SSH key pair for the replication tasks. I added the SSH public key to the authorized keys file on the destination server, and enabled SSH service on both servers.</p>
+</li>
+<li><p>Configure the static routes on both TrueNAS servers. I logged into the TrueNAS web interface on each server, and added a static route for the WireGuard subnet. I entered the destination IP address and CIDR mask, and the gateway IP address of the WireGuard interface on the pfSense router.</p>
+</li>
+<li><p>Create a replication task on the source server. I logged into the TrueNAS web interface on the source server, and created a replication task. I specified the source dataset, the destination server, the destination dataset, the SSH key pair, and the replication schedule. I also enabled the "Replicate over SSH (BETA)" option, which allows me to use the WireGuard tunnel as the replication network.</p>
+</li>
+<li><p>Run the replication task on the source server. I clicked on the "Run Now" button to start the replication task. I monitored the progress and the status of the task on the TrueNAS web interface. I verified that the data was synced from the source server to the destination server.</p>
+</li>
+</ol>
+<p>That's how I implemented a site-to-site WireGuard tunnel for TrueNAS replication tasks. This setup allows me to sync my data from my primary server to my secondary server securely and efficiently, without relying on the public internet or static IP addresses. It also gives me peace of mind, knowing that I have a backup of my data in case of any disaster.</p>
+<p>I hope you enjoyed reading this blog post, and learned something from it. If you have any questions or feedback, please feel free to leave a comment below. Thank you for reading. 😊</p>

@@ -1,0 +1,60 @@
+<p>In the last post, <a href="https://read.darkshield.co.in/a-crew-of-ai-agents-runs-my-homelab">A Crew of AI Agents Runs My Homelab</a>, I introduced the crew that runs my homelab. Five agents, each with a job, all behind one chat. If you haven't read it, that's the best place to start, because this one picks up right where it left off.</p>
+<p>There was one thing I couldn't get over once they were running. I had no idea what they were actually doing.</p>
+<p>I'd send a message, wait a few seconds and get an answer. Somewhere in between, one agent had passed work to another, maybe a model had been swapped because the first choice was out of credit, and a few things had been checked. All of it was invisible. I was trusting a black box that happened to be well behaved.</p>
+<p>So I built a window into it. It's a small animated page, set in a Tony Stark style workshop, where each agent is a character and you can watch the hand-offs happen.</p>
+<img src="https://cdn.hashnode.com/uploads/covers/68c6b680e7ef1589202a4cab/43cfbec1-8ee6-43d9-843a-710ce55a4228.gif" alt="" style="display:block;margin:0 auto" />
+
+<p>It's not a serious monitoring tool. It's a toy that happens to answer a real question, and building it was some of the most fun I've had on this project.</p>
+<h2><strong>What you actually see</strong></h2>
+<p>Each agent has its own pod in the workshop with a name tag and the model it's running right now. The model comes from the data, not from a label I typed in, so if an agent quietly falls back to a different one, the tag changes and a small chip shows up to say so.</p>
+<p>When I send a request, the director picks it up and walks it over to a holographic table in the middle of the room. The specialist who owns the job steps up, does the work, and passes the result back. A glowing reactor in the corner pulses with the overall activity.</p>
+<p>There's a list of events down the side. Click one and it replays what happened: who talked to whom, in what order, how long each step took.</p>
+<h2><strong>Making milliseconds visible</strong></h2>
+<p>Here's the part I like most. A hand-off between two agents often takes a few milliseconds. On a real timeline that's a blink you'd never see.</p>
+<p>So the page cheats, on purpose. When a hand-off is very fast, it stretches the moment so you can actually watch it, and it shows the real number next to it so it's honest about what happened. A 40 ms hand-off gets a couple of seconds on screen with "real time: 40 ms" in the corner.</p>
+<p>It sounds like a small thing, but it's what turns a log into something you want to watch.</p>
+<h2><strong>Why it costs nothing to run</strong></h2>
+<p>The picture is built from data the agents already leave behind: a log of what each model call cost, a list of conversations, and the history of scheduled jobs. The page reads those files, works out what happened and draws it.</p>
+<p>That's it. There is no model in the loop.</p>
+<ul>
+<li><p>It never calls a language model, so there are no tokens to pay for.</p>
+</li>
+<li><p>It never sees the text of your messages, only that a call happened, when, how long it took and which model served it.</p>
+</li>
+<li><p>It's read-only. It can't change anything, and it can't send anything.</p>
+</li>
+<li><p>It only does any work while somebody has the page open. Close the tab and it goes back to sleep, so it isn't using resources when nobody is watching.</p>
+</li>
+</ul>
+<p>If you're careful about what your agents are allowed to do, you'll appreciate that the thing watching them has even fewer permissions than they do.</p>
+<h2><strong>Where the idea came from</strong></h2>
+<p>I didn't start from a blank page. Two open source projects got me thinking about this in the first place:</p>
+<ul>
+<li><p><strong>The Delegation</strong> by arturitu (<a href="https://github.com/arturitu/the-delegation">github.com/arturitu/the-delegation</a>), a lovely visual take on agents handing work to each other.</p>
+</li>
+<li><p><strong>Claw3D</strong> by iamlukethedev (<a href="https://github.com/iamlukethedev/claw3d">github.com/iamlukethedev/claw3d</a>), which puts a fleet of agents in a 3D space.</p>
+</li>
+</ul>
+<p>Both are great, and the inspiration is theirs. If you want something richer than what I built, start there.</p>
+<p>I decided to write my own for a few plain reasons. I didn't want something that needed its own model key, because the whole point was a view that costs nothing and can't run up a bill. I wanted a very small footprint: a single tiny container with no dependencies, instead of a larger stack to maintain. And since my agents already write down everything the page needs, there was nothing to wire in except reading those files.</p>
+<h2><strong>How it got built</strong></h2>
+<p>I vibe coded it with Claude Code, in conversation, over a couple of sittings. I described the feel I wanted ("cartoon characters moving around, like a game, with Tony Stark's workshop"), looked at it, said what was wrong, and kept going.</p>
+<p>The part I'm most glad I did properly was the boring part. Before it went anywhere near my real agents I had it write tests that prove the page can't write to anything, can't see message text and can't reach a model. It's the kind of thing that's easy to skip when you're having fun, and it's the reason I'm comfortable leaving it running.</p>
+<p>It sits behind the same login as everything else in my lab, so it's not exposed to the internet.</p>
+<h2><strong>Build your own</strong></h2>
+<p>You don't need my version. The recipe is simple and it works for almost any agent setup:</p>
+<ol>
+<li><p><strong>Find the trail your agents already leave.</strong> Most harnesses keep a cost log, a session list or a job history. That's your event feed.</p>
+</li>
+<li><p><strong>Turn calls into events.</strong> A burst of calls from one agent, then another agent a moment later, is a hand-off. You don't need anything smarter than timestamps and agent names.</p>
+</li>
+<li><p><strong>Keep it read-only and free.</strong> Read files, never call a model, never show message text. Only poll while someone is watching.</p>
+</li>
+<li><p><strong>Make it yours.</strong> Mine is a workshop with armor pods and a holo table. Yours could be a train station, a kitchen, a spaceship, a tiny office with a coffee machine. The theme is the fun part, and a mood is far easier to enjoy than a table of numbers.</p>
+</li>
+</ol>
+<p>Tell your coding assistant what the scene should feel like, point it at the files, and iterate until it makes you smile.</p>
+<h2><strong>What I'd say after living with it</strong></h2>
+<p>I expected a gimmick. What I got was a much better sense of how the crew behaves. I can see at a glance when one agent is carrying most of the work, when a fallback model has taken over, and when a request that I thought was simple turned out to need three hand-offs.</p>
+<p>And it's just nice to look at. Watching a tiny armored character carry a task across a workshop floor beats reading a log, even if the log would have told me the same thing.</p>
+<p>If you've built a view like this for your own agents, I'd love to see it.</p>

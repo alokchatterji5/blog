@@ -1,0 +1,13 @@
+{
+  "title": "Darkshield",
+  "brand": "dark<b>shield</b>",
+  "heroTitle": "Notes from a homelab dungeon, and the AI agents that run it",
+  "tagline": "An enterprise integration architect writes about homelabs, self-hosting and AI agents. The wins, the failures, and the 3 AM fixes.",
+  "author": "Alok Chatterji",
+  "baseUrl": "https://blog.darkshield.co.in",
+  "links": [
+    { "label": "GitHub", "url": "https://github.com/alokchatterji5" },
+    { "label": "LinkedIn", "url": "https://www.linkedin.com/in/alok-chatterji" }
+  ],
+  "redirects": {}
+}

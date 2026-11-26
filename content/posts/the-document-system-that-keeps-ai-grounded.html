@@ -1,0 +1,72 @@
+<!--meta
+{"title":"The Document System That Keeps AI Grounded","date":"2026-07-19","summary":"One notes file fell apart, so I split the project into numbered topic folders and gave every AI session a file to read first. Click through the layout.","category":"AI-Led Homelab","series":"AI-Led Homelab","part":2,"tags":["homelab","ai","documentation"],"cover":"img/48e99f99-c951-4c9e-8462-73b191ff8f73.jpg"}
+-->
+<div class="tldr"><h4>The short version</h4><p>A chat window isn't where project state lives, so I moved it into docs: numbered folders split by topic, a few repeating document types, and one set of files every AI reads before touching anything.</p></div>
+
+<p>A couple of weeks into working with AI on this project I kept hitting the same wall. I'd explain a decision, a reason or a constraint in one session and by the next it was gone. Not because the AI forgot on purpose. A chat window just isn't where project state lives. It's a conversation, and then it ends.</p>
+<p>The fix wasn't a smarter prompt. It was documentation, treated as part of the project itself instead of something I'd get to later.</p>
+
+<h2>One big notes file didn't hold up</h2>
+<p>I started with a single running doc, everything in one place. It broke down fast. A file mixing "why I chose this identity provider" with "what's currently broken" and "step three of a migration" isn't useful to me skimming it, and it isn't useful to an AI trying to get oriented for one task. Everything is in there, so nothing is findable.</p>
+
+<h2>Splitting by topic, not by date</h2>
+<p>I organised by concern instead of by when something was written. Each folder covers one topic and makes sense without the others. Click around:</p>
+
+<div class="ds" id="ds">
+<div class="ds-tree" role="list"></div>
+<div class="ds-info" aria-live="polite"><b>Pick a folder</b><p>Each one has a single job. The numbers enforce order: you can't reasonably start on implementation before strategy exists, and a folder sitting there at 06 is a constant reminder.</p></div>
+</div>
+<style>
+.ds{display:grid;grid-template-columns:minmax(200px,1fr) 1.4fr;gap:14px;margin:1.4em 0}
+@media(max-width:640px){.ds{grid-template-columns:1fr}}
+.ds-tree{background:var(--code);border:1px solid var(--line);border-radius:var(--r);padding:10px;font:14px/1.5 ui-monospace,Consolas,monospace}
+.ds-tree button{display:block;width:100%;text-align:left;background:none;border:0;color:var(--fg);font:inherit;padding:3px 8px;border-radius:6px;cursor:pointer}
+.ds-tree button:hover{background:var(--card)}.ds-tree button.on{background:var(--card);color:var(--accent);outline:1px solid var(--accent)}
+.ds-info{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:var(--r);padding:12px 18px}
+.ds-info p{margin:.4em 0 0}
+</style>
+<script>
+(()=>{
+const T=[
+["AGENTS.md, CLAUDE.md, GEMINI.md","Read first, every session, regardless of which model shows up. One is model-agnostic; the others hold quirks for each model."],
+["01-strategy","The why, and the lines that don't move. Master doc, decision log, principles."],
+["02-infrastructure","The physical and virtual shape of things: master doc, capacity notes, host inventory."],
+["03-standards","The conventions every new service has to follow, so nothing feels bolted on. Naming conventions, deployment checklist."],
+["04-networking","How traffic, identity and monitoring flow between everything. Networking, identity and access, observability."],
+["05-migration","The bridge from old to new: a guide, a progress tracker, lessons learned and a running log of what broke."],
+["06-implementation","One folder per service, holding the actual build notes and config decisions."],
+["07-automation","What runs on its own (scripts) and the procedures for when something needs a human (runbooks)."]];
+const tree=document.querySelector('#ds .ds-tree'),info=document.querySelector('#ds .ds-info');
+T.forEach(([n,d])=>{const b=document.createElement('button');b.textContent=n;
+b.onclick=()=>{tree.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));info.innerHTML='<b></b><p></p>';info.firstChild.textContent=n;info.lastChild.textContent=d};tree.appendChild(b)});
+})();
+</script>
+
+<p>Within each folder the same few document types repeat:</p>
+<ul>
+<li>A <b>master doc</b>: the settled reasoning for that topic. Changes rarely, and only with real justification.</li>
+<li>A <b>tracker</b>: what's done, in progress, blocked. Updated constantly, more disposable in spirit even though I keep the history.</li>
+<li>A <b>log</b>: not a tracker but a record of decisions and mistakes. It answers "why did we do it this way" and "what went wrong last time" without anyone having to remember.</li>
+</ul>
+<details><summary>The full tree, if you want it</summary>
+<pre><code>project/
+|-- AGENTS.md
+|-- CLAUDE.md
+|-- GEMINI.md
+|-- 01-strategy/        strategy-master.md, decision-log.md, principles.md
+|-- 02-infrastructure/  infra-master.md, capacity-notes.md, host-inventory.md
+|-- 03-standards/       standards-master.md, naming-conventions.md, deployment-checklist.md
+|-- 04-networking/      networking-master.md, identity-and-access.md, observability-master.md
+|-- 05-migration/       migration-guide.md, progress-tracker.md, lessons-learned.md, operations-gotchas-log.md
+|-- 06-implementation/  service-a/ (notes.md, config-decisions.md), service-b/, service-c/
+|-- 07-automation/      automation-guide.md, scripts/, runbooks/</code></pre></details>
+
+<h2>The files every AI reads first</h2>
+<p>At the root are a few files that aren't about the homelab itself. They're about how to work on it. One is model-agnostic: rules of engagement, what's settled and shouldn't be re-litigated, what to ask before touching something. On top of that each model has its own short file with quirks specific to it, such as how Claude should approach a session versus how Gemini should. Same rules, small adjustments for how each one actually behaves.</p>
+<p>Every session, whichever model shows up, reads these first. It's the context I never have to repeat.</p>
+
+<h2>What it gets me</h2>
+<p>Mostly speed. A new session doesn't start with me re-explaining history. It reads the relevant docs and it's oriented in minutes, instead of relitigating decisions from memory, mine or its.</p>
+<p>The bigger win is consistency. Nobody remembers every decision correctly after enough time, me included. The project's memory no longer depends on my memory or on any one session getting it right. It depends on the docs staying current, and keeping them current is something AI now handles, since that's exactly the upkeep that used to get skipped.</p>
+<div class="callout tip"><b>If you copy this</b>The folder names don't matter. The separation does: one topic per space, a clear order, and one file that tells whoever (or whatever) shows up how to operate before they touch anything.</div>
+<p>Next up: what gets a long leash versus a short one, and how that line holds up in practice.</p>

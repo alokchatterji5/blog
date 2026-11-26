@@ -1,0 +1,196 @@
+[
+ {
+  "slug": "i-built-a-little-workshop-to-watch-my-ai-agents-work",
+  "title": "I Built a Little Workshop to Watch My AI Agents Work",
+  "link": "https://read.darkshield.co.in/i-built-a-little-workshop-to-watch-my-ai-agents-work",
+  "date": "Mon, 12 Oct 2026 15:25:30 GMT",
+  "cats": [
+   "ai agents",
+   "AI",
+   "self-hosted",
+   "Homelab"
+  ],
+  "cover": "https://cdn.hashnode.com/uploads/covers/68c6b680e7ef1589202a4cab/bc63fa8c-d898-4e7a-83d0-42639f014808.png",
+  "desc": "A free, vibe-coded Stark workshop that shows your AI agents handing off work live. No LLM tokens, read-only, and easy to build yourself.",
+  "chars": 7133
+ },
+ {
+  "slug": "a-crew-of-ai-agents-runs-my-homelab",
+  "title": "A Crew of AI Agents Runs My Homelab",
+  "link": "https://read.darkshield.co.in/a-crew-of-ai-agents-runs-my-homelab",
+  "date": "Sun, 04 Oct 2026 22:10:02 GMT",
+  "cats": [
+   "AI",
+   "ai agents",
+   "Homelab",
+   "self-hosted"
+  ],
+  "cover": "https://cdn.hashnode.com/uploads/covers/68c6b680e7ef1589202a4cab/1c22c045-0a4c-4267-ab97-ebc594a0999d.svg",
+  "desc": "A Crew of AI Agents Runs My Homelab. Running multi agent. AI Agent calling other agent. A swarm of agents.",
+  "chars": 16728
+ },
+ {
+  "slug": "the-document-system-that-keeps-ai-grounded",
+  "title": "The Document System That Keeps AI Grounded",
+  "link": "https://read.darkshield.co.in/the-document-system-that-keeps-ai-grounded",
+  "date": "Sun, 19 Jul 2026 17:41:11 GMT",
+  "cats": [],
+  "cover": "https://cdn.hashnode.com/uploads/covers/68c6b680e7ef1589202a4cab/48e99f99-c951-4c9e-8462-73b191ff8f73.jpg",
+  "desc": "Part 2 of the AI-Led Homelab series",
+  "chars": 5416
+ },
+ {
+  "slug": "the-conversation-before-the-build-aligning-with-ai-on-architecture",
+  "title": "The Conversation Before the Build: Aligning With AI on Architecture",
+  "link": "https://read.darkshield.co.in/the-conversation-before-the-build-aligning-with-ai-on-architecture",
+  "date": "Thu, 16 Jul 2026 00:43:43 GMT",
+  "cats": [],
+  "cover": "https://cdn.hashnode.com/uploads/covers/68c6b680e7ef1589202a4cab/4a8e8b91-5e11-4409-bbd7-c52403f30b6b.jpg",
+  "desc": "Part 1 of the AI-Led Homelab series",
+  "chars": 8693
+ },
+ {
+  "slug": "experimenting-with-autonomous-ai-agents-openclaw-and-moltbook",
+  "title": "🤖 Experimenting With Autonomous AI Agents: OpenClaw and Moltbook",
+  "link": "https://read.darkshield.co.in/experimenting-with-autonomous-ai-agents-openclaw-and-moltbook",
+  "date": "Mon, 09 Feb 2026 20:48:32 GMT",
+  "cats": [
+   "AI",
+   "#ai-tools",
+   "openclaw",
+   "moltbook",
+   "self-hosted"
+  ],
+  "cover": "https://cdn.hashnode.com/res/hashnode/image/stock/unsplash/gVQLAbGVB6Q/upload/bc045cd9ff6c84852d953e4f05be52ee.jpeg",
+  "desc": "Explore AI agents OpenClaw and Moltbook for autonomous experimentation. Understand their features, risks, and how to securely implement them",
+  "chars": 17258
+ },
+ {
+  "slug": "building-a-resilient-homelab-storage-solution-with-truenas",
+  "title": "Building a Resilient Homelab Storage Solution with TrueNAS",
+  "link": "https://read.darkshield.co.in/building-a-resilient-homelab-storage-solution-with-truenas",
+  "date": "Mon, 01 Dec 2025 00:59:02 GMT",
+  "cats": [
+   "TrueNAS",
+   "Homelab",
+   "storage solutions",
+   "zfs",
+   "self-hosted"
+  ],
+  "cover": "https://cdn.hashnode.com/res/hashnode/image/stock/unsplash/VHmBX7FnXw0/upload/d12252907412c49f3379c962f415fb00.jpeg",
+  "desc": "Discover how to build a resilient, budget-friendly homelab storage solution with TrueNAS and Proxmox for secure data and efficient backups",
+  "chars": 11282
+ },
+ {
+  "slug": "supercharge-your-terminal-with-opencode-cli-the-open-source-ai-agent-for-developers",
+  "title": "Supercharge Your Terminal with OpenCode CLI: The Open-Source AI Agent for Developers",
+  "link": "https://read.darkshield.co.in/supercharge-your-terminal-with-opencode-cli-the-open-source-ai-agent-for-developers",
+  "date": "Sun, 09 Nov 2025 05:02:54 GMT",
+  "cats": [
+   "opencode",
+   "AI",
+   "#ai-tools",
+   "generative ai",
+   "genai",
+   "gemini",
+   "Local LLM",
+   "self-hosted"
+  ],
+  "cover": "https://cdn.hashnode.com/res/hashnode/image/stock/unsplash/hvSr_CVecVI/upload/3e41858a36d36d58430667796e4771f7.jpeg",
+  "desc": "OpenCode CLI: an open-source AI agent boosting developer productivity with adaptable model integration and robust terminal capabilities",
+  "chars": 7467
+ },
+ {
+  "slug": "build-your-own-netflix-a-return-to-the-golden-age-of-media-ownership",
+  "title": "Build Your Own Netflix: A Return to the Golden Age of Media Ownership 🚀",
+  "link": "https://read.darkshield.co.in/build-your-own-netflix-a-return-to-the-golden-age-of-media-ownership",
+  "date": "Sun, 02 Nov 2025 01:38:51 GMT",
+  "cats": [
+   "self-hosted",
+   "Homelab"
+  ],
+  "cover": "https://cdn.hashnode.com/res/hashnode/image/stock/unsplash/BQTHOGNHo08/upload/f3a2d426df3b53f2e9241f3fbc98e53a.jpeg",
+  "desc": "Build your own Netflix with a self-hosted media server and gain control, convenience, and tech skills while enjoying true media ownership",
+  "chars": 8580
+ },
+ {
+  "slug": "building-your-own-personal-photo-cloud-a-journey-to-digital-freedom",
+  "title": "Building Your Own Personal Photo Cloud - A Journey to Digital Freedom 📸",
+  "link": "https://read.darkshield.co.in/building-your-own-personal-photo-cloud-a-journey-to-digital-freedom",
+  "date": "Sun, 02 Nov 2025 01:34:11 GMT",
+  "cats": [
+   "self-hosted",
+   "Homelab",
+   "Immich",
+   "Nextcloud",
+   "photoshop",
+   "Photography",
+   "Backup",
+   "Backup Strategy"
+  ],
+  "cover": "https://cdn.hashnode.com/res/hashnode/image/stock/unsplash/P2aOvMMUJnY/upload/d96c27c74804e98fc2988be8cc2bfb68.jpeg",
+  "desc": "Build a self-hosted photo cloud for unlimited storage, privacy, and savings, freeing yourself from subscription fees",
+  "chars": 9556
+ },
+ {
+  "slug": "building-my-personal-ai-stack-in-a-homelab-a-journey-to-smarter-tools",
+  "title": "🧠 Building My Personal AI Stack in a Homelab — A Journey to Smarter Tools",
+  "link": "https://read.darkshield.co.in/building-my-personal-ai-stack-in-a-homelab-a-journey-to-smarter-tools",
+  "date": "Sun, 02 Nov 2025 01:27:55 GMT",
+  "cats": [
+   "AI",
+   "#ai-tools",
+   "ai agents",
+   "self-hosted",
+   "Homelab",
+   "Local LLM",
+   "ai-stack"
+  ],
+  "cover": "https://cdn.hashnode.com/res/hashnode/image/stock/unsplash/-JwcgMh7qXw/upload/59d8adddfdccafd5928702597462328e.jpeg",
+  "desc": "Discover how to build your own AI stack in a homelab, offering privacy, flexibility, and innovation beyond cloud APIs",
+  "chars": 6940
+ },
+ {
+  "slug": "how-to-implement-a-site-to-site-wireguard-tunnel-for-truenas-replication-tasks",
+  "title": "How to Implement a Site-to-Site WireGuard Tunnel for TrueNAS Replication Tasks",
+  "link": "https://read.darkshield.co.in/how-to-implement-a-site-to-site-wireguard-tunnel-for-truenas-replication-tasks",
+  "date": "Sun, 02 Nov 2025 01:01:50 GMT",
+  "cats": [
+   "TrueNAS",
+   "wireguard",
+   "vpn",
+   "self-hosted",
+   "Homelab"
+  ],
+  "cover": "https://cdn.hashnode.com/res/hashnode/image/stock/unsplash/RjPG-_LVmiQ/upload/f61fab2f5f62bf00983501a754261e7b.jpeg",
+  "desc": "Learn to set up a site-to-site WireGuard tunnel for secure TrueNAS replication, enabling efficient data sync across dynamic IPs",
+  "chars": 5401
+ },
+ {
+  "slug": "building-a-homelab",
+  "title": "Building a Homelab",
+  "link": "https://read.darkshield.co.in/building-a-homelab",
+  "date": "Sun, 02 Nov 2025 00:45:10 GMT",
+  "cats": [
+   "Homelab",
+   "homelabbing",
+   "self-hosted"
+  ],
+  "cover": "https://cdn.hashnode.com/res/hashnode/image/stock/unsplash/M5tzZtFCOfs/upload/be4f9843088c4720b4692fb2e332f7b0.jpeg",
+  "desc": "Discover the benefits of building a homelab for hands-on tech learning, career advancement, and personal growth in IT skills",
+  "chars": 3787
+ },
+ {
+  "slug": "building-a-homelab-unlocking-technical-expertise-at-home",
+  "title": "Building a Homelab: Unlocking Technical Expertise at Home",
+  "link": "https://read.darkshield.co.in/building-a-homelab-unlocking-technical-expertise-at-home",
+  "date": "Fri, 19 Sep 2025 02:02:04 GMT",
+  "cats": [
+   "Homelab",
+   "self-hosted"
+  ],
+  "cover": "https://cdn.hashnode.com/res/hashnode/image/stock/unsplash/ISG-rUel0Uw/upload/1bfad644ecda00ab06bfe829b8ebfb6d.jpeg",
+  "desc": "Discover how building a homelab enhances technical skills, supports innovation, and fosters professional growth in a personal IT sandbox environment",
+  "chars": 4916
+ }
+]

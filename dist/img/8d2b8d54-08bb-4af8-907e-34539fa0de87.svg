@@ -1,0 +1,185 @@
+<svg viewBox="0 0 1300 830" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif">
+<style>
+.flow{stroke-dasharray:8 10;animation:dash 1.2s linear infinite}
+.flow.slow{animation-duration:2.6s}
+@keyframes dash{to{stroke-dashoffset:-36}}
+.pulse{transform-box:fill-box;transform-origin:center;animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:.55}50%{transform:scale(1.16);opacity:0}}
+.glow{animation:glow 3s ease-in-out infinite}
+@keyframes glow{0%,100%{stroke-opacity:.35}50%{stroke-opacity:.9}}
+</style>
+<rect width="1300" height="830" fill="#0D1117"/>
+<rect x="230" y="190" width="500" height="580" rx="20" fill="#F2CC60" fill-opacity="0.05" stroke="#F2CC60" stroke-width="2.5" stroke-dasharray="3 0" class="glow"/>
+<text x="480" y="760" text-anchor="middle" font-size="14" font-weight="700" fill="#F2CC60">ZeroClaw gateway · self-hosted, runs in Docker</text>
+<rect x="760" y="215" width="170" height="385" rx="20" fill="#3FB950" fill-opacity="0.05" stroke="#3FB950" stroke-width="2.5" stroke-dasharray="3 0" class="glow"/>
+<rect x="1160" y="215" width="130" height="385" rx="20" fill="#8B949E" fill-opacity="0.05" stroke="#8B949E" stroke-width="2.5" stroke-dasharray="3 0" class="glow"/>
+<path d="M367 121 L391 121" fill="none" stroke="#8B949E" stroke-width="2" stroke-linejoin="round" class="flow"/>
+<polygon points="-12,-6 0,0 -12,6" fill="#8B949E" transform="translate(391 121) rotate(0)"/>
+<path d="M525 121 L549 121" fill="none" stroke="#8B949E" stroke-width="2" stroke-linejoin="round" class="flow"/>
+<polygon points="-12,-6 0,0 -12,6" fill="#8B949E" transform="translate(549 121) rotate(0)"/>
+<path d="M683 121 L707 121" fill="none" stroke="#8B949E" stroke-width="2" stroke-linejoin="round" class="flow"/>
+<polygon points="-12,-6 0,0 -12,6" fill="#8B949E" transform="translate(707 121) rotate(0)"/>
+<path d="M190 372 L270 372" fill="none" stroke="#58A6FF" stroke-width="3" stroke-linejoin="round" class="flow"/>
+<polygon points="-12,-6 0,0 -12,6" fill="#58A6FF" transform="translate(270 372) rotate(0)"/>
+<path d="M270 398 L190 398" fill="none" stroke="#F2CC60" stroke-width="3" stroke-linejoin="round" class="flow"/>
+<polygon points="-12,-6 0,0 -12,6" fill="#F2CC60" transform="translate(190 398) rotate(180)"/>
+<path d="M190 240 L318 240 L318 335" fill="none" stroke="#8B949E" stroke-width="2" stroke-linejoin="round" class="flow"/>
+<polygon points="-12,-6 0,0 -12,6" fill="#8B949E" transform="translate(318 335) rotate(90)"/>
+<path d="M300 150 L300 190 L300 340" fill="none" stroke="#F2CC60" stroke-width="3" stroke-linejoin="round" class="flow"/>
+<polygon points="-12,-6 0,0 -12,6" fill="#F2CC60" transform="translate(300 340) rotate(90)"/>
+<path d="M500 150 L500 240" fill="none" stroke="#58A6FF" stroke-width="3" stroke-linejoin="round" class="flow"/>
+<polygon points="-12,-6 0,0 -12,6" fill="#58A6FF" transform="translate(500 240) rotate(90)"/>
+<path d="M366 385 L404 385 L404 276 L470 276" fill="none" stroke="#3FB950" stroke-width="3" stroke-linejoin="round" class="flow"/>
+<polygon points="-12,-6 0,0 -12,6" fill="#3FB950" transform="translate(470 276) rotate(0)"/>
+<path d="M366 385 L414 385 L414 366 L470 366" fill="none" stroke="#BC8CFF" stroke-width="3" stroke-linejoin="round" class="flow"/>
+<polygon points="-12,-6 0,0 -12,6" fill="#BC8CFF" transform="translate(470 366) rotate(0)"/>
+<path d="M366 385 L424 385 L424 456 L470 456" fill="none" stroke="#F0883E" stroke-width="3" stroke-linejoin="round" class="flow"/>
+<polygon points="-12,-6 0,0 -12,6" fill="#F0883E" transform="translate(470 456) rotate(0)"/>
+<path d="M366 385 L434 385 L434 546 L470 546" fill="none" stroke="#FF7B72" stroke-width="3" stroke-linejoin="round" class="flow"/>
+<polygon points="-12,-6 0,0 -12,6" fill="#FF7B72" transform="translate(470 546) rotate(0)"/>
+<path d="M715 276 L760 276" fill="none" stroke="#3FB950" stroke-width="3" stroke-linejoin="round" class="flow"/>
+<polygon points="-12,-6 0,0 -12,6" fill="#3FB950" transform="translate(760 276) rotate(0)"/>
+<path d="M715 366 L760 366" fill="none" stroke="#BC8CFF" stroke-width="3" stroke-linejoin="round" class="flow"/>
+<polygon points="-12,-6 0,0 -12,6" fill="#BC8CFF" transform="translate(760 366) rotate(0)"/>
+<path d="M715 456 L760 456" fill="none" stroke="#F0883E" stroke-width="3" stroke-linejoin="round" class="flow"/>
+<polygon points="-12,-6 0,0 -12,6" fill="#F0883E" transform="translate(760 456) rotate(0)"/>
+<path d="M715 546 L760 546" fill="none" stroke="#FF7B72" stroke-width="3" stroke-linejoin="round" class="flow"/>
+<polygon points="-12,-6 0,0 -12,6" fill="#FF7B72" transform="translate(760 546) rotate(0)"/>
+<path d="M930 285 L980 285" fill="none" stroke="#58A6FF" stroke-width="3" stroke-linejoin="round" class="flow"/>
+<polygon points="-12,-6 0,0 -12,6" fill="#58A6FF" transform="translate(980 285) rotate(0)"/>
+<path d="M930 420 L980 420" fill="none" stroke="#F0883E" stroke-width="3" stroke-linejoin="round" class="flow"/>
+<polygon points="-12,-6 0,0 -12,6" fill="#F0883E" transform="translate(980 420) rotate(0)"/>
+<path d="M930 552 L980 552" fill="none" stroke="#BC8CFF" stroke-width="3" stroke-linejoin="round" class="flow"/>
+<polygon points="-12,-6 0,0 -12,6" fill="#BC8CFF" transform="translate(980 552) rotate(0)"/>
+<path d="M1130 285 L1160 285" fill="none" stroke="#58A6FF" stroke-width="3" stroke-linejoin="round" class="flow"/>
+<polygon points="-12,-6 0,0 -12,6" fill="#58A6FF" transform="translate(1160 285) rotate(0)"/>
+<path d="M1130 420 L1160 420" fill="none" stroke="#F0883E" stroke-width="3" stroke-linejoin="round" class="flow"/>
+<polygon points="-12,-6 0,0 -12,6" fill="#F0883E" transform="translate(1160 420) rotate(0)"/>
+<path d="M1130 552 L1160 552" fill="none" stroke="#BC8CFF" stroke-width="3" stroke-linejoin="round" class="flow"/>
+<polygon points="-12,-6 0,0 -12,6" fill="#BC8CFF" transform="translate(1160 552) rotate(0)"/>
+<path d="M845 600 L845 800 L105 800 L105 610" fill="none" stroke="#FF7B72" stroke-width="3" stroke-linejoin="round" class="flow slow"/>
+<polygon points="-12,-6 0,0 -12,6" fill="#FF7B72" transform="translate(105 610) rotate(-90)"/>
+<path d="M105 520 L105 430" fill="none" stroke="#FF7B72" stroke-width="3" stroke-linejoin="round" class="flow"/>
+<polygon points="-12,-6 0,0 -12,6" fill="#FF7B72" transform="translate(105 430) rotate(-90)"/>
+<path d="M250 631 L212 631 L212 418 L190 418" fill="none" stroke="#39C5CF" stroke-width="3" stroke-linejoin="round" class="flow slow"/>
+<polygon points="-12,-6 0,0 -12,6" fill="#39C5CF" transform="translate(190 418) rotate(180)"/>
+<text x="650" y="34" text-anchor="middle" font-size="26" fill="#E6EDF3" font-weight="700">How the crew fits together</text>
+<text x="650" y="58" text-anchor="middle" font-size="13" fill="#8B949E">components, models and the paths between them. Follow the moving dashes.</text>
+<text x="520" y="82" text-anchor="middle" font-size="12" fill="#8B949E" font-weight="700">MODEL PROVIDERS  ·  if one is down, the next one takes over</text>
+<rect x="235" y="92" width="130" height="58" rx="14" fill="#2A2410" stroke="#F2CC60" stroke-width="2.5"/>
+<text x="249" y="116" font-size="16" font-weight="800" fill="#F2CC60">Claude</text>
+<text x="249" y="134" font-size="12" fill="#C9D1D9">Anthropic · Sonnet 5.5</text>
+<rect x="393" y="92" width="130" height="58" rx="14" fill="#0D2238" stroke="#58A6FF" stroke-width="2.5"/>
+<text x="407" y="116" font-size="16" font-weight="800" fill="#58A6FF">Gemini</text>
+<text x="407" y="134" font-size="12" fill="#C9D1D9">Google · 3.7 Flash</text>
+<rect x="551" y="92" width="130" height="58" rx="14" fill="#161B22" stroke="#8B949E" stroke-width="2.5"/>
+<text x="565" y="116" font-size="16" font-weight="800" fill="#8B949E">OpenRouter</text>
+<text x="565" y="134" font-size="12" fill="#C9D1D9">model marketplace</text>
+<rect x="709" y="92" width="130" height="58" rx="14" fill="#161B22" stroke="#8B949E" stroke-width="2.5"/>
+<text x="723" y="116" font-size="16" font-weight="800" fill="#8B949E">LiteLLM</text>
+<text x="723" y="134" font-size="12" fill="#C9D1D9">self-hosted gateway</text>
+<circle cx="318" cy="385" r="52" fill="none" stroke="#F2CC60" stroke-width="3" class="pulse"/>
+<circle cx="318" cy="385" r="48" fill="#2A2410" stroke="#F2CC60" stroke-width="6"/>
+<text x="318" y="403" text-anchor="middle" font-size="46">🕶️</text>
+<rect x="276" y="443" width="84" height="26" rx="13" fill="#F2CC60"/>
+<text x="318" y="461" text-anchor="middle" font-size="14" font-weight="800" fill="#1A1400">EDITH</text>
+<text x="318" y="487" text-anchor="middle" font-size="12" fill="#C9D1D9">orchestrator</text>
+<text x="318" y="502" text-anchor="middle" font-size="12" fill="#C9D1D9">Claude Sonnet 5.5</text>
+<rect x="470" y="240" width="245" height="72" rx="14" fill="#10261A" stroke="#3FB950" stroke-width="2.5"/>
+<text x="484" y="286.0" font-size="28">📊</text>
+<text x="526" y="264" font-size="16" font-weight="800" fill="#3FB950">FRIDAY</text>
+<text x="526" y="282" font-size="12" fill="#C9D1D9">Gemini 3.7 Flash</text>
+<text x="526" y="297" font-size="12" fill="#C9D1D9">health, stats, logs · read-only</text>
+<rect x="470" y="330" width="245" height="72" rx="14" fill="#251838" stroke="#BC8CFF" stroke-width="2.5"/>
+<text x="484" y="376.0" font-size="28">🎬</text>
+<text x="526" y="354" font-size="16" font-weight="800" fill="#BC8CFF">VERONICA</text>
+<text x="526" y="372" font-size="12" fill="#C9D1D9">Gemini 3.7 Flash</text>
+<text x="526" y="387" font-size="12" fill="#C9D1D9">media library and requests</text>
+<rect x="470" y="420" width="245" height="72" rx="14" fill="#2B1C0F" stroke="#F0883E" stroke-width="2.5"/>
+<text x="484" y="466.0" font-size="28">🛡️</text>
+<text x="526" y="444" font-size="16" font-weight="800" fill="#F0883E">JARVIS</text>
+<text x="526" y="462" font-size="12" fill="#C9D1D9">Gemini 3.7 Flash</text>
+<text x="526" y="477" font-size="12" fill="#C9D1D9">users, groups, access</text>
+<rect x="470" y="510" width="245" height="72" rx="14" fill="#2E1616" stroke="#FF7B72" stroke-width="2.5"/>
+<text x="484" y="556.0" font-size="28">🦾</text>
+<text x="526" y="534" font-size="16" font-weight="800" fill="#FF7B72">DUM-E</text>
+<text x="526" y="552" font-size="12" fill="#C9D1D9">Gemini 3.7 Flash</text>
+<text x="526" y="567" font-size="12" fill="#C9D1D9">builds and deploys · enabled</text>
+<rect x="250" y="605" width="465" height="52" rx="14" fill="#0E2A2D" stroke="#39C5CF" stroke-width="2.5"/>
+<text x="264" y="641.0" font-size="28">🧹</text>
+<text x="306" y="627" font-size="16" font-weight="800" fill="#39C5CF">Alert triage</text>
+<text x="306" y="645" font-size="12" fill="#C9D1D9">Gemini 3.1 Flash-Lite sorts alerts so only real ones reach you</text>
+<rect x="250" y="672" width="225" height="70" rx="14" fill="#161B22" stroke="#8B949E" stroke-width="2.5"/>
+<text x="264" y="717.0" font-size="28">📖</text>
+<text x="306" y="696" font-size="16" font-weight="800" fill="#E6EDF3">Playbooks</text>
+<text x="306" y="714" font-size="12" fill="#C9D1D9">skills, runbooks, memory,</text>
+<text x="306" y="729" font-size="12" fill="#C9D1D9">weekly lessons</text>
+<rect x="490" y="672" width="225" height="70" rx="14" fill="#2E1616" stroke="#FF7B72" stroke-width="2.5"/>
+<text x="504" y="717.0" font-size="28">🚦</text>
+<text x="546" y="696" font-size="16" font-weight="800" fill="#FF7B72">Guardrails</text>
+<text x="546" y="714" font-size="12" fill="#C9D1D9">risk profiles, command allowlist,</text>
+<text x="546" y="729" font-size="12" fill="#C9D1D9">hourly action cap</text>
+<rect x="20" y="205" width="170" height="70" rx="14" fill="#161B22" stroke="#8B949E" stroke-width="2.5"/>
+<text x="34" y="250.0" font-size="28">⏰</text>
+<text x="76" y="229" font-size="16" font-weight="800" fill="#E6EDF3">Schedules</text>
+<text x="76" y="247" font-size="12" fill="#C9D1D9">morning briefing,</text>
+<text x="76" y="262" font-size="12" fill="#C9D1D9">weekly review</text>
+<rect x="20" y="340" width="170" height="90" rx="14" fill="#0D2238" stroke="#58A6FF" stroke-width="2.5"/>
+<text x="34" y="395.0" font-size="28">📱</text>
+<text x="76" y="364" font-size="16" font-weight="800" fill="#58A6FF">You</text>
+<text x="76" y="382" font-size="12" fill="#C9D1D9">Telegram chat:</text>
+<text x="76" y="397" font-size="12" fill="#C9D1D9">ask, answer,</text>
+<text x="76" y="412" font-size="12" fill="#C9D1D9">tap Approve or Deny</text>
+<rect x="20" y="520" width="170" height="90" rx="14" fill="#2E1616" stroke="#FF7B72" stroke-width="2.5"/>
+<text x="34" y="575.0" font-size="28">🔔</text>
+<text x="76" y="544" font-size="16" font-weight="800" fill="#FF7B72">Code by ntfy</text>
+<text x="76" y="562" font-size="12" fill="#C9D1D9">extra check for the</text>
+<text x="76" y="577" font-size="12" fill="#C9D1D9">riskiest changes</text>
+<text x="845" y="245" text-anchor="middle" font-size="16" fill="#E6EDF3" font-weight="700">🧰 Toolbox</text>
+<text x="845" y="265" text-anchor="middle" font-size="12" fill="#C9D1D9">purpose-built commands</text>
+<text x="845" y="285" text-anchor="middle" font-size="12" fill="#C9D1D9">no free-form shell</text>
+<text x="780" y="322" text-anchor="start" font-size="13" fill="#E6EDF3">▸ stats and capacity</text>
+<text x="780" y="346" text-anchor="start" font-size="13" fill="#E6EDF3">▸ backup status</text>
+<text x="780" y="370" text-anchor="start" font-size="13" fill="#E6EDF3">▸ container logs</text>
+<text x="780" y="394" text-anchor="start" font-size="13" fill="#E6EDF3">▸ media library</text>
+<text x="780" y="418" text-anchor="start" font-size="13" fill="#E6EDF3">▸ media requests</text>
+<text x="780" y="442" text-anchor="start" font-size="13" fill="#E6EDF3">▸ users and groups</text>
+<text x="780" y="466" text-anchor="start" font-size="13" fill="#E6EDF3">▸ restart and verify</text>
+<text x="780" y="490" text-anchor="start" font-size="13" fill="#E6EDF3">▸ docs search</text>
+<text x="845" y="540" text-anchor="middle" font-size="11.5" fill="#F2CC60">T0 look · T1 bounded fix</text>
+<text x="845" y="558" text-anchor="middle" font-size="11.5" fill="#FF7B72">T2 needs your code</text>
+<text x="845" y="580" text-anchor="middle" font-size="11.5" fill="#8B949E" font-style="italic">audited, secrets hidden</text>
+<text x="1045" y="205" text-anchor="middle" font-size="12" fill="#8B949E" font-weight="700">ACCESS PATHS</text>
+<rect x="980" y="235" width="150" height="100" rx="14" fill="#0D2238" stroke="#58A6FF" stroke-width="2.5"/>
+<text x="994" y="295.0" font-size="28">🖥️</text>
+<text x="1036" y="259" font-size="16" font-weight="800" fill="#58A6FF">Proxmox API</text>
+<text x="1036" y="277" font-size="12" fill="#C9D1D9">read-only token:</text>
+<text x="1036" y="292" font-size="12" fill="#C9D1D9">stats, backup jobs</text>
+<rect x="980" y="365" width="150" height="110" rx="14" fill="#2B1C0F" stroke="#F0883E" stroke-width="2.5"/>
+<text x="994" y="430.0" font-size="28">🔐</text>
+<text x="1036" y="389" font-size="16" font-weight="800" fill="#F0883E">SSH gate</text>
+<text x="1036" y="407" font-size="12" fill="#C9D1D9">forced command,</text>
+<text x="1036" y="422" font-size="12" fill="#C9D1D9">4 roles, runs only</text>
+<text x="1036" y="437" font-size="12" fill="#C9D1D9">approved actions</text>
+<rect x="980" y="505" width="150" height="95" rx="14" fill="#251838" stroke="#BC8CFF" stroke-width="2.5"/>
+<text x="994" y="562.5" font-size="28">🔌</text>
+<text x="1036" y="529" font-size="16" font-weight="800" fill="#BC8CFF">App APIs</text>
+<text x="1036" y="547" font-size="12" fill="#C9D1D9">Jellyfin, Jellyseerr,</text>
+<text x="1036" y="562" font-size="12" fill="#C9D1D9">Authentik, Netdata</text>
+<text x="1225" y="245" text-anchor="middle" font-size="16" fill="#E6EDF3" font-weight="700">🏠 Homelab</text>
+<text x="1225" y="285" text-anchor="middle" font-size="13" fill="#C9D1D9">Proxmox host</text>
+<text x="1225" y="323" text-anchor="middle" font-size="13" fill="#C9D1D9">app containers</text>
+<text x="1225" y="361" text-anchor="middle" font-size="13" fill="#C9D1D9">media stack</text>
+<text x="1225" y="399" text-anchor="middle" font-size="13" fill="#C9D1D9">identity (SSO)</text>
+<text x="1225" y="437" text-anchor="middle" font-size="13" fill="#C9D1D9">monitoring</text>
+<text x="1225" y="475" text-anchor="middle" font-size="13" fill="#C9D1D9">backup storage</text>
+<text x="650" y="818" text-anchor="middle" font-size="1" fill="#8B949E"></text>
+<rect x="212" y="361" width="35" height="22" rx="11" fill="#0D1117" stroke="#58A6FF" stroke-width="1.5"/>
+<text x="230" y="376" text-anchor="middle" font-size="12" font-weight="600" fill="#58A6FF">ask</text>
+<rect x="276" y="161" width="48" height="22" rx="11" fill="#0D1117" stroke="#F2CC60" stroke-width="1.5"/>
+<text x="300" y="176" text-anchor="middle" font-size="12" font-weight="600" fill="#F2CC60">plans</text>
+<rect x="444" y="184" width="112" height="22" rx="11" fill="#0D1117" stroke="#58A6FF" stroke-width="1.5"/>
+<text x="500" y="199" text-anchor="middle" font-size="12" font-weight="600" fill="#58A6FF">specialist work</text>
+<rect x="320" y="789" width="310" height="22" rx="11" fill="#0D1117" stroke="#FF7B72" stroke-width="1.5"/>
+<text x="475" y="804" text-anchor="middle" font-size="12" font-weight="600" fill="#FF7B72">riskiest restarts: one-time code to your phone</text>
+</svg>

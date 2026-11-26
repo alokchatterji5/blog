@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://blog.darkshield.co.in/sitemap.xml

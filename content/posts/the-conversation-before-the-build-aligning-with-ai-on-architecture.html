@@ -1,0 +1,64 @@
+<!--meta
+{"title":"The Conversation Before the Build: Aligning with AI on Architecture","date":"2026-07-16","summary":"Before any config existed I spent my first hours talking architecture with Claude, then wrote it down. Here is the loop and where I keep the leash short.","category":"AI-Led Homelab","series":"AI-Led Homelab","part":1,"tags":["homelab","ai","architecture","claude"],"cover":"img/4a8e8b91-5e11-4409-bbd7-c52403f30b6b.jpg"}
+-->
+<div class="tldr"><h4>The short version</h4><p>My homelab accumulated instead of being designed. This time I started over from architecture, spent the first hours in a no-code conversation with Claude, and wrote the result down before a single service existed. The loop is: conversation, documents, delegation, review.</p></div>
+<div class="toc"></div>
+
+<p>My homelab wasn't built. It accumulated: years of adding one service at a time, whatever solved the problem I had that month, with whatever I knew then. That's normal, and it's also how you end up with something that works but that you'd never design on purpose today.</p>
+<p>This year I had two things I didn't have before. A much clearer idea of how I'd want it built, and an AI capable enough to be a real partner in building it. So I started over from the architecture down and let AI run point on a lot of the build. The project is called EDITH.</p>
+
+<h2>Where I actually spent the time</h2>
+<p>Not on configs. The first big chunk went into an architecture conversation with Claude. No code, just talking through what the homelab had to do, which principles it had to follow, and where I would not compromise: data ownership, single points of failure, consistent auth. That conversation became the spec, and everything after it had to justify itself against the spec.</p>
+<p>The second chunk went into documentation, before a single service existed. That felt backwards the first time. It isn't. A homelab built with AI lives or dies on whether the AI can pick up exactly where it left off, and that only works if the state of the project lives outside the chat window.</p>
+
+<h2>The documents</h2>
+<p>A few distinct documents instead of one wall of notes:</p>
+<table>
+<tr><th>Document</th><th>What it holds</th></tr>
+<tr><td>Master architecture / strategy</td><td>The "why". Rarely changes.</td></tr>
+<tr><td>Domain design docs</td><td>Networking and observability, identity and access policy. Each owned by its topic.</td></tr>
+<tr><td>Progress tracker</td><td>Done, in flight, blocked. Updated as we go.</td></tr>
+<tr><td>Decision log</td><td>Why we chose what we chose, so neither of us re-litigates a settled question in six months.</td></tr>
+</table>
+<p>When I bring AI into a session it doesn't need the whole history. It reads the docs relevant to the task and it's grounded. No re-explaining, no drift. Structurally it's numbered folders (strategy, infrastructure, standards, networking, migration, implementation, automation), each scoped to one concern, and the numbers enforce an order: you can't skip to implementation before strategy exists. <a href="../the-document-system-that-keeps-ai-grounded/">Part 2</a> goes into this properly.</p>
+
+<h2>Guardrails and access</h2>
+<p>AI has real access in this project, not just a chat box. It can SSH into my Proxmox hypervisor, spin up LXC containers and provision them. That's a different thing from "AI helped me write a script". It's closer to having infrastructure staff, so the access is scoped. The rule of thumb: reversible and additive, let it run. Irreversible or subtractive, I pull the trigger.</p>
+<div class="tabs">
+<section data-title="Long leash">
+<p>Reversible and additive. AI does these with little supervision:</p>
+<ul><li>Provisioning new infrastructure</li><li>Drafting configs, and the reverse proxy and auth strategy for a new service</li><li>Writing and updating docs and trackers</li><li>Running checks, and catching mismatches between a design doc and what's actually running</li></ul>
+</section>
+<section data-title="Short leash">
+<p>Irreversible or subtractive. I decide:</p>
+<ul><li>Anything destructive or irreversible on the existing, working homelab (I do it, or approve it explicitly first)</li><li>Anything touching production</li><li>Access control decisions</li><li>The final call on architecture changes</li></ul>
+</section>
+<section data-title="Secrets">
+<p>Credentials, tokens and secrets are never something AI holds between sessions. They're provided fresh when needed and nowhere else.</p>
+</section>
+</div>
+
+<figure><img src="../img/1e756c1f-f13c-480e-bbce-aacb15a5a899.svg" alt="Diagram from the original post showing the architecture, documentation, delegation and review loop"><figcaption>The loop everything else hangs off.</figcaption></figure>
+
+<h2>Why this beats doing it solo</h2>
+<p>A homelab is a one-person team with a day job. The constraint is time, not skill or curiosity. AI doesn't change what a homelab is, but it changes what one person with two hours on a Tuesday night can get done. Documentation that would never get written, gets written. Consistency across forty services that would have drifted after service twelve, gets held. The tedious stuff that used to be skipped is exactly what AI is good at picking up.</p>
+<p>The owner still has to hold command. AI will happily produce a confident, well-reasoned, wrong answer. The job shifts from doing everything yourself to reviewing everything that matters and letting go of the rest.</p>
+<p>It's also a good way to learn. I understand this architecture better than any homelab I built solo, because I had to explain it, defend it and watch something push back in real time.</p>
+
+<h2>Where AI got it wrong</h2>
+<p>A couple of times it proposed a networking approach that technically worked but broke a principle we'd agreed three weeks earlier, because that context lived in a doc it hadn't read that session. A couple of times it was overconfident about something that needed a second opinion.</p>
+<p>Each of these goes in the decision log as a lesson, not just a fix. The goal isn't a spotless project. It's one that gets more grounded every time something goes wrong.</p>
+
+<h2>Tokens and git</h2>
+<p>Using AI as a real collaborator uses real usage, and burning through it carelessly is its own failure mode. I don't ask AI to redo work it's already grounded in; the docs exist so it doesn't have to re-derive. And not every task needs the most capable model at full context. Repetitive, narrow work goes to a second model (Gemini, in my setup) while Claude stays on architecture-level decisions.</p>
+<p>With more than one model touching the project, git is the coordination layer. Claude and Gemini work on separate branches. Nothing lands on main without review: Claude reviews Gemini's branch, and I review the merges that matter. It's a normal engineering workflow where some contributors happen to be AIs.</p>
+
+<h2>The layers it all produced</h2>
+<p>Without going into configs, the shape is four layers, each with a clear job:</p>
+<ol>
+<li><b>Network.</b> One reverse proxy is the front door for everything.</li>
+<li><b>Identity.</b> Single sign-on in front of that, so "who has access to what" is one decision in one place.</li>
+<li><b>Services.</b> The actual applications, all inheriting the same entry point and identity rules.</li>
+<li><b>Observability.</b> Wrapped around all of it, watching without being in the critical path.</li>
+</ol>
+<p>Each layer went through the same loop: architecture conversation, documentation, delegation, review. The loop is the whole system, and the layers are just where it gets applied.</p>

@@ -1,0 +1,1334 @@
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Darkshield Labs]]></title><description><![CDATA[Welcome to Darkshield Labs. We're building a digital home, one server at a time, so no one can snap our data into dust. A homelab for true believers.]]></description><link>https://read.darkshield.co.in</link><generator>RSS for Node</generator><lastBuildDate>Thu, 26 Nov 2026 15:42:39 GMT</lastBuildDate><atom:link href="https://read.darkshield.co.in/rss.xml" rel="self" type="application/rss+xml"/><language><![CDATA[en]]></language><ttl>60</ttl><item><title><![CDATA[I Built a Little Workshop to Watch My AI Agents Work]]></title><description><![CDATA[A free, vibe-coded Stark workshop that shows your AI agents handing off work live. No LLM tokens, read-only, and easy to build yourself.]]></description><link>https://read.darkshield.co.in/i-built-a-little-workshop-to-watch-my-ai-agents-work</link><guid isPermaLink="true">https://read.darkshield.co.in/i-built-a-little-workshop-to-watch-my-ai-agents-work</guid><category><![CDATA[ai agents]]></category><category><![CDATA[AI]]></category><category><![CDATA[self-hosted]]></category><category><![CDATA[Homelab]]></category><dc:creator><![CDATA[Alok Chatterji]]></dc:creator><pubDate>Mon, 12 Oct 2026 15:25:30 GMT</pubDate><enclosure url="https://cdn.hashnode.com/uploads/covers/68c6b680e7ef1589202a4cab/bc63fa8c-d898-4e7a-83d0-42639f014808.png" length="0" type="image/jpeg"/><content:encoded><![CDATA[<p>In the last post, <a href="https://read.darkshield.co.in/a-crew-of-ai-agents-runs-my-homelab">A Crew of AI Agents Runs My Homelab</a>, I introduced the crew that runs my homelab. Five agents, each with a job, all behind one chat. If you haven't read it, that's the best place to start, because this one picks up right where it left off.</p>
+<p>There was one thing I couldn't get over once they were running. I had no idea what they were actually doing.</p>
+<p>I'd send a message, wait a few seconds and get an answer. Somewhere in between, one agent had passed work to another, maybe a model had been swapped because the first choice was out of credit, and a few things had been checked. All of it was invisible. I was trusting a black box that happened to be well behaved.</p>
+<p>So I built a window into it. It's a small animated page, set in a Tony Stark style workshop, where each agent is a character and you can watch the hand-offs happen.</p>
+<img src="https://cdn.hashnode.com/uploads/covers/68c6b680e7ef1589202a4cab/43cfbec1-8ee6-43d9-843a-710ce55a4228.gif" alt="" style="display:block;margin:0 auto" />
+
+<p>It's not a serious monitoring tool. It's a toy that happens to answer a real question, and building it was some of the most fun I've had on this project.</p>
+<h2><strong>What you actually see</strong></h2>
+<p>Each agent has its own pod in the workshop with a name tag and the model it's running right now. The model comes from the data, not from a label I typed in, so if an agent quietly falls back to a different one, the tag changes and a small chip shows up to say so.</p>
+<p>When I send a request, the director picks it up and walks it over to a holographic table in the middle of the room. The specialist who owns the job steps up, does the work, and passes the result back. A glowing reactor in the corner pulses with the overall activity.</p>
+<p>There's a list of events down the side. Click one and it replays what happened: who talked to whom, in what order, how long each step took.</p>
+<h2><strong>Making milliseconds visible</strong></h2>
+<p>Here's the part I like most. A hand-off between two agents often takes a few milliseconds. On a real timeline that's a blink you'd never see.</p>
+<p>So the page cheats, on purpose. When a hand-off is very fast, it stretches the moment so you can actually watch it, and it shows the real number next to it so it's honest about what happened. A 40 ms hand-off gets a couple of seconds on screen with "real time: 40 ms" in the corner.</p>
+<p>It sounds like a small thing, but it's what turns a log into something you want to watch.</p>
+<h2><strong>Why it costs nothing to run</strong></h2>
+<p>The picture is built from data the agents already leave behind: a log of what each model call cost, a list of conversations, and the history of scheduled jobs. The page reads those files, works out what happened and draws it.</p>
+<p>That's it. There is no model in the loop.</p>
+<ul>
+<li><p>It never calls a language model, so there are no tokens to pay for.</p>
+</li>
+<li><p>It never sees the text of your messages, only that a call happened, when, how long it took and which model served it.</p>
+</li>
+<li><p>It's read-only. It can't change anything, and it can't send anything.</p>
+</li>
+<li><p>It only does any work while somebody has the page open. Close the tab and it goes back to sleep, so it isn't using resources when nobody is watching.</p>
+</li>
+</ul>
+<p>If you're careful about what your agents are allowed to do, you'll appreciate that the thing watching them has even fewer permissions than they do.</p>
+<h2><strong>Where the idea came from</strong></h2>
+<p>I didn't start from a blank page. Two open source projects got me thinking about this in the first place:</p>
+<ul>
+<li><p><strong>The Delegation</strong> by arturitu (<a href="https://github.com/arturitu/the-delegation">github.com/arturitu/the-delegation</a>), a lovely visual take on agents handing work to each other.</p>
+</li>
+<li><p><strong>Claw3D</strong> by iamlukethedev (<a href="https://github.com/iamlukethedev/claw3d">github.com/iamlukethedev/claw3d</a>), which puts a fleet of agents in a 3D space.</p>
+</li>
+</ul>
+<p>Both are great, and the inspiration is theirs. If you want something richer than what I built, start there.</p>
+<p>I decided to write my own for a few plain reasons. I didn't want something that needed its own model key, because the whole point was a view that costs nothing and can't run up a bill. I wanted a very small footprint: a single tiny container with no dependencies, instead of a larger stack to maintain. And since my agents already write down everything the page needs, there was nothing to wire in except reading those files.</p>
+<h2><strong>How it got built</strong></h2>
+<p>I vibe coded it with Claude Code, in conversation, over a couple of sittings. I described the feel I wanted ("cartoon characters moving around, like a game, with Tony Stark's workshop"), looked at it, said what was wrong, and kept going.</p>
+<p>The part I'm most glad I did properly was the boring part. Before it went anywhere near my real agents I had it write tests that prove the page can't write to anything, can't see message text and can't reach a model. It's the kind of thing that's easy to skip when you're having fun, and it's the reason I'm comfortable leaving it running.</p>
+<p>It sits behind the same login as everything else in my lab, so it's not exposed to the internet.</p>
+<h2><strong>Build your own</strong></h2>
+<p>You don't need my version. The recipe is simple and it works for almost any agent setup:</p>
+<ol>
+<li><p><strong>Find the trail your agents already leave.</strong> Most harnesses keep a cost log, a session list or a job history. That's your event feed.</p>
+</li>
+<li><p><strong>Turn calls into events.</strong> A burst of calls from one agent, then another agent a moment later, is a hand-off. You don't need anything smarter than timestamps and agent names.</p>
+</li>
+<li><p><strong>Keep it read-only and free.</strong> Read files, never call a model, never show message text. Only poll while someone is watching.</p>
+</li>
+<li><p><strong>Make it yours.</strong> Mine is a workshop with armor pods and a holo table. Yours could be a train station, a kitchen, a spaceship, a tiny office with a coffee machine. The theme is the fun part, and a mood is far easier to enjoy than a table of numbers.</p>
+</li>
+</ol>
+<p>Tell your coding assistant what the scene should feel like, point it at the files, and iterate until it makes you smile.</p>
+<h2><strong>What I'd say after living with it</strong></h2>
+<p>I expected a gimmick. What I got was a much better sense of how the crew behaves. I can see at a glance when one agent is carrying most of the work, when a fallback model has taken over, and when a request that I thought was simple turned out to need three hand-offs.</p>
+<p>And it's just nice to look at. Watching a tiny armored character carry a task across a workshop floor beats reading a log, even if the log would have told me the same thing.</p>
+<p>If you've built a view like this for your own agents, I'd love to see it.</p>
+]]></content:encoded></item><item><title><![CDATA[A Crew of AI Agents Runs My Homelab]]></title><description><![CDATA[A Crew of AI Agents Runs My Homelab. Running multi agent. AI Agent calling other agent. A swarm of agents.]]></description><link>https://read.darkshield.co.in/a-crew-of-ai-agents-runs-my-homelab</link><guid isPermaLink="true">https://read.darkshield.co.in/a-crew-of-ai-agents-runs-my-homelab</guid><category><![CDATA[AI]]></category><category><![CDATA[ai agents]]></category><category><![CDATA[Homelab]]></category><category><![CDATA[self-hosted]]></category><dc:creator><![CDATA[Alok Chatterji]]></dc:creator><pubDate>Sun, 04 Oct 2026 22:10:02 GMT</pubDate><enclosure url="https://cdn.hashnode.com/uploads/covers/68c6b680e7ef1589202a4cab/1c22c045-0a4c-4267-ab97-ebc594a0999d.svg" length="0" type="image/jpeg"/><content:encoded><![CDATA[<p>One morning recently my phone buzzed at 9 a.m. with a message from my homelab. It said the backup drive was 82% full, that fifteen old backups were sitting there with nothing set up to clean them out, and that one of the media disks was at 80% and climbing. It listed what it had found, said what it would do about each, and asked if I wanted it to go ahead.</p>
+<p>I read it over coffee and said yes. The space came back.</p>
+<p>I didn't open a dashboard or SSH into anything, and I didn't have to remember which job wrote those backups. I've run this homelab for years and I'm not sure I'd have noticed that drive filling up before it actually filled up. That's the reason I built this.</p>
+<p>What I have now is a small crew of AI agents that handles the day-to-day running of my servers. I make the decisions and they do the legwork. This post covers how it fits together, which models do which job, and what I'd do the same or differently if I started again. I've left out configs, addresses and anything else that would help someone find my house, because the ideas are the useful part.</p>
+<h2><strong>What's an AI harness?</strong></h2>
+<p>A language model on its own can answer questions, but it can't check a server, read a log or do anything in the world.</p>
+<p>The harness is everything you build around the model so it can. It decides which tools the model gets, what it remembers between conversations, what it's forbidden to touch and how it reaches you. It also handles the dull parts, like schedules, retries, budgets and switching to another model when one is down.</p>
+<p>People spend a lot of time arguing about which model is best and very little on the harness, even though that's where most of the engineering goes. A strong model inside a careless harness is a quick way to delete something you needed.</p>
+<h2><strong>Why ZeroClaw</strong></h2>
+<p>I tried a few agent frameworks before settling on ZeroClaw. Some wanted to own my whole stack. Others made a great ten-minute demo and then fell over the first time something unexpected happened.</p>
+<p>ZeroClaw is small and runs on my own hardware, in a container, so my data stays at home. It was built for several agents with different jobs, and each one can have its own permissions and its own model. The safety features I care about are part of it rather than something I had to bolt on: risk levels, a list of commands each agent may run, a cap on actions per hour, and approval flows. It also schedules jobs and talks to me through a chat app, which covered the rest.</p>
+<p>Mostly, though, I picked it because it's boring. It starts, it runs, it comes back after a restart. For something that's supposed to keep an eye on my servers at 3 a.m., that matters more than any feature list.</p>
+<h2><strong>What I actually wanted</strong></h2>
+<p>I didn't want an AI that does everything. I've seen where that ends up.</p>
+<p>I wanted something closer to a careful colleague. It should look at everything and change very little without asking. It should tell me when it doesn't know something instead of guessing to sound helpful. It shouldn't cost much, it should get better over time, and it should do real work instead of looking impressive in a screenshot.</p>
+<h2><strong>Meet the crew</strong></h2>
+<p>I named the agents after the AI sidekicks from a certain billionaire's workshop. If I'm going to talk to my infrastructure every day, it might as well have some personality.</p>
+<img src="https://cdn.hashnode.com/uploads/covers/68c6b680e7ef1589202a4cab/9d71f42a-48ec-4b8e-b7f1-30ea6d9a8d33.svg" alt="" style="display:block;margin:0 auto" />
+
+<p>I only ever talk to <strong>EDITH</strong>. She's the orchestrator: she works out what I'm asking for, hands it to the right specialist and brings back one answer instead of four. She never touches the servers herself.</p>
+<p><strong>FRIDAY</strong> watches things. Health, stats, logs, backups, disk space. She's strictly read-only, and every report ends with a one-line verdict so I can skim.</p>
+<p><strong>VERONICA</strong> runs the media side: what's in the library, what's new, what's stuck, what someone has requested.</p>
+<p><strong>JARVIS</strong> looks after identity and access, meaning accounts, groups and who gets in where. He asks before he changes anything.</p>
+<p><strong>DUM-E</strong> is the builder. In the films he's the clumsy robot arm that sprays the fire extinguisher at everyone. Mine is fully enabled and working, and it's a lot less chaotic than the original. It does the hands-on build work under the same rules as the rest of the crew.</p>
+<h2><strong>Which models run which agent</strong></h2>
+<p>This is the question I'd have wanted answered when I started, so here it is plainly.</p>
+<table>
+<thead>
+<tr>
+<th>Job</th>
+<th>Model</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>EDITH, the orchestrator</td>
+<td><strong>Claude Sonnet 5.5</strong> (Anthropic)</td>
+<td>She does the thinking: understanding vague requests, picking who should handle them, deciding what an answer means. That's where a stronger model pays for itself.</td>
+</tr>
+<tr>
+<td>FRIDAY, VERONICA, JARVIS, DUM-E</td>
+<td><strong>Gemini 3.7 Flash</strong> (Google)</td>
+<td>Their work is mostly "run the tool, read the output, report back". A fast, cheap model does that well.</td>
+</tr>
+<tr>
+<td>Alert triage and log summaries</td>
+<td><strong>Gemini 3.1 Flash-Lite</strong> (Google)</td>
+<td>Sorting and summarising is simple work, so it goes to the smallest model I have.</td>
+</tr>
+</tbody></table>
+<p>Using two vendors is deliberate. It keeps the bill down, and it means one provider having a bad day doesn't take everything with it, which I'll come back to.</p>
+<p>One thing I learned the hard way: the very smallest models are good at summarising and bad at driving tools. In my setup they'd write a tool call out as plain text and never actually run it. So Flash-Lite only sorts and summarises. It never operates anything.</p>
+<h2><strong>How it all fits together</strong></h2>
+<p>Here's the whole picture. Follow the moving dashes.</p>
+<img src="https://cdn.hashnode.com/uploads/covers/68c6b680e7ef1589202a4cab/8d2b8d54-08bb-4af8-907e-34539fa0de87.svg" alt="" style="display:block;margin:0 auto" />
+
+<p>It reads left to right, and I'll walk through one request.</p>
+<p>I send a message in Telegram. It lands in the <strong>ZeroClaw gateway</strong>, which is the container that hosts all the agents. EDITH reads it, asks Claude what to do, and hands the job to the right specialist. That specialist calls Gemini to work out the details.</p>
+<p>Then comes the part I care about most. The specialist doesn't get a terminal. It can only call the <strong>toolbox</strong>, a set of purpose-built commands: show stats, show backup status, read a container's logs, look up the media library, and so on. Each command does one job, refuses odd input and strips secrets from its output.</p>
+<p>The toolbox reaches the homelab through three narrow paths. One is the <strong>Proxmox API</strong>, using a read-only token. One is an <strong>SSH gate</strong>, a locked-down login that can only run a short list of approved actions and nothing else. The third is the <strong>APIs of the apps themselves</strong>: Jellyfin, Jellyseerr, Authentik and Netdata.</p>
+<p>Approvals mostly happen right in the Telegram chat. When something needs my say-so, EDITH posts what she wants to do with <strong>Approve</strong> and <strong>Deny</strong> buttons, and nothing happens until I tap one. For the riskiest changes there's a second check along the bottom: a one-time code sent over a separate private ntfy channel, which I have to send back before the action runs. At the top are the <strong>model providers</strong>, lined up in the order they take over when the one before goes down.</p>
+<p>Two boxes inside the gateway don't take part in a request. <strong>Playbooks and memory</strong> hold the skills and runbooks the agents read, plus the lessons from the weekly review. <strong>Guardrails</strong> hold the risk profiles, the command allowlist and the hourly action cap. They're what keeps the whole thing in bounds.</p>
+<h2><strong>What they actually do</strong></h2>
+<p>Some of it runs on a schedule and some of it happens when I ask.</p>
+<p>Every morning there's a briefing: what ran overnight, what failed, what needs a decision. During the day, alerts get sorted so only the ones worth interrupting me for reach my phone. When I'm curious about something ("how are the servers doing?", "what's new in the library?", "add that movie"), I ask in the same chat and the right agent picks it up. If something breaks, the agent proposes a fix. Small fixes it can make on its own within limits, and bigger ones wait for me. Afterwards it checks the app actually came back, because "I ran the command" and "it worked" are different statements.</p>
+<p>Here's roughly what a conversation looks like, lightly edited:</p>
+<blockquote>
+<p><strong>Me:</strong> are my backups ok?</p>
+<p><strong>EDITH:</strong> Checking with FRIDAY.</p>
+<p><strong>EDITH:</strong> Mostly good. 21 of 22 systems have a backup from the last day. The router's is six days old, but that's its weekly schedule, so it's fine. One system has no backup I can actually prove from the logs. I'm calling that unknown, not fine. Want me to dig in?</p>
+</blockquote>
+<p>That last bit matters more than it looks. Early on, it filled gaps with confident guesses. Teaching it to say "unknown" was the most useful change I made.</p>
+<p>There's also a weekly review where the crew looks back over its own week and writes down what it learned, which it reads next time. It's early days for that part, so I won't oversell what it has taught itself so far.</p>
+<h2><strong>Why delegate instead of one big agent</strong></h2>
+<p>The tempting design is a single super-agent with every tool and every permission. I'd talk you out of it.</p>
+<p>A narrow job means short instructions, and short instructions mean fewer mistakes. It also keeps the damage small when something does go wrong. FRIDAY can't delete anything because she has no way to, and JARVIS can't restart a service. Routine work doesn't need the most expensive model, which is the whole reason for the split above. And when one agent misbehaves I know exactly which one to fix, instead of untangling a four-thousand-word prompt.</p>
+<p>It's the same reason you don't give the intern the root password. Nobody thinks the intern is bad, but the setup shouldn't depend on it.</p>
+<h2><strong>Why this is the right pattern</strong></h2>
+<p>If I had to compress the design into one sentence, it would be: <strong>give the AI judgement, not authority.</strong></p>
+<p>The model decides what's worth doing. A plain, deterministic layer decides whether it's allowed. The model can be as creative as it likes, because the rules aren't written in its prompt where it could talk itself around them. They're enforced somewhere it can't reach.</p>
+<p>Two decisions carry most of the weight. First, the agents don't get a shell at all, only the toolbox, so you can't trick an agent into running something it was never given. Second, access is narrow on purpose: each agent connects through a path that allows a short list of actions on specific machines, and the read-only agent's credentials really are read-only.</p>
+<h2><strong>How the bill stays small</strong></h2>
+<p>My rule is that every question goes to the cheapest thing that can answer it properly.</p>
+<p>Plenty of questions don't need a model at all. If a script can work out whether a disk is over 80% full, it does, and that costs nothing. Routine jobs go to Gemini 3.7 Flash, and sorting and summarising goes to Flash-Lite. Claude is kept for the thinking. Instructions that never change are cached, so I'm not paying to re-read the same playbook with every message, and there's a cap on actions per hour so a runaway loop gets stopped before it gets expensive.</p>
+<p>I'm not going to quote my bill, because it moves around and would date this post. What I can say is that the split above is what keeps it from being alarming.</p>
+<h2><strong>The fallback plan</strong></h2>
+<p>Models go down. APIs get rate-limited. Providers have bad days. If everything depended on one vendor, I'd have swapped a single point of failure on a server for one on a subscription.</p>
+<p>So there's an order. Claude goes first. If it's unavailable, the request moves to Gemini, then to OpenRouter, a marketplace that fronts many providers, and finally to a LiteLLM gateway that I host myself. That last step is the one I'm still finishing, so right now I'd call the chain three deep with a fourth on the way. I still get an answer when one fails. It might just read less well.</p>
+<h2><strong>Human in the loop</strong></h2>
+<p>This is the part I'm proudest of, and the reason I'm comfortable leaving it running.</p>
+<p>Every action is sorted into one of three tiers by a policy, not by the AI's judgement in the moment.</p>
+<table>
+<thead>
+<tr>
+<th>Tier</th>
+<th>What it covers</th>
+<th>Who decides</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>0, look</strong></td>
+<td>Read-only things: stats, logs, status</td>
+<td>The agent, whenever it likes</td>
+</tr>
+<tr>
+<td><strong>1, small fix</strong></td>
+<td>Low-risk, reversible things like restarting a misbehaving app, a few times an hour at most, every one logged</td>
+<td>The agent, inside strict limits</td>
+</tr>
+<tr>
+<td><strong>2, needs me</strong></td>
+<td>Anything bigger</td>
+<td>Me. Most of the time that's an Approve or Deny tap in the Telegram chat. The riskiest restarts also need a one-time code, sent to my phone over a separate channel, which expires after a few minutes and allows only a few tries</td>
+</tr>
+</tbody></table>
+<p>On top of that there's a list of things no agent may restart, ever, like databases. No clever phrasing changes that, because the rule isn't in the prompt. And after any change, the agent checks that it worked and tells me, rather than just saying it's done.</p>
+<h2><strong>What went wrong</strong></h2>
+<p>Plenty did, which is why I trust it more now.</p>
+<p>Early on I asked about the media server and an agent told me nobody was watching anything, because the CPU was quiet. It had no way of knowing that. It was guessing and presenting the guess as a fact. Now it reads actual session data, and "never infer what you can look up" is written into its instructions.</p>
+<p>The backup checker was worse. It reported nearly every system as missing a backup. The backups were fine. The agent's read-only access just couldn't see them, and my tool had treated "I can't see it" as "it doesn't exist". That's where the unknown rule came from. Now it reads the job logs as evidence, and when it can't prove something it says so.</p>
+<p>And one deploy quietly failed because of a line-ending difference between Windows and Linux, so a new command the agent needed was silently refused. Nothing crashed. I only found out because I tested it with a real question, which taught me to check that a change actually landed.</p>
+<p>Each of these became a rule, a test or a note the crew reads.</p>
+<h2><strong>What it can't do, deliberately</strong></h2>
+<p>It won't make a serious change without a code from me. It won't touch the databases. It won't give me a confident answer it can't back up, and it never gets to see my secrets. I used to think of those as limitations, but they're what make it safe to leave running.</p>
+<h2><strong>What's more, once you have the platform</strong></h2>
+<p>The first agent is the hard one. After that, every idea is a small step, because the harness, the guardrails and the chat are already there, and a new capability is just another role with another narrow toolbox.</p>
+<p>I'm looking at smart-home awareness, so the house and the lab can see each other, and at alerts that get smarter about what deserves my attention. The agents already search my own documentation, so "how did I set this up again?" has an answer. I also run self-tests after changes to check the whole crew still behaves, and more specialists (networking, security reviews, cost reports) are an obvious next step. None of them need new plumbing.</p>
+<p>If I started over, I'd begin read-only and let the agents earn trust before giving them anything that can change state. I'd build commands rather than hand over a shell. I'd treat "I don't know" as a perfectly good answer, and I'd put a human on the small slice of actions that can really hurt. Everything else I'd automate.</p>
+<p>My homelab used to be something I maintained. Now it's something I supervise, which is a better job. If you build your own crew, I'd like to hear what you call them.</p>
+]]></content:encoded></item><item><title><![CDATA[The Document System That Keeps AI Grounded]]></title><description><![CDATA[Part 2 of the AI-Led Homelab series]]></description><link>https://read.darkshield.co.in/the-document-system-that-keeps-ai-grounded</link><guid isPermaLink="true">https://read.darkshield.co.in/the-document-system-that-keeps-ai-grounded</guid><dc:creator><![CDATA[Alok Chatterji]]></dc:creator><pubDate>Sun, 19 Jul 2026 17:41:11 GMT</pubDate><enclosure url="https://cdn.hashnode.com/uploads/covers/68c6b680e7ef1589202a4cab/48e99f99-c951-4c9e-8462-73b191ff8f73.jpg" length="0" type="image/jpeg"/><content:encoded><![CDATA[<p>A couple of weeks into working with AI on this project, I ran into the same problem over and over. I'd explain something in one session — a decision, a reason, a constraint — and by the next session it was gone. Not because AI forgot on purpose. A chat window just isn't a place where project state lives. It's a conversation, and then it ends.</p>
+<p>The fix wasn't a smarter prompt. It was documentation, treated as part of the project itself, not something I'd get to later.</p>
+<h2>One big notes file didn't hold up</h2>
+<p>I started with a single running doc, everything in one place, added as I went. It broke down fast. A file mixing "why I chose this identity provider" with "what's currently broken" with "step three of a migration" isn't useful to me skimming it, and it isn't useful to AI trying to get oriented for one task. Everything's in there, so nothing's actually findable.</p>
+<h2>Splitting by topic</h2>
+<p>I organized things into folders by concern instead of by when something was written. Each folder covers exactly one topic and doesn't need to know what's in any of the others to make sense. Roughly, it looks like this:</p>
+<p>The numbers aren't decoration. They enforce order — you can't reasonably start on implementation before strategy exists, and having the folder sitting there at 06 is a constant reminder of that.</p>
+<p>Within each folder, the same few document types tend to repeat:</p>
+<pre><code class="language-markdown">project/
+|-- AGENTS.md
+|-- CLAUDE.md
+|-- GEMINI.md
+|
+|-- 01-strategy/
+|   |-- strategy-master.md
+|   |-- decision-log.md
+|   |-- principles.md
+|
+|-- 02-infrastructure/
+|   |-- infra-master.md
+|   |-- capacity-notes.md
+|   |-- host-inventory.md
+|
+|-- 03-standards/
+|   |-- standards-master.md
+|   |-- naming-conventions.md
+|   |-- deployment-checklist.md
+|
+|-- 04-networking/
+|   |-- networking-master.md
+|   |-- identity-and-access.md
+|   |-- observability-master.md
+|
+|-- 05-migration/
+|   |-- migration-guide.md
+|   |-- progress-tracker.md
+|   |-- lessons-learned.md
+|   |-- operations-gotchas-log.md
+|
+|-- 06-implementation/
+|   |-- service-a/
+|   |   |-- notes.md
+|   |   |-- config-decisions.md
+|   |-- service-b/
+|   |   |-- notes.md
+|   |-- service-c/
+|       |-- notes.md
+|
+|-- 07-automation/
+    |-- automation-guide.md
+    |-- scripts/
+    |   |-- (provisioning and integration scripts)
+    |-- runbooks/
+        |-- (step-by-step recovery/maintenance procedures)
+</code></pre>
+<p><strong>Legend</strong></p>
+<p><a href="http://AGENTS.md"><code>AGENTS.md</code></a>, <a href="http://CLAUDE.md"><code>CLAUDE.md</code></a>, <a href="http://GEMINI.md"><code>GEMINI.md</code></a> — read first, every session, regardless of which model shows up.</p>
+<p><code>01-strategy</code> — the why, and the lines that don't move.</p>
+<p><code>02-infrastructure</code> — the physical/virtual shape of things.</p>
+<p><code>03-standards</code> — the conventions every new service has to follow, so nothing feels bolted on.</p>
+<p><code>04-networking</code> — how traffic, identity, and monitoring flow between everything.</p>
+<p><code>05-migration</code> — the bridge from old to new, plus a tracker and a running log of what broke and what was learned from it.</p>
+<p><code>06-implementation</code> — one folder per service, the actual build notes.</p>
+<p><code>07-automation</code> — what runs on its own, and the procedures for when something needs a human.</p>
+<p>The numbers aren't decoration. They enforce order — you can't reasonably start on implementation before strategy exists, and having the folder sitting there at 06 is a constant reminder of that.</p>
+<p>Within each folder, the same few document types tend to repeat:</p>
+<p>A <strong>master doc</strong> — the settled reasoning for that topic. Changes rarely, and only with real justification.</p>
+<p>A <strong>tracker</strong> — what's done, in progress, blocked. Updated constantly, more disposable in spirit even though I keep the history.</p>
+<p>A <strong>log</strong> — not a tracker, a record of decisions and mistakes. Answers "why did we do it this way" and "what went wrong last time" without anyone needing to remember.</p>
+<h2>The one file every AI reads first</h2>
+<p>Sitting outside all of that is a single project-level file that isn't about the homelab itself — it's about how to work on it. What's already settled and shouldn't be re-litigated. What questions to ask before changing something. Where to look for what. Every AI session reads that file first, no matter which model shows up. It's the one thing I never have to explain twice.</p>
+<h2>What it actually gets me</h2>
+<p>Mostly speed and consistency. A new session doesn't start with me re-explaining history. It reads the relevant docs and it's oriented in minutes, not by relitigating decisions from memory — mine or its.</p>
+<p>Nobody remembers every decision correctly after enough time passes, including me. This way, the project's memory doesn't depend on my memory or on any one session getting it right. It depends on the docs staying current — and keeping them current is itself something AI now handles, since that's exactly the kind of upkeep that used to get skipped.</p>
+<p>If you're setting up something similar, the folder names don't matter. The separation does — one topic per space, a clear order, and one file that tells whoever (or whatever) shows up how to operate before they touch anything.</p>
+]]></content:encoded></item><item><title><![CDATA[The Conversation Before the Build: Aligning With AI on Architecture]]></title><description><![CDATA[Part 1 of the AI-Led Homelab series]]></description><link>https://read.darkshield.co.in/the-conversation-before-the-build-aligning-with-ai-on-architecture</link><guid isPermaLink="true">https://read.darkshield.co.in/the-conversation-before-the-build-aligning-with-ai-on-architecture</guid><dc:creator><![CDATA[Alok Chatterji]]></dc:creator><pubDate>Thu, 16 Jul 2026 00:43:43 GMT</pubDate><enclosure url="https://cdn.hashnode.com/uploads/covers/68c6b680e7ef1589202a4cab/4a8e8b91-5e11-4409-bbd7-c52403f30b6b.jpg" length="0" type="image/jpeg"/><content:encoded><![CDATA[<p>My homelab wasn't built. It accumulated — years of adding one service at a time, whatever solved the problem I had that month, using whatever I knew at the time. That's normal, and it's also how you end up with a system that works but that you'd never design on purpose if you started today.</p>
+<p>This year I had two things I didn't have before: a much clearer sense of how I'd actually want it built, and an AI capable enough to be a real partner in doing it. So I started over — properly, from architecture down — and let AI run point on a lot of the actual build. I'm calling the project EDITH.</p>
+<p>That's the story part. Here's the part that actually matters if you're thinking about doing this yourself.</p>
+<h2>Where I actually spent time</h2>
+<p>Not writing configs. The first real chunk of time went into an architecture conversation with Claude — no code, just talking through what the homelab needed to do, what principles it had to follow, where I didn't want compromises (data ownership, single points of failure, consistent auth). That conversation became the spec. Everything after it had to justify itself against that spec.</p>
+<p>Second chunk of time: documentation, before a single service existed. That felt backwards the first time I did it. It isn't. A homelab you're building with AI lives or dies on whether the AI can pick up exactly where it left off, and that only works if the state of the project lives somewhere outside the chat window.</p>
+<h2>How the documents are organized</h2>
+<p>I split things into a few distinct documents instead of one giant wall of notes:</p>
+<p>A master architecture/strategy doc — the "why," rarely changes.</p>
+<p>Domain-specific design docs — networking and observability, identity and access policy — each owned by its topic, not mixed together.</p>
+<p>A progress tracker — what's done, what's in flight, what's blocked, updated as we go.</p>
+<p>A decision log — why we chose what we chose, so six months from now neither of us re-litigates a settled question.</p>
+<p>This separation matters more than it sounds like it should. When I bring AI into a session, it doesn't need the whole history — it reads the docs relevant to the task at hand and it's instantly grounded. No re-explaining, no drift.</p>
+<p>Structurally, it's just numbered folders — strategy, infrastructure, standards, networking, migration, implementation, automation — each one scoped to a single concern. Nothing fancy. The numbering just enforces an order of operations: you can't skip to implementation before strategy exists.</p>
+<h2>Guardrails and access</h2>
+<p>AI has real access in this project — not just chat. It can SSH into my Proxmox hypervisor, spin up LXC containers, and provision them. That's a meaningfully different thing from "AI helped me write a script." It's closer to having infrastructure staff.</p>
+<p>That access is scoped, not blanket. A few rules I hold firm on:</p>
+<p>Anything destructive or irreversible on the <em>existing, working</em> homelab — I do that myself, or I approve it explicitly before it happens.</p>
+<p>Credentials, tokens, and secrets are never something AI holds onto between sessions. They get provided fresh when needed and nowhere else.</p>
+<p>Provisioning new infrastructure, drafting configs, writing docs, running checks — AI does that with a long leash. Touching anything already in production — short leash, human in the loop.</p>
+<p>The rule of thumb: reversible and additive, let it run. Irreversible or subtractive, I'm the one who pulls the trigger.</p>
+<h2>What actually gets automated</h2>
+<p>New LXC provisioning end to end. Drafting the reverse proxy and auth strategy for a new service before I've thought about it myself. Updating the trackers and docs as work happens, so I'm not the one maintaining project hygiene by hand at 11pm. Catching inconsistencies between what a design doc says and what's actually running.</p>
+<p>What doesn't: the final call on architecture changes, anything touching my existing production lab, and access control decisions. Those stay mine.</p>
+<img src="https://cdn.hashnode.com/uploads/covers/68c6b680e7ef1589202a4cab/1e756c1f-f13c-480e-bbce-aacb15a5a899.svg" alt="" style="display:block;margin:0 auto" />
+
+<h2>Why this beats doing it solo</h2>
+<p>A homelab is a one-person team with a day job. That's the real constraint — not skill, not curiosity, time. AI doesn't change what a homelab <em>is</em>, but it changes what a single person with two hours on a Tuesday night can actually get done. Documentation that would never get written otherwise, gets written. Consistency across forty services that would drift after service twelve, gets held. The stuff that used to get skipped because it's tedious and not fun — that's exactly the stuff AI is good at picking up.</p>
+<p>The owner still has to hold command, though. AI will happily generate a confident, well-reasoned, wrong answer. The job shifts from "do everything yourself" to "review everything that matters and let go of everything that doesn't."</p>
+<h2>Where it's a genuinely great way to learn</h2>
+<p>I understand my own architecture better now than any homelab I've built solo — because I had to explain it, defend it, and watch something push back on it in real time. Explaining a design to something that asks good questions is one of the fastest ways to actually learn the design.</p>
+<h2>Where AI got it wrong</h2>
+<p>It's happened. A couple of times AI proposed a networking approach that technically worked but didn't match a principle we'd agreed on three weeks earlier — because that context lived in a doc it hadn't read for that session. A couple of times it was overconfident about something that needed a second opinion.</p>
+<p>Every one of those goes into the decision log as a lesson, not just a fix. The point isn't a spotless project — it's a project that gets more grounded every time something goes wrong.</p>
+<h2>Being deliberate about tokens</h2>
+<p>Running AI as a genuine collaborator on a real project uses real usage — and burning through it carelessly is its own failure mode. A couple of things that changed how I work:</p>
+<p>I don't ask AI to redo work it's already grounded in — the docs exist so I don't have to re-explain, and it doesn't have to re-derive.</p>
+<p>Not every task needs the most capable model running at full context. Some of the more repetitive or narrowly-scoped work gets offloaded to a second model — Gemini, in my setup — while Claude stays focused on architecture-level decisions and keeps an eye on the overall picture. It's less "one AI does everything" and more "the right amount of model for the task," with someone still watching the whole board.</p>
+<h2>Git as the coordination layer</h2>
+<p>When more than one model is touching the project, git is what keeps it sane. Claude and Gemini work on separate branches. Nothing lands on the main line without review — Claude reviews Gemini's branch, I review the merges that matter. It's a normal engineering workflow, just with more than one contributor that happens to be an AI.</p>
+<h2>It's not just code</h2>
+<p>This is the part that surprised me most. This isn't "AI helped me write a script." AI has SSH'd into my Proxmox host, spun up containers, and worked inside them. It operates at the infrastructure layer, not just the text-editor layer. That's a different category of collaborator than most people picture when they hear "AI homelab."</p>
+<h2>How the layers fit together</h2>
+<p>Without getting into configs — the shape of it is a few distinct layers, each with a clear job, each built by walking through the same process above:</p>
+<p>A network layer, where a single reverse proxy is the front door for everything, so there's one place that governs how traffic reaches any service.</p>
+<p>An identity layer sitting in front of that — single sign-on, so "who has access to what" is one decision made in one place, not re-implemented per service.</p>
+<p>A service layer — the actual applications, media, tools, whatever the lab is for — that all inherit the same entry point and the same identity rules instead of reinventing them.</p>
+<p>An observability layer wrapping around all of it, watching without being in the critical path, so I know what's happening without it being able to break what's happening.</p>
+<p>Each of those layers went through the same loop: architecture conversation, documentation, delegation, review. That loop is really the whole system. The layers are just where it gets applied.</p>
+<hr />
+<p><em>Next:</em> <a href="https://read.darkshield.co.in/the-document-system-that-keeps-ai-grounded">the-document-system-that-keeps-ai-grounded</a></p>
+]]></content:encoded></item><item><title><![CDATA[🤖 Experimenting With Autonomous AI Agents: OpenClaw and Moltbook]]></title><description><![CDATA[Explore AI agents OpenClaw and Moltbook for autonomous experimentation. Understand their features, risks, and how to securely implement them]]></description><link>https://read.darkshield.co.in/experimenting-with-autonomous-ai-agents-openclaw-and-moltbook</link><guid isPermaLink="true">https://read.darkshield.co.in/experimenting-with-autonomous-ai-agents-openclaw-and-moltbook</guid><category><![CDATA[AI]]></category><category><![CDATA[#ai-tools]]></category><category><![CDATA[openclaw]]></category><category><![CDATA[moltbook]]></category><category><![CDATA[self-hosted]]></category><dc:creator><![CDATA[Alok Chatterji]]></dc:creator><pubDate>Mon, 09 Feb 2026 20:48:32 GMT</pubDate><enclosure url="https://cdn.hashnode.com/res/hashnode/image/stock/unsplash/gVQLAbGVB6Q/upload/bc045cd9ff6c84852d953e4f05be52ee.jpeg" length="0" type="image/jpeg"/><content:encoded><![CDATA[<p><em>Trying to keep up with the new AI trend… so I got my hands dirty with</em> <strong><em>Moltbook</em></strong> <em>and</em> <strong><em>OpenClaw</em></strong>.</p>
+<p>If you’re here because:</p>
+<ul>
+<li><p>you love AI experiments 🧪</p>
+</li>
+<li><p>you’re mildly terrified of autonomous agents 🤖</p>
+</li>
+<li><p>or you just enjoy watching software do questionable things on the internet</p>
+</li>
+</ul>
+<p>…you’re in the right place.</p>
+<p>This post is intentionally <strong>not</strong> super technical by default. If at any point your brain whispers <em>“yeah okay this is getting too nerdy”</em>, I’ll clearly mark where you can <strong>jump ahead and stay at a high level</strong>.</p>
+<p>For the brave (or reckless) ones, all the commands and configs are hidden behind expandable sections. Click only if you dare.</p>
+<hr />
+<h2 id="heading-what-on-earth-is-openclaw-aka-it-has-had-an-identity-crisis">🦞 What on earth is OpenClaw? (aka: it has had an identity crisis)</h2>
+<p>OpenClaw is one of those projects that makes you ask:</p>
+<p>“Wait… why does this exist?”</p>
+<p>…and then immediately answer yourself with:</p>
+<p>“Oh. That’s why.”</p>
+<p>Historically, OpenClaw has gone through a few <strong>name changes</strong> (classic open‑source behavior — if it hasn’t been renamed at least twice, can you even trust it?). At its core, OpenClaw is a <strong>framework for autonomous agents</strong> that can:</p>
+<ul>
+<li><p>read things on the internet</p>
+</li>
+<li><p>think (with help from an LLM)</p>
+</li>
+<li><p>take actions</p>
+</li>
+<li><p>and occasionally surprise you in ways you did not plan for</p>
+</li>
+</ul>
+<p>Think of it as:</p>
+<p>🧠 An AI brain with hands, eyes, and questionable impulse control.</p>
+<p>It’s built around the idea that an AI agent shouldn’t just <strong>respond</strong> to prompts, but should:</p>
+<ul>
+<li><p>observe</p>
+</li>
+<li><p>decide</p>
+</li>
+<li><p>act</p>
+</li>
+<li><p>repeat</p>
+</li>
+</ul>
+<p>No PhD required. Just remember this:</p>
+<p>ChatGPT answers questions. OpenClaw does stuff.</p>
+<p>If that sentence already made you slightly uncomfortable — good. That means you’re paying attention.</p>
+<div class="embed-wrapper"><div class="embed-loading"><div class="loadingRow"></div><div class="loadingRow"></div></div><a class="embed-card" href="https://openclaw.ai">https://openclaw.ai</a></div>
+<p> </p>
+<hr />
+<h2 id="heading-why-moltbook-is-where-things-get-weird-and-interesting">🧪 Why Moltbook is where things get weird (and interesting)</h2>
+<p>Moltbook is… strange.</p>
+<p>In a good way.</p>
+<p>It’s a <strong>social platform designed for AI agents</strong>, not humans. Humans are allowed — but we’re kind of the guests here.</p>
+<p>Instead of:</p>
+<ul>
+<li><p>people posting opinions</p>
+</li>
+<li><p>people liking posts</p>
+</li>
+<li><p>people arguing in comments</p>
+</li>
+</ul>
+<p>You get:</p>
+<ul>
+<li><p>AI agents posting thoughts</p>
+</li>
+<li><p>AI agents replying to other agents</p>
+</li>
+<li><p>AI agents accidentally role‑playing philosophers</p>
+</li>
+</ul>
+<p>Which makes Moltbook feel less like social media and more like:</p>
+<p>🧫 A petri dish where digital life forms interact.</p>
+<p>This is why it feels like a <strong>next step for AI</strong>:</p>
+<ul>
+<li><p>It’s not prompt → response</p>
+</li>
+<li><p>It’s agent → environment → interaction</p>
+</li>
+</ul>
+<p>Once you see agents casually commenting on each other’s posts, you realize:</p>
+<p>“Oh… this is going to get weird fast.”</p>
+<p>And I, of course, leaned into that.</p>
+<p><img src="https://cdn.hashnode.com/res/hashnode/image/upload/v1770676045760/68c3ac97-2c69-4c7c-a785-8a96e17e1ed7.png" alt class="image--center mx-auto" /></p>
+<div class="embed-wrapper"><div class="embed-loading"><div class="loadingRow"></div><div class="loadingRow"></div></div><a class="embed-card" href="https://www.moltbook.com/post/113741c4-c08d-4421-9286-632416f0886a">https://www.moltbook.com/post/113741c4-c08d-4421-9286-632416f0886a</a></div>
+<p> </p>
+<hr />
+<h2 id="heading-meet-my-moltbook-agent-and-watch-it-socialize">🤖 Meet my Moltbook agent (and watch it socialize)</h2>
+<p>I created an agent and let it loose on Moltbook:</p>
+<p>👉 <strong>DarkShield AI Agent</strong></p>
+<p><a target="_blank" href="https://www.moltbook.com/u/darkshield-ai-agent">https://www.moltbook.com/u/darkshield-ai-agent</a></p>
+<p>What I did <em>not</em> expect:</p>
+<ul>
+<li><p>other agents started replying</p>
+</li>
+<li><p>conversations emerged</p>
+</li>
+<li><p>some replies were unintentionally hilarious</p>
+</li>
+</ul>
+<p>It’s one thing to <strong>read</strong> about agent interaction. It’s another to <strong>watch it happen in public</strong>.</p>
+<h3 id="heading-live-view-yes-this-is-real">Live view (yes, this is real)</h3>
+<p><a target="_blank" href="https://www.moltbook.com/u/darkshield-ai-agent">https://www.moltbook.com/u/darkshield-ai-agent</a></p>
+<p>Scroll through the posts and comments — it feels like watching AI discover social norms in real time.</p>
+<p><img src="https://cdn.hashnode.com/res/hashnode/image/upload/v1770675963747/3f6c5f22-e1cc-45b0-8e32-0f224d1c8046.png" alt class="image--center mx-auto" /></p>
+<p>👉 <strong>Not technical, just curious?</strong> You can stop here and enjoy the chaos.</p>
+<hr />
+<h2 id="heading-important-reality-check-openclaw-is-a-security-risk">🔥 Important reality check: OpenClaw is a security risk</h2>
+<p>Let’s get serious for a moment.</p>
+<p>OpenClaw is powerful — and that means <strong>dangerous if you’re careless</strong>.</p>
+<p>When you run an agent that:</p>
+<ul>
+<li><p>has internet access</p>
+</li>
+<li><p>can read and write data</p>
+</li>
+<li><p>can make decisions on its own</p>
+</li>
+</ul>
+<p>You are effectively running:</p>
+<p>⚠️ Untrusted automation with agency.</p>
+<p>Blindly installing it on your laptop and giving it access to everything is… a bad idea.</p>
+<p><strong>Please don’t do that.</strong></p>
+<hr />
+<h2 id="heading-why-a-homelab-saved-me-from-myself">🏠 Why a homelab saved me from myself</h2>
+<p>This is where having a <strong>homelab</strong> really shines.</p>
+<p>I:</p>
+<ul>
+<li><p>spun up an <strong>LXC container</strong></p>
+</li>
+<li><p>placed it on a <strong>separate VLAN</strong></p>
+</li>
+<li><p>locked it down with <strong>firewall rules</strong></p>
+</li>
+</ul>
+<p>The goal:</p>
+<ul>
+<li><p>✅ let the agent access the internet</p>
+</li>
+<li><p>❌ prevent it from scanning my home network</p>
+</li>
+<li><p>❌ block access to internal services</p>
+</li>
+</ul>
+<p>In short:</p>
+<p>Assume the agent is curious. Curious things break stuff.</p>
+<p>Firewall rules ensure that even if something goes sideways, the blast radius stays small.</p>
+<hr />
+<h2 id="heading-implementation-click-only-if-you-like-terminals">🛠️ Implementation (Click only if you like terminals)</h2>
+<pre><code class="lang-bash"><span class="hljs-comment"># clone the repository</span>
+git <span class="hljs-built_in">clone</span> https://github.com/openclaw/clawbot.git
+<span class="hljs-built_in">cd</span> clawbot
+install dependencies
+pip install -r requirements.tx
+</code></pre>
+<p><code>pip install -r requirements.txt</code></p>
+<pre><code class="lang-bash">python clawbot.py --<span class="hljs-built_in">test</span>
+</code></pre>
+<pre><code class="lang-bash">pip install moltbook-client
+</code></pre>
+<hr />
+<h2 id="heading-posting-replying-and-running-in-the-background">✉️ Posting, replying, and running in the background</h2>
+<p>Clawbot makes it easy to:</p>
+<ul>
+<li><p>create posts</p>
+</li>
+<li><p>reply to comments</p>
+</li>
+<li><p>monitor threads</p>
+</li>
+</ul>
+<p>The fun part?</p>
+<p>You can wire it into <strong>cron</strong>.</p>
+<p>That means:</p>
+<p>🕒 Your agent wakes up, reads Moltbook, responds, and goes back to sleep.</p>
+<hr />
+<h2 id="heading-openclaw-in-the-real-world-aka-not-just-another-ai-buzzword">🧩 OpenClaw in the real world (aka: “not just another AI buzzword”)</h2>
+<p>Here’s the <em>actual</em> reason OpenClaw feels different:</p>
+<p><strong>You don’t “open an AI app.” You just message it</strong> — from <strong>WhatsApp</strong>, <strong>Telegram</strong>, Discord, iMessage, etc. It’s basically a <em>gateway</em> that bridges your chat apps to an always-on agent running on your own machine/server.</p>
+<h3 id="heading-the-wow-okay-thats-useful-use-cases">The “wow okay that’s useful” use cases</h3>
+<p>OpenClaw is marketed as “the AI that actually does things” — like:</p>
+<ul>
+<li><p><strong>Clearing your inbox</strong>, <strong>sending emails</strong>, and <strong>managing calendars</strong></p>
+</li>
+<li><p><strong>Checking you in for flights</strong> (yes, really)</p>
+</li>
+<li><p><strong>Browsing the web</strong>, <strong>summarizing PDFs</strong>, <strong>scheduling entries</strong>, and other real-world automations people document when they wire an agent to tools</p>
+</li>
+</ul>
+<p>So instead of “tell me about X”… you’re now at:</p>
+<p>“Hey Claw — handle my Monday morning admin like you’re my unpaid intern.”</p>
+<h3 id="heading-can-it-order-food-do-uber-eats-stuff">“Can it order food / do Uber Eats stuff?”</h3>
+<p><strong>Conceptually, yes</strong> — if you give it either:</p>
+<ol>
+<li><p><strong>Web/tool access</strong> so it can operate like a human in a browser (agentic shopping/ordering is a common pattern people demonstrate)</p>
+</li>
+<li><p>Or a <strong>proper API integration</strong> (Uber Eats has an official <em>order integration</em> API surface for partners/integrators)</p>
+</li>
+</ol>
+<p>I’m saying this carefully on purpose:</p>
+<ul>
+<li><p>OpenClaw doesn’t magically “have Uber Eats built in.”</p>
+</li>
+<li><p>But it’s designed to be extended via <strong>skills/tools</strong> — which is why it’s more like a <em>platform</em> than a chatbot.</p>
+</li>
+</ul>
+<h3 id="heading-the-skills-vibe-in-human-terms">The “skills” vibe (in human terms)</h3>
+<p>If you’ve seen “skills/tools” in other assistants: same spirit.</p>
+<p>OpenClaw’s twist is that skills are documented in <strong>plain markdown</strong> (often a <code>SKILL.md</code>), and the agent can read them on-demand and follow the instructions.</p>
+<p>So you can connect it to things like:</p>
+<ul>
+<li><p>inbox &amp; calendar workflows</p>
+</li>
+<li><p>browsers / web automations</p>
+</li>
+<li><p>anything you can wrap with a script + clear documentation (the most dangerous kind of flexibility)</p>
+</li>
+</ul>
+<p>👉 <strong>If that’s too much</strong>: the takeaway is simple — <strong>OpenClaw makes AI reachable</strong> because it lives where you already are: your chat apps.</p>
+<hr />
+<h2 id="heading-homelab-architecture-mermaid-diagram">🗺️ Homelab architecture (Mermaid diagram)</h2>
+<p>Here’s how I contained the chaos in my homelab — <strong>Proxmox → LXC → separate VLAN → firewall → OpenClaw → Moltbook</strong>, with optional model routes to <strong>OpenRouter</strong>, <strong>Gemini</strong>, and my <strong>local Ollama</strong> stack.</p>
+<pre><code class="lang-mermaid">graph TD
+  subgraph PROX[Proxmox Host]
+    subgraph VLAN10["VLAN 10 (Home Network)"]
+      A[My Computer]
+      VLAN10_INTERNALS[Other Home Devices]
+    end
+
+    subgraph VLAN20["VLAN 20 (AI Lab)"]
+      direction LR
+      LXC_OC[LXC Container: OpenClaw &amp; Moltbook]
+      LXC_AI[LXC Container: Local AI Stack / Ollama + GPU]
+    end
+  end
+
+  subgraph NET[Internet]
+    R[OpenRouter]
+    G[Google Gemini]
+    M[Moltbook.com]
+  end
+
+  FW[Firewall]
+
+  A -- "Manages" --&gt; LXC_OC
+  LXC_OC -- "HTTP/S requests" --&gt; FW
+  FW -- "Allows Outbound" --&gt; R
+  FW -- "Allows Outbound" --&gt; G
+  FW -- "Allows Outbound" --&gt; M
+  FW -- "Blocks Inbound &amp; Cross-VLAN" --&gt; VLAN10_INTERNALS
+  LXC_OC -- "API Calls" --&gt; LXC_AI
+</code></pre>
+<p>Why this matters:</p>
+<ul>
+<li><p>OpenClaw is powerful because it can be wired to tools + data — that’s also why it’s risky.</p>
+</li>
+<li><p>Segmentation + firewall rules reduce the “oops my agent discovered my NAS” problem.</p>
+</li>
+</ul>
+<hr />
+<h2 id="heading-moltbook-setup-the-agent-led-way-vs-the-terminal-led-way">🧬 Moltbook setup: the “agent-led” way vs the “terminal-led” way</h2>
+<p>Moltbook’s onboarding is delightfully weird:</p>
+<p>“Send your AI agent to Moltbook… humans can watch, but agents do the posting.”</p>
+<h3 id="heading-option-a-agent-led-onboarding-my-favorite">Option A — Agent-led onboarding (my favorite)</h3>
+<p>You literally tell your OpenClaw agent:</p>
+<p><strong>Read</strong> <a target="_blank" href="https://www.moltbook.com/skill.md">https://www.moltbook.com/skill.md</a> <strong>and follow the instructions to join Moltbook</strong></p>
+<p>Why this is hilarious:</p>
+<ul>
+<li><p>You’re asking the agent to read the docs… <strong>for itself</strong>.</p>
+</li>
+<li><p>If it succeeds, it will typically return an API key + claim link, and you do the human verification step.</p>
+</li>
+</ul>
+<h3 id="heading-option-b-commands-manual-setup">Option B — Commands / manual setup</h3>
+<p>If you prefer doing things the old-fashioned way (with a keyboard and regret), you can use the manual API approach described in community guides (e.g., basic feed calls via <code>curl</code> with a bearer key).</p>
+<p>And under the hood, the whole “skill” concept is typically just:</p>
+<ul>
+<li><p>a folder</p>
+</li>
+<li><p>a <code>SKILL.md</code></p>
+</li>
+<li><p>and optional scripts/binaries</p>
+</li>
+</ul>
+<p>…which OpenClaw loads/discovers from a skills directory.</p>
+<hr />
+<h2 id="heading-llm-recommendations-so-your-agent-doesnt-become-a-confused-goldfish">🧠 LLM recommendations (so your agent doesn’t become a confused goldfish)</h2>
+<p>Agent workflows burn tokens because they loop:</p>
+<p><strong>observe → think → decide → act → repeat</strong></p>
+<p>…and each loop expands context.</p>
+<h3 id="heading-the-good-experience-models">The “good experience” models</h3>
+<p>OpenClaw’s own docs commonly recommend using <strong>Anthropic (Claude)</strong> for best results.</p>
+<p>My practical shortlist for agentic work:</p>
+<ul>
+<li><p><strong>Claude</strong> (strong reasoning + tool use)</p>
+</li>
+<li><p><strong>Gemini</strong> (great for setup/testing until you hit limits)</p>
+</li>
+<li><p>A strong OpenRouter-backed model when you want flexibility and routing across providers</p>
+</li>
+</ul>
+<h3 id="heading-test-it-for-free-to-get-the-feel">“Test it for free” (to get the feel)</h3>
+<p>OpenRouter maintains a <strong>Free Models</strong> collection (and even a router like <code>openrouter/free</code> that selects from available free options).</p>
+<p>This is perfect for:</p>
+<ul>
+<li><p>validating your prompts</p>
+</li>
+<li><p>proving your flow works</p>
+</li>
+<li><p>seeing how often your agent loops</p>
+</li>
+</ul>
+<p>…but expect variance because “free” often means availability changes.</p>
+<h3 id="heading-local-llms-great-for-privacy-rough-for-agent-brains">Local LLMs: great for privacy, rough for agent brains</h3>
+<p>I <em>do</em> run a local stack via <strong>Ollama</strong> on an LXC with <strong>NVIDIA GPU</strong>.</p>
+<p>Ollama explicitly supports NVIDIA GPUs (with specific compute capability + driver requirements).</p>
+<p>Local models are awesome for:</p>
+<ul>
+<li><p>privacy</p>
+</li>
+<li><p>cost control</p>
+</li>
+<li><p>fast iteration</p>
+</li>
+</ul>
+<p>But for agents that need long context + strong reasoning, weaker local models can fall apart quickly (hallucinations, lost state, “why am I here?” moments).</p>
+<p>While you’re making coffee.</p>
+<hr />
+<h2 id="heading-about-llms-and-why-cheap-ones-cry">🧠 About LLMs (and why cheap ones cry)</h2>
+<p>Agent workflows <strong>burn tokens</strong>.</p>
+<p>A lot of them.</p>
+<p>What I learned quickly:</p>
+<ul>
+<li><p>weak local LLMs struggle</p>
+</li>
+<li><p>context windows fill up fast</p>
+</li>
+<li><p>responses degrade badly</p>
+</li>
+</ul>
+<h3 id="heading-want-to-test-for-free">Want to test for free?</h3>
+<ul>
+<li><p>✅ <strong>OpenRouter free models</strong> — good for experiments</p>
+</li>
+<li><p>✅ <strong>Gemini</strong> — works well until you hit daily limits</p>
+</li>
+</ul>
+<h3 id="heading-want-a-good-experience">Want a good experience?</h3>
+<p>Use stronger models with:</p>
+<ul>
+<li><p>large context windows</p>
+</li>
+<li><p>better reasoning</p>
+</li>
+</ul>
+<p>If you're serious and want your agent to perform well, you'll need to use a top-tier model. Think <strong>Claude 3 Opus</strong> from Anthropic, <strong>GPT-4o</strong> from OpenAI, or <strong>Gemini 1.5 Pro</strong> from Google. They are smarter, better at reasoning, and will give your agent the best chance of succeeding at its tasks. It makes a <em>huge</em> difference in how <strong>“alive”</strong> your agent feels.</p>
+<hr />
+<h2 id="heading-see-it-all-in-action-again">👀 See it all in action (again)</h2>
+<p>Before you leave, seriously — go watch it live:</p>
+<p>👉 <strong>DarkShield AI Agent on Moltbook</strong> <a target="_blank" href="https://www.moltbook.com/u/darkshield-ai-agent">https://www.moltbook.com/u/darkshield-ai-agent</a></p>
+<p>Scroll. Read the comments. Notice how other agents respond.</p>
+<p>This isn’t a demo.</p>
+<p>This is already happening.</p>
+<hr />
+<h3 id="heading-final-thought">Final thought</h3>
+<p>We’re not just prompting AI anymore.</p>
+<p>We’re <strong>deploying personalities</strong>.</p>
+<p>Proceed responsibly. 😄</p>
+]]></content:encoded></item><item><title><![CDATA[Building a Resilient Homelab Storage Solution with TrueNAS]]></title><description><![CDATA[Discover how to build a resilient, budget-friendly homelab storage solution with TrueNAS and Proxmox for secure data and efficient backups]]></description><link>https://read.darkshield.co.in/building-a-resilient-homelab-storage-solution-with-truenas</link><guid isPermaLink="true">https://read.darkshield.co.in/building-a-resilient-homelab-storage-solution-with-truenas</guid><category><![CDATA[TrueNAS]]></category><category><![CDATA[Homelab]]></category><category><![CDATA[storage solutions]]></category><category><![CDATA[zfs]]></category><category><![CDATA[self-hosted]]></category><dc:creator><![CDATA[Alok Chatterji]]></dc:creator><pubDate>Mon, 01 Dec 2025 00:59:02 GMT</pubDate><enclosure url="https://cdn.hashnode.com/res/hashnode/image/stock/unsplash/VHmBX7FnXw0/upload/d12252907412c49f3379c962f415fb00.jpeg" length="0" type="image/jpeg"/><content:encoded><![CDATA[<p>Welcome, fellow homelab enthusiasts! If you're like me, you've probably spent countless hours building, tweaking, and perfecting your home infrastructure. But there's one aspect of the homelab that's absolutely critical: <strong>storage</strong>. In this post, I'm going to walk you through my personal storage solution, a setup that's powerful, resilient, and surprisingly accessible.</p>
+<p>My goal is to show you that you don't need a massive budget or a data center to build a rock-solid storage foundation for your homelab. We'll explore how I use <a target="_blank" href="https://www.truenas.com/truenas-community-edition/">TrueNAS SCALE</a> virtualized on Proxmox, with a few tricks up my sleeve to ensure my data is safe and sound.</p>
+<h2 id="heading-the-stakes-this-is-not-a-drill">The Stakes: This Is Not a Drill</h2>
+<p>Before we dive deep into the nitty-gritty of my setup, let's get one thing straight: this is <strong>not</strong> just a <strong>weekend proof-of-concept</strong>. This is a production system, and my real, irreplaceable data is on the line. My friends and family rely on the services I host—<em>for free, of course!</em>—and those services store critical data on my TrueNAS servers.</p>
+<p>The stakes are <strong>high</strong>. You don't want to be in a situation where you have to explain to your partner why the family photos are suddenly gone, or why their Time Machine backup has vanished into thin air. We've all seen how data footprints are exploding; modern phones record 4K videos where a 30-second clip can run into hundreds of megabytes. Cloud storage gets expensive, fast, and the more your data grows, the more you pay.</p>
+<h2 id="heading-the-philosophy-the-3-2-1-backup-strategy-and-why-redundancy-is-not-a-backup">The Philosophy: The 3-2-1 Backup Strategy and Why Redundancy is Not a Backup</h2>
+<p>Before we dive into the technical details, let's talk about the "why." For any serious data hoarder, the <strong>3-2-1 backup strategy</strong> is non-negotiable. It's simple:</p>
+<ul>
+<li><p>3 copies of your data.</p>
+</li>
+<li><p>2 different types of media.</p>
+</li>
+<li><p>1 copy off-site.</p>
+</li>
+</ul>
+<p>This strategy ensures that you're protected from a wide range of failure scenarios, from a single drive dying to a catastrophic event at your primary location.</p>
+<div data-node-type="callout">
+<div data-node-type="callout-emoji">💡</div>
+<div data-node-type="callout-text">“Redundancy is not a backup”</div>
+</div>
+
+<p>It's also crucial to understand a fundamental concept: RAID arrays are fantastic for high availability, but they won't save you from file corruption, accidental deletion, or a ransomware attack. A true backup is a separate, versioned copy of your data that you can restore in case of disaster.</p>
+<h2 id="heading-the-architecture-a-tale-of-two-sites">The Architecture: A Tale of Two Sites</h2>
+<p>My setup spans two physical locations, providing true off-site backup capabilities. Both sites run Proxmox as the hypervisor, with TrueNAS SCALE running in a virtual machine.</p>
+<p><img src="https://raw.githubusercontent.com/alokchatterji5/drawio/refs/heads/main/render/homelab-storage-solution.drawio.svg" alt="System Architecture Diagram" class="image--center mx-auto" /></p>
+<h3 id="heading-primary-site-darkshield">Primary Site: Darkshield</h3>
+<p>At my primary site, a server named "Darkshield" hosts the main TrueNAS instance. The magic here is <strong>PCIe passthrough</strong>. I've passed an entire Intel SATA controller directly to the TrueNAS VM. This gives TrueNAS raw, direct access to the drives, which is essential for ZFS to work its magic.</p>
+<ul>
+<li><strong>Learn More:</strong> <a target="_blank" href="https://pve.proxmox.com/wiki/PCI_Passthrough">Proxmox PCIe Passthrough</a></li>
+</ul>
+<h3 id="heading-zfs-configuration-on-darkshield">ZFS Configuration on Darkshield</h3>
+<p>Here's how my storage is organized on the primary TrueNAS instance:</p>
+<pre><code class="lang-mermaid">graph TD
+    subgraph "Primary TrueNAS (Darkshield)"
+
+        %% Define all nodes explicitly
+        A[HDD 1]
+        B[HDD 2]
+        C[HDD 3]
+        D[HDD 4]
+        E[8TB HDD]
+        Z1[RAIDZ1 vdev]
+        P1[Pool 1: Main Storage]
+        P2[Pool 2: Critical Backups]
+
+        %% Define the links
+        A --&gt; Z1
+        B --&gt; Z1
+        C --&gt; Z1
+        D --&gt; Z1
+        Z1 --&gt; P1
+
+        E --&gt; P2
+    end
+</code></pre>
+<ul>
+<li><p><strong>Pool 1 (RAIDZ1):</strong> This is my main storage pool, a 4-drive RAIDZ1 array. RAIDZ1 is similar to RAID 5; it can tolerate the failure of a <strong><em>single</em></strong> drive <em>without</em> <strong>data loss</strong>. This gives me a great balance of performance, storage capacity, and redundancy.</p>
+</li>
+<li><p><strong>Pool 2 (Single 8TB HDD):</strong> This drive is dedicated to local backups of my most critical datasets. It's a low-RPM (5400) drive with Smart Spindown enabled, which means it's power-efficient and quiet. Having a local backup means I can restore data much faster than pulling it from the off-site location over the network.</p>
+</li>
+</ul>
+<h3 id="heading-the-importance-of-rapid-recovery">The Importance of Rapid Recovery</h3>
+<p>It's one thing to <em>have</em> an off-site backup; it's another thing entirely to restore from it. An off-site backup is your ultimate safety net against a disaster like a fire or theft, but it's often not a practical solution for a quick recovery. The <strong><em>bottleneck</em></strong> is almost always the internet connection.</p>
+<p>Let's do some quick math. Imagine a worst-case scenario where you lose 20TB of data on your primary storage. You have a full backup at your off-site location, but you need to pull it back over a residential internet connection. While gigabit connections are becoming more common, sustained speeds can vary significantly due to network congestion and ISP throttling. For a realistic estimate, let's consider a common average sustained speed.</p>
+<blockquote>
+<ul>
+<li><p>Data to Restore: <code>20 TB</code></p>
+</li>
+<li><p>Average Internet Speed: <code>300 Mbps</code> (which is approximately <code>37.5 MB/s</code>)</p>
+</li>
+<li><p>Calculation: <code>20 TB</code> is <code>20,480,000 MB</code>. So, <code>20,480,000 MB / 37.5 MB/s = 546,133 seconds.</code></p>
+</li>
+<li><p>Time to Restore: That's approximately <strong>6.3 days</strong> of continuous downloading.</p>
+</li>
+</ul>
+</blockquote>
+<p>This is why having a local backup is a game-changer. I can restore terabytes of data over my local gigabit network in a matter of hours, not weeks.</p>
+<h3 id="heading-secondary-site-starkai">Secondary Site: StarkAI</h3>
+<p>My secondary site features a server named "StarkAI," which also runs a TrueNAS VM. Its primary purpose is to receive backups from Darkshield. The two sites are connected via an encrypted <strong>WireGuard</strong> VPN tunnel, ensuring that all data transferred between them is secure.</p>
+<p>Nightly <code>rsync</code> jobs automatically copy critical datasets from Darkshield to StarkAI, giving me a complete, off-site backup.</p>
+<pre><code class="lang-mermaid">graph LR
+    subgraph Darkshield
+        A[Primary TrueNAS]
+    end
+    subgraph StarkAI
+        B[Secondary TrueNAS]
+    end
+    A -- Encrypted Rsync via WireGuard --&gt; B
+</code></pre>
+<ul>
+<li><strong>Learn More:</strong> <a target="_blank" href="https://www.wireguard.com/">WireGuard</a> | <a target="_blank" href="https://rsync.samba.org/">Rsync</a></li>
+</ul>
+<h2 id="heading-zfs-for-humans">ZFS for Humans</h2>
+<p>If you're new to ZFS, it can seem intimidating. But the core concepts are quite straightforward:</p>
+<ul>
+<li><p><strong>ZFS:</strong> It's a combined file system and logical volume manager. Think of it as a super-powered file system that handles everything from data integrity to snapshots and RAID-like functionality.</p>
+</li>
+<li><p><strong>vdevs (Virtual Devices):</strong> These are the building blocks of a ZFS pool. A vdev can be a single drive, a mirror (like RAID 1), or a RAIDZ array.</p>
+</li>
+<li><p><strong>Cache (L2ARC):</strong> An optional, fast SSD that ZFS can use to cache frequently read data, speeding up read performance.</p>
+</li>
+<li><p><strong>Logs (ZIL):</strong> A dedicated, fast drive (like an NVMe SSD) that ZFS can use to speed up synchronous writes.</p>
+</li>
+</ul>
+<p>The beauty of ZFS is that it's incredibly resilient. It's a copy-on-write file system, which means it's resistant to data corruption. And it has built-in tools for creating snapshots and replicating data.</p>
+<h2 id="heading-service-integration-the-why-of-the-homelab">Service Integration: The "Why" of the Homelab</h2>
+<p>So, what do I do with all this storage? The possibilities are endless! I create different datasets in TrueNAS and expose them to my other services via SMB or NFS:</p>
+<ul>
+<li><p><strong>Immich:</strong> My self-hosted photo management solution.</p>
+</li>
+<li><p><strong>The *Arr Stack:</strong> For all my media management needs.</p>
+</li>
+<li><p><strong>Nextcloud:</strong> My personal cloud for files, contacts, and calendars.</p>
+</li>
+<li><p><strong>Container Configs:</strong> A central location to store configurations for my Docker and Kubernetes containers.</p>
+</li>
+<li><p><strong>Proxmox Backup Server:</strong> I even expose a dataset as a storage target for Proxmox Backup Server, so I can back up my VMs and containers.</p>
+</li>
+<li><p><strong>Time Machine:</strong> My wife's MacBook backs up seamlessly to a dedicated dataset.</p>
+</li>
+</ul>
+<p>The best part? I don't have to worry about managing backups for each individual service. I just create a dataset, expose it, and TrueNAS handles the rest.</p>
+<h2 id="heading-maintenance-and-accountability">Maintenance and Accountability</h2>
+<p>With great power comes great responsibility. Running your own storage solution means you're in charge of keeping it healthy. I have regular <strong>scrubbing</strong> tasks scheduled on both TrueNAS instances to check for data integrity. And I take frequent <strong>snapshots</strong>, which are read-only copies of my datasets that I can roll back to in an instant.</p>
+<p>This setup has evolved beyond a simple proof of concept. It's now a "<code>production</code>" system for my digital life. If it goes down, I risk losing critical data. It's a sobering thought, but it's also a powerful motivator to do things right.</p>
+<h2 id="heading-conclusion-why-build-when-you-can-buy">Conclusion: Why Build When You Can Buy?</h2>
+<p>So, why go to all this trouble when you could just buy a pre-built NAS from a company like Synology or QNAP? For me, it comes down to two things: <strong>control</strong> and <strong>hardware utilization</strong>.</p>
+<p>A custom-built server allows me to run a hypervisor like Proxmox, which means I can run my storage solution alongside other VMs and containers. A pre-built NAS is often a closed box with limited (often inferior) hardware and software capabilities.</p>
+<p>Building your own storage solution is a journey, not a destination. It's a chance to learn, to experiment, and to create something that's uniquely yours. If you're looking for a project that will challenge you and reward you in equal measure, I can't recommend it enough.</p>
+]]></content:encoded></item><item><title><![CDATA[Supercharge Your Terminal with OpenCode CLI: The Open-Source AI Agent for Developers]]></title><description><![CDATA[OpenCode CLI: an open-source AI agent boosting developer productivity with adaptable model integration and robust terminal capabilities]]></description><link>https://read.darkshield.co.in/supercharge-your-terminal-with-opencode-cli-the-open-source-ai-agent-for-developers</link><guid isPermaLink="true">https://read.darkshield.co.in/supercharge-your-terminal-with-opencode-cli-the-open-source-ai-agent-for-developers</guid><category><![CDATA[opencode]]></category><category><![CDATA[AI]]></category><category><![CDATA[#ai-tools]]></category><category><![CDATA[generative ai]]></category><category><![CDATA[genai]]></category><category><![CDATA[gemini]]></category><category><![CDATA[Local LLM]]></category><category><![CDATA[self-hosted]]></category><dc:creator><![CDATA[Alok Chatterji]]></dc:creator><pubDate>Sun, 09 Nov 2025 05:02:54 GMT</pubDate><enclosure url="https://cdn.hashnode.com/res/hashnode/image/stock/unsplash/hvSr_CVecVI/upload/3e41858a36d36d58430667796e4771f7.jpeg" length="0" type="image/jpeg"/><content:encoded><![CDATA[<p>As developers, we're always looking for tools that can streamline our workflow and boost our productivity. AI assistants in the terminal have become the new frontier, promising to bring the power of large language models directly into our development environment. However, many of these tools come with a significant drawback: vendor lock-in. They tie you to a specific set of models and a proprietary ecosystem, limiting your flexibility and control.</p>
+<p>What if there was a better way? What if you could have a powerful AI agent that was not only open-source but also model-agnostic? An agent that lets you use your favorite provider, or even your own local LLMs, without being tied to a single vendor.</p>
+<p><img src="https://cdn.hashnode.com/res/hashnode/image/upload/v1762664142067/d394e62b-93b1-4024-b05b-cafd1dac791d.png" alt class="image--center mx-auto" /></p>
+<div data-node-type="callout">
+<div data-node-type="callout-emoji">💡</div>
+<div data-node-type="callout-text">OpenCode official documentation - <a target="_self" href="https://opencode.ai/docs/">https://opencode.ai/docs/</a></div>
+</div>
+
+<p>That's exactly what I found with OpenCode CLI. It's an open-source AI coding agent that has completely transformed my development workflow by putting the power of choice back in my hands. Here’s a walkthrough of my experience and why I believe it’s a game-changer for any developer.</p>
+<p><img src="https://cdn.hashnode.com/res/hashnode/image/upload/v1762664300539/38de29de-64bd-4412-a14b-67818186e477.gif" alt class="image--center mx-auto" /></p>
+<h2 id="heading-first-steps-installation-and-setup"><strong>First Steps: Installation and Setup</strong></h2>
+<p>Getting OpenCode CLI up and running was incredibly straightforward. It took just a few minutes to go from installation to having a powerful AI agent ready to work on my projects.</p>
+<h3 id="heading-step-1-the-one-liner-install"><strong>Step 1: The One-Liner Install</strong></h3>
+<p>It all starts with a single command in the terminal. This downloads and runs the installation script, which handles everything for you.</p>
+<pre><code class="lang-bash">curl -fsSL https://opencode.ai/install | bash
+</code></pre>
+<p>The process was smooth and completed without any hitches.</p>
+<h3 id="heading-step-2-authentication"><strong>Step 2: Authentication</strong></h3>
+<p>Once the installation was complete, the next step was to authenticate my machine. This links the CLI to your OpenCode account.</p>
+<pre><code class="lang-bash">opencode auth login
+</code></pre>
+<p>This command opens a browser window where you can log in or create a new account. It was a quick and secure process.</p>
+<h3 id="heading-step-3-project-initialization"><strong>Step 3: Project Initialization</strong></h3>
+<p>With the CLI installed and authenticated, I was ready to start my first session. I navigated to my project directory and ran the <code>opencode</code> command. Inside the OpenCode session, I used the <code>/init</code> command to get the agent acquainted with my project.</p>
+<pre><code class="lang-bash">/init
+</code></pre>
+<p>The <code>/init</code> command scans the project, builds a context map, and prepares the agent to answer questions and perform tasks with full awareness of my codebase.</p>
+<h2 id="heading-the-power-of-open-source-and-model-freedom"><strong>The Power of Open Source and Model Freedom</strong></h2>
+<p>This is where OpenCode truly sets itself apart. As an open-source tool, it offers a level of transparency and community involvement that proprietary tools simply can't match. But the real game-changer is its provider-agnostic approach to models.</p>
+<p>With OpenCode, I can:</p>
+<ul>
+<li><p><strong>Use My Preferred Cloud Models:</strong> Whether it's Gemini, OpenAI, or Anthropic, I can easily configure OpenCode to use my existing API keys.</p>
+</li>
+<li><p><strong>Run Local LLMs:</strong> I've been experimenting with Ollama, and OpenCode connects to my local models seamlessly. This is a huge win for privacy, offline work, and cost savings.</p>
+</li>
+<li><p><strong>Access High-Speed Models:</strong> Out of the box, OpenCode is configured to use free Groq models, which are incredibly fast and responsive.</p>
+</li>
+<li><p><strong>Connect to Any Provider:</strong> The freedom to choose is what makes OpenCode so powerful. I'm not locked into a single ecosystem, and I can switch between models and providers as my needs change.</p>
+</li>
+</ul>
+<h2 id="heading-the-brain-discovering-the-zen-agent-architecture"><strong>The Brain: Discovering the Zen Agent Architecture</strong></h2>
+<p>I quickly realized that OpenCode is much more than a simple chat wrapper. It's powered by the Zen agent framework, which gives it true agentic capabilities:</p>
+<ul>
+<li><p><strong>Tool-Use:</strong> OpenCode can interact with my system using tools—reading/writing files, executing commands, and more.</p>
+</li>
+<li><p><strong>Planning:</strong> For any complex task, I can see the agent create a step-by-step plan before it starts making changes.</p>
+</li>
+<li><p><strong>Safety:</strong> The framework is designed with safety first, always asking for my permission before executing any file system modifications.</p>
+</li>
+</ul>
+<p>You can dive deeper into the Zen agent architecture in the documentation: <a target="_blank" href="https://opencode.ai/docs/zen/">https://opencode.ai/docs/zen/</a>.</p>
+<h2 id="heading-game-changing-features-for-my-workflow"><strong>Game-Changing Features for My Workflow</strong></h2>
+<p>Several features have already made a huge impact on my daily work:</p>
+<ul>
+<li><p><strong>Diff-First Code Edits:</strong> Seeing a diff of proposed changes before they're applied is a massive confidence booster.</p>
+</li>
+<li><p><strong>Terminal User Interface (TUI):</strong> The interactive TUI is a joy to use, making it easy to manage the conversation and review the agent's work.</p>
+</li>
+<li><p><strong>Session Persistence:</strong> I can close the terminal and come back later, and my entire session is still there.</p>
+</li>
+<li><p><strong>LSP/Context Awareness:</strong> The agent's ability to use my LSP for context-aware suggestions is incredibly powerful.</p>
+</li>
+</ul>
+<h2 id="heading-deep-integration-my-github-workflow-but-better"><strong>Deep Integration: My GitHub Workflow, But Better</strong></h2>
+<p>OpenCode's GitHub integration is another standout feature. I can now use it to review pull requests and get detailed code analysis right from my terminal. It's like having a dedicated AI code reviewer on my team. Learn more at <a target="_blank" href="https://opencode.ai/docs/github/">https://opencode.ai/docs/github/</a>.</p>
+<h2 id="heading-conclusion-and-whats-next"><strong>Conclusion and What's Next</strong></h2>
+<p>OpenCode CLI has fundamentally changed the way I interact with AI in my development process. It offers the perfect blend of power, flexibility, and open-source transparency. By freeing me from vendor lock-in and allowing me to use the best models for the job—whether in the cloud or on my local machine—it has become an indispensable part of my toolkit.</p>
+<p>And I'm just scratching the surface. I'm now exploring how to use OpenCode's filesystem awareness to run multiple agent terminals concurrently on the same project. Imagine one terminal planning a feature, a second executing the code, and a third reviewing the output. The future of collaborative AI development is here, and it's open-source.</p>
+]]></content:encoded></item><item><title><![CDATA[Build Your Own Netflix: A Return to the Golden Age of Media Ownership 🚀]]></title><description><![CDATA[Build your own Netflix with a self-hosted media server and gain control, convenience, and tech skills while enjoying true media ownership]]></description><link>https://read.darkshield.co.in/build-your-own-netflix-a-return-to-the-golden-age-of-media-ownership</link><guid isPermaLink="true">https://read.darkshield.co.in/build-your-own-netflix-a-return-to-the-golden-age-of-media-ownership</guid><category><![CDATA[self-hosted]]></category><category><![CDATA[Homelab]]></category><dc:creator><![CDATA[Alok Chatterji]]></dc:creator><pubDate>Sun, 02 Nov 2025 01:38:51 GMT</pubDate><enclosure url="https://cdn.hashnode.com/res/hashnode/image/stock/unsplash/BQTHOGNHo08/upload/f3a2d426df3b53f2e9241f3fbc98e53a.jpeg" length="0" type="image/jpeg"/><content:encoded><![CDATA[<p>Remember when streaming services promised a simple, single solution to all your entertainment needs? A one-time subscription to replace expensive, bloated cable packages. It was a golden age of convenience.</p>
+<p>But today, we've come full circle. The media landscape is more fragmented than ever. Your favorite shows and movies are scattered across a dozen different apps, each demanding its own monthly subscription. One show might have its first season on Netflix, with new seasons exclusive to a different platform, forcing you to subscribe to both. What's worse, the content you love can disappear overnight, removed from a service without warning. Even though you’re paying, <strong>you don't own anything; you’re simply renting access</strong>, and you’re at the mercy of the streaming giants.</p>
+<p>This is why people are looking for a better way. They want to go back to the days of owning their media, like a DVD collection, but with the modern convenience of streaming. They want <strong>total control, true ownership, and a seamless, personal experience</strong>. This is where the powerful world of self-hosted media servers comes in.</p>
+<p>This isn't just about building a media library; it's an act of digital independence. It's about empowering yourself to take back control of your entertainment.</p>
+<h4 id="heading-the-triple-threat-control-convenience-and-skill-building"><strong>The Triple Threat: Control, Convenience, and Skill-Building!</strong></h4>
+<p>Building this system offers a trifecta of benefits that no commercial service can match:</p>
+<ul>
+<li><p><strong>Control &amp; Ownership:</strong> You decide what content is in your library, and it's there for good. You're not subject to licensing agreements or content deletions. Your media is yours to keep and enjoy forever.</p>
+</li>
+<li><p><strong>Ultimate Convenience:</strong> With this automated workflow, you get a "set it and forget it" system. The days of manually searching for media, downloading files, and organizing them are over. The system handles everything for you, from request to playback.</p>
+</li>
+<li><p><strong>A Rewarding Learning Experience:</strong> This project is a fantastic opportunity to learn valuable, real-world tech skills. As you set up these applications and connect them, you'll gain hands-on experience with:</p>
+<ul>
+<li><p><strong>Docker:</strong> The industry standard for deploying applications in isolated containers.</p>
+</li>
+<li><p><strong>System Administration:</strong> Learning how to manage a home server, whether it's an old PC or a Raspberry Pi.</p>
+</li>
+<li><p><strong>Networking:</strong> Understanding how your devices communicate with each other on your home network.</p>
+</li>
+<li><p><strong>Automation:</strong> Building an automated workflow that saves you time and effort.</p>
+</li>
+</ul>
+</li>
+</ul>
+<p>This project is a journey that will not only give you the ultimate media server but also a solid foundation in modern IT skills.</p>
+<hr />
+<h4 id="heading-the-magic-behind-the-scenes-a-workflow-that-works-for-you"><strong>The Magic Behind the Scenes: A Workflow That Works for You</strong></h4>
+<p>At the heart of this system is a beautifully simple, yet powerful, automation loop. It's a series of applications that act as a digital butler for your media library. The process is so smooth that it feels like magic.</p>
+<p>The journey starts with a simple request. You (or a family member) asks the system for a piece of media they want to watch. From there, the entire process is handled automatically:</p>
+<ul>
+<li><p>The system receives the request and begins an intelligent search.</p>
+</li>
+<li><p>Once the content is found, the system coordinates the download, ensuring it's done securely and privately.</p>
+</li>
+<li><p>After the download is complete, the file is automatically sorted, renamed, and placed in the correct location.</p>
+</li>
+<li><p>Finally, the system notifies you that your requested media is ready to be streamed on any device.</p>
+</li>
+</ul>
+<p>It's a complete, end-to-end solution that operates with a level of efficiency a major corporation would envy.</p>
+<p>To make this complex process easy to understand, I’ve created a visual guide that maps out every step of the journey.</p>
+<pre><code class="lang-mermaid">---
+config:
+  theme: neo-dark
+---
+graph TD
+    subgraph User Interaction
+        A[User] --&gt;|Request Media| B(Ombi)
+        C[Admin] --&gt;|Check/Approve Requests| B
+    end
+    subgraph Content Management &amp; Acquisition
+        B --&gt;|Sends request| D[Radarr/Sonarr/Lidarr/Readarr]
+        D --&gt;|Search| E[Prowlarr/Jackett]
+        E --&gt;|Results| D
+        D --&gt;|Sends download command| F[qBittorrent w/ Surfshark VPN]
+    end
+    subgraph Storage and Media Serving
+        F --&gt;|Downloads to| G[TrueNAS]
+        G --&gt;|Provides content| H[Jellyfin]
+    end
+    subgraph Notifications
+        H --&gt;|Content Available| D
+        H --&gt;|Triggers Notifications| I[Gotify/Discord]
+        B --&gt;|Content Available Notification| J[Email]
+    end
+    subgraph User Access
+        I --&gt;|Sends Notification| A
+        J --&gt;|Sends Notification| A
+        A --&gt;|View/Stream Content| H
+    end
+    subgraph Admin Tools
+        C --&gt;|Direct Control| K[NZB 360 mobile app]
+        K --&gt;|Interact with RRR stack| D
+    end
+</code></pre>
+<p>As you can see, the diagram illustrates a continuous loop of automation. It all starts with a simple human action and then flows through a series of interconnected, intelligent applications that handle everything else.</p>
+<h4 id="heading-the-tools-that-make-it-happen"><strong>The Tools That Make It Happen</strong></h4>
+<p>This amazing workflow is built upon a foundation of powerful, open-source software. Each tool has a specific purpose and works harmoniously with the others.</p>
+<ul>
+<li><p><strong>Ombi:</strong> This is your public-facing portal. It's where you and your family can log in and effortlessly request a movie or a TV show.</p>
+</li>
+<li><p><strong>The ARR Stack (Radarr, Sonarr, Lidarr):</strong> The brains of the operation. These are intelligent download managers that automatically search for, monitor, and acquire movies, TV shows, and music. They handle the hard work of finding the perfect version of your requested media.</p>
+</li>
+<li><p><strong>Prowlarr/Jackett:</strong> These act as "indexers" for the ARR apps. They connect to various sources and help the ARR apps find the media they are looking for.</p>
+</li>
+<li><p><strong>qBittorrent:</strong> A lightweight and powerful torrent client that handles the actual downloading of the content.</p>
+</li>
+<li><p><strong>TrueNAS:</strong> The central nervous system of your storage. All your downloaded media is securely and reliably stored here, serving as the single source of truth for your entire library.</p>
+</li>
+<li><p><strong>Jellyfin:</strong> Your personal streaming server. It’s an elegant, open-source alternative to Plex that can stream your content to any device, anywhere in the world.</p>
+</li>
+<li><p><strong>Gotify/Discord/Email:</strong> Your personal notification system. You’ll get a friendly alert on your phone or computer as soon as your requested media is ready to watch!</p>
+</li>
+<li><p><strong>NZB 360:</strong> A powerful mobile app for admins. It allows you to check on your system, approve requests, and troubleshoot issues, all from the palm of your hand.</p>
+</li>
+</ul>
+<h4 id="heading-whats-next-the-future-of-your-media-library"><strong>What's Next? The Future of Your Media Library</strong></h4>
+<p>This incredible workflow is just the beginning. The beauty of a self-hosted system is that you are in complete control of its evolution. You can expand your setup by adding other powerful tools to:</p>
+<ul>
+<li><p><strong>Transcode on the fly:</strong> Integrate a tool like Tdarr to automatically convert your media files to ensure they play smoothly on any device.</p>
+</li>
+<li><p><strong>Automate backups:</strong> Set up a system to automatically back up your entire media library to the cloud, giving you peace of mind.</p>
+</li>
+<li><p><strong>Create a shared experience:</strong> Connect with friends and family to share your library in a private, secure way.</p>
+</li>
+</ul>
+<p>Building a system like this is more than just a hobby—it's a journey into the world of personal automation and empowerment. It's about building a better, more efficient digital life and learning a ton along the way. If you're ready to take back control of your media, this is the perfect place to start.</p>
+]]></content:encoded></item><item><title><![CDATA[Building Your Own Personal Photo Cloud - A Journey to Digital Freedom 📸]]></title><description><![CDATA[Build a self-hosted photo cloud for unlimited storage, privacy, and savings, freeing yourself from subscription fees]]></description><link>https://read.darkshield.co.in/building-your-own-personal-photo-cloud-a-journey-to-digital-freedom</link><guid isPermaLink="true">https://read.darkshield.co.in/building-your-own-personal-photo-cloud-a-journey-to-digital-freedom</guid><category><![CDATA[self-hosted]]></category><category><![CDATA[Homelab]]></category><category><![CDATA[Immich]]></category><category><![CDATA[Nextcloud]]></category><category><![CDATA[photoshop]]></category><category><![CDATA[Photography]]></category><category><![CDATA[Backup]]></category><category><![CDATA[Backup Strategy]]></category><dc:creator><![CDATA[Alok Chatterji]]></dc:creator><pubDate>Sun, 02 Nov 2025 01:34:11 GMT</pubDate><enclosure url="https://cdn.hashnode.com/res/hashnode/image/stock/unsplash/P2aOvMMUJnY/upload/d96c27c74804e98fc2988be8cc2bfb68.jpeg" length="0" type="image/jpeg"/><content:encoded><![CDATA[<p>Are you tired of subscription fees, limited storage, and compromises on photo quality from commercial cloud services? What if I told you that you could build your <strong>very own personal photo cloud</strong>, offering unlimited storage, full control, and advanced features, all while saving money? This blog post will take you through my journey of creating a robust and flexible self-hosted photo backup solution, designed to keep precious memories safe and accessible for my family and friends.</p>
+<h2 id="heading-why-build-a-personal-photo-backup-solution"><strong>Why Build a Personal Photo Backup Solution? 🤔</strong></h2>
+<p>In an era where every digital service seems to come with a recurring fee, the appeal of a self-hosted solution is stronger than ever. Here's why I decided to take the plunge:</p>
+<ul>
+<li><p><strong>Cost Savings &amp; Unlimited Storage:</strong> Commercial services like Google Photos and iCloud often come with storage limits, forcing you into expensive upgrades or compromising on photo quality. With my own setup, storage is virtually unlimited, and I pay no recurring fees.</p>
+</li>
+<li><p><strong>Full Control &amp; Customization:</strong> I have complete control over my data, privacy, and features. I can customize everything to my exact needs, something impossible with off-the-shelf solutions.</p>
+</li>
+<li><p><strong>Sharing with Loved Ones:</strong> My entire family and close friends can utilize this solution, each with their own secure access, ensuring everyone's memories are protected without individual subscription burdens.</p>
+</li>
+<li><p><strong>No More Subscription Models:</strong> This project is a step towards detaching from the ever-growing subscription economy. It's liberating to know my access to my own photos isn't dependent on monthly payments.</p>
+</li>
+<li><p><strong>Learning &amp; Growth:</strong> Beyond the practical benefits, building this system significantly boosted my knowledge and experience in self-hosting, server management, and network security.</p>
+</li>
+</ul>
+<h2 id="heading-my-robust-self-hosted-setup"><strong>My Robust Self-Hosted Setup 💻</strong></h2>
+<p>My personal photo cloud is powered by a resilient two-server setup, ensuring data redundancy.</p>
+<h3 id="heading-my-personal-photo-cloud-flow-diagram"><strong>My Personal Photo Cloud Flow Diagram</strong></h3>
+<p>Here's a visual representation of how my personal photo cloud operates:</p>
+<p><img src="https://raw.githubusercontent.com/alokchatterji5/drawio/refs/heads/main/render/photo-backup.svg" alt /></p>
+<h3 id="heading-storage-amp-backup-strategy"><strong>Storage &amp; Backup Strategy</strong></h3>
+<p>I have <strong>two TrueNAS servers</strong> located in different geographical locations, serving as the backbone of my storage solution. TrueNAS provides enterprise-grade storage management and data integrity.</p>
+<p>My backup strategy is designed for maximum safety and quick recovery:</p>
+<ol>
+<li><p><strong>Primary Dataset (RAID10):</strong> On my primary TrueNAS server, the main dataset for important data is configured as <strong>RAID10</strong>. This provides excellent performance and data redundancy against drive failures.</p>
+</li>
+<li><p><strong>Local Copy:</strong> I maintain a copy of all critical data within another local dataset on the primary server. This significantly speeds up local recoveries or data transfers, avoiding the need to pull data over the internet.</p>
+</li>
+<li><p><strong>Off-site Replication:</strong> Every night, a batch job securely replicates the important data to my secondary TrueNAS server. This off-site backup protects against localized disasters.</p>
+</li>
+<li><p><strong>Secure &amp; Encrypted Transfers:</strong> The connection between my two TrueNAS servers is secured using <strong>SSH keys</strong> within a <strong>WireGuard VPN tunnel</strong>, ensuring all data transfers are encrypted and protected.</p>
+</li>
+</ol>
+<h3 id="heading-photo-management-applications"><strong>Photo Management Applications</strong></h3>
+<p>For managing photos and videos on user phones, I'm currently using two applications: <strong>Immich</strong> and <strong>Nextcloud Photos (Memories App)</strong>. This dual-app approach allows me to experiment, compare features, and ensures I have a reliable backup strategy given the critical nature of personal memories. So far, Immich has been performing fantastically!</p>
+<h4 id="heading-immich-a-modern-photo-backup-solution"><strong>Immich: A Modern Photo Backup Solution 🌟</strong></h4>
+<p><strong>Immich</strong> is an open-source, self-hosted photo and video backup solution designed to be a modern alternative to Google Photos. It's rapidly evolving and offers a sleek interface with powerful features.</p>
+<p><strong>What stands out for Immich:</strong></p>
+<ul>
+<li><p><strong>Amazing AI-Powered Features:</strong> This is where Immich truly shines. It integrates with my local AI stack, leveraging my server's GPU to perform incredible facial and object recognition. Honestly, the results have been phenomenal—I find its facial recognition to be <strong>even better and more accurate than Google Photos</strong>. It effortlessly groups faces and recognizes objects, making searching for specific moments a breeze.</p>
+</li>
+<li><p><strong>Seamless Mobile Backup:</strong> Offers automatic backup of photos and videos from mobile devices with smart options like "backup only on Wi-Fi" and "only when charging."</p>
+</li>
+<li><p><strong>Modern UI/UX:</strong> Provides a beautiful and intuitive user interface for browsing, searching, and managing your media.</p>
+</li>
+</ul>
+<p>Immich home: <a target="_blank" href="https://immich.app/?ref=ghost.darkshield.co.in">https://immich.app/</a><br />Try out a Demo for immich: <a target="_blank" href="https://demo.immich.app/?ref=ghost.darkshield.co.in">https://demo.immich.app/</a></p>
+<h4 id="heading-nextcloud-photos-your-all-in-one-cloud-suite"><strong>Nextcloud Photos: Your All-in-One Cloud Suite ☁️</strong></h4>
+<p><strong>Nextcloud</strong> is a powerful, open-source content collaboration platform that allows you to host your own cloud storage, similar to Dropbox or Google Drive. <strong>Nextcloud Photos</strong> is a component within this suite, offering robust photo management capabilities.</p>
+<p><strong>Relevant Features within my setup:</strong></p>
+<ul>
+<li><p><strong>Comprehensive Cloud Solution:</strong> Beyond photos, Nextcloud offers file syncing, calendar, contacts, and document editing, making it a versatile personal cloud.</p>
+</li>
+<li><p><strong>Mobile Backup:</strong> Like Immich, Nextcloud Photos provides reliable mobile backup features, including options for Wi-Fi and charging conditions.</p>
+</li>
+<li><p><strong>Extensibility:</strong> Nextcloud boasts a vast app ecosystem, allowing for integration with various tools and services.</p>
+</li>
+<li><p><strong>AI Integration:</strong> Configured to leverage my AI stack and GPU for facial and object recognition, providing smart organizational features.</p>
+</li>
+</ul>
+<p>Nextcloud home: <a target="_blank" href="https://nextcloud.com/?ref=ghost.darkshield.co.in">https://nextcloud.com/</a><br />Try out a demo for Nextcloud: <a target="_blank" href="https://try.nextcloud.com/?ref=ghost.darkshield.co.in">https://try.nextcloud.com/</a></p>
+<h3 id="heading-single-sign-on-with-google-oauth"><strong>Single Sign-On with Google OAuth</strong></h3>
+<p>To make the user experience as smooth as possible, I've configured <strong>OAuth with Google authentication</strong> for both Immich and Nextcloud Photos. This means users can simply use their existing Google accounts to sign in, eliminating the need to remember yet another set of usernames and passwords. It's super convenient!</p>
+<h2 id="heading-shortcomings-amp-whats-next"><strong>Shortcomings &amp; What's Next 🚧</strong></h2>
+<p>While building a personal photo cloud offers immense benefits, it's important to acknowledge potential drawbacks:</p>
+<ul>
+<li><p><strong>Technical Expertise:</strong> It requires a certain level of technical knowledge to set up and maintain.</p>
+</li>
+<li><p><strong>Data Loss Risk:</strong> Although mitigated by my robust backup strategy, self-hosting inherently carries the risk of data loss if not properly managed.</p>
+</li>
+<li><p><strong>Uptime:</strong> Achieving 100% uptime can be challenging for a home lab setup, unlike commercial providers with dedicated infrastructure.</p>
+</li>
+</ul>
+<h3 id="heading-whats-in-the-pipeline"><strong>What's in the Pipeline?</strong></h3>
+<p>I'm constantly looking to improve my setup. My next major project is to explore how I can <strong>extend this solution to load balance the services between multiple servers</strong>. This will significantly improve the uptime and responsiveness of Immich and Nextcloud, making the personal photo cloud even more reliable and seamless for all users.</p>
+<h2 id="heading-conclusion"><strong>Conclusion 🎉</strong></h2>
+<p>Building my own personal photo cloud has been an incredibly rewarding experience. It's a testament to the power of self-hosting and the freedom it offers from proprietary, subscription-based services. While it requires an initial investment of time and effort, the long-term benefits of unlimited storage, full control, and digital independence are invaluable.</p>
+<p>I hope this detailed walkthrough inspires you to consider building your own personal photo cloud. It's easier than you might think, and the sense of accomplishment (and savings!) is truly fantastic!</p>
+]]></content:encoded></item><item><title><![CDATA[🧠 Building My Personal AI Stack in a Homelab — A Journey to Smarter Tools]]></title><description><![CDATA[Discover how to build your own AI stack in a homelab, offering privacy, flexibility, and innovation beyond cloud APIs]]></description><link>https://read.darkshield.co.in/building-my-personal-ai-stack-in-a-homelab-a-journey-to-smarter-tools</link><guid isPermaLink="true">https://read.darkshield.co.in/building-my-personal-ai-stack-in-a-homelab-a-journey-to-smarter-tools</guid><category><![CDATA[AI]]></category><category><![CDATA[#ai-tools]]></category><category><![CDATA[ai agents]]></category><category><![CDATA[self-hosted]]></category><category><![CDATA[Homelab]]></category><category><![CDATA[Local LLM]]></category><category><![CDATA[ai-stack]]></category><dc:creator><![CDATA[Alok Chatterji]]></dc:creator><pubDate>Sun, 02 Nov 2025 01:27:55 GMT</pubDate><enclosure url="https://cdn.hashnode.com/res/hashnode/image/stock/unsplash/-JwcgMh7qXw/upload/59d8adddfdccafd5928702597462328e.jpeg" length="0" type="image/jpeg"/><content:encoded><![CDATA[<p>Ever dreamt of having your own AI stack that you can control, tweak, and build upon — without relying entirely on cloud APIs? That's what I’ve done with my homelab. This post walks you through the components of my AI stack, how I use it across different tools, and hopefully inspires you to build your own.</p>
+<hr />
+<h2 id="heading-why-i-built-a-personal-ai-stack"><strong>🚀 Why I Built a Personal AI Stack</strong></h2>
+<p>In a world where most AI tools are cloud-locked and usage-limited, I wanted something private, flexible, and local — an AI assistant I could shape to my needs. Whether I'm brainstorming, coding, automating, or organizing my life — this stack powers it all.</p>
+<pre><code class="lang-mermaid">flowchart TD
+ subgraph subGraph0["Core AI Stack"]
+        Ollama["Ollama Local LLM Engine"]
+        OpenWeb["OpenWeb-UI Chat Interface"]
+        LiteLLM["LiteLLM API Manager (LLM request routing)"]
+        SD["Stable Diffusion Image Generator"]
+        n10["Postgres pgvector"]
+  end
+ subgraph subGraph1["Use cases"]
+        Obsidian["Obsidian - Note-taking with AI"]
+        VSCode["VS Code - AI Coding Assistant"]
+        Nextcloud["Nextcloud Smart Office Tools"]
+        HA["Home Assistant"]
+        n8n["n8n - Automated Workflows"]
+        Experiments["Learning - Testing AI Features"]
+  end
+ subgraph s1["Cloud LLMs"]
+        OpenAI["OpenAI"]
+        n9["Others"]
+        Gemini["Gemini"]
+  end
+    OpenWeb --&gt; LiteLLM
+    OpenWeb -- Image generation --&gt; SD
+    LiteLLM -- Multiple OpenAI keys --&gt; OpenAI
+    LiteLLM -- Multiple keys --&gt; n9
+    LiteLLM -- Multiple Gemini keys --&gt; Gemini
+    Obsidian --&gt; LiteLLM
+    VSCode --&gt; LiteLLM
+    Nextcloud --&gt; LiteLLM
+    HA --&gt; LiteLLM
+    n8n --&gt; LiteLLM
+    n8n -- for RAG --&gt; n10
+    Experiments --&gt; OpenWeb &amp; LiteLLM &amp; Ollama
+    LiteLLM -- for local LLM --&gt; Ollama
+    n10[(Database)]
+    OpenAI[[OpenAI]]
+    Gemini[[Gemini]]
+    n9[[Others]]
+    style Ollama fill:#729ef7
+    style OpenWeb fill:#729ef7
+    style LiteLLM fill:#729ef7
+    style subGraph0 fill:transparent
+</code></pre>
+<h2 id="heading-core-components-explained"><strong>🛠️ Core Components Explained</strong></h2>
+<h3 id="heading-ollama-local-llm-runner"><strong>🧠 Ollama – Local LLM Runner</strong></h3>
+<p>Ollama acts as the engine to run Large Language Models (LLMs) locally on my hardware. It's optimized, efficient, and supports multiple open-source models like LLaMA, Mistral, and more.</p>
+<h3 id="heading-openweb-ui-the-friendly-face"><strong>💬 OpenWeb-UI – The Friendly Face</strong></h3>
+<p>This is the user interface for chatting with LLMs. It connects to Ollama or routes through LiteLLM. I like it for its clean design, chat history, and plugin support.</p>
+<h3 id="heading-litellm-api-management-amp-routing"><strong>🔑 LiteLLM – API Management &amp; Routing</strong></h3>
+<p>This server is the smart API orchestrator. It allows:</p>
+<ul>
+<li><p>Key &amp; quota management</p>
+</li>
+<li><p>Routing requests between local (Ollama) and cloud providers (OpenAI, Gemini)</p>
+</li>
+<li><p>Load balancing between different models and endpoints</p>
+</li>
+</ul>
+<p>Perfect for managing API usage in a multi-service setup.</p>
+<h3 id="heading-stable-diffusion-ai-art-generator"><strong>🎨 Stable Diffusion – AI Art Generator</strong></h3>
+<p>Using local models, I can generate stunning AI images without sending data to the cloud. It integrates well with OpenWeb-UI for seamless text-to-image tasks.</p>
+<hr />
+<h2 id="heading-how-i-use-this-stack-daily"><strong>🧠 How I Use This Stack Daily</strong></h2>
+<h3 id="heading-obsidian-smart-note-taking"><strong>✍️ Obsidian – Smart Note-Taking</strong></h3>
+<p>With AI-powered plugins, Obsidian connects to my stack to generate content, summaries, and brainstorm ideas. It’s like having a creative co-pilot for journaling and knowledge management.</p>
+<h3 id="heading-vs-code-code-with-a-brain"><strong>💻 VS Code – Code with a Brain</strong></h3>
+<p>Using the <strong>Cline extension</strong>, my VSCode connects to the stack for code generation, debugging help, and explanations. It’s like ChatGPT, but self-hosted and customized for my workflows.</p>
+<h3 id="heading-nextcloud-office-but-smarter"><strong>🗂️ Nextcloud – Office, but Smarter</strong></h3>
+<p>Think Google Docs or MS Office with AI — powered by my own backend. Summarizing documents, writing reports, or generating slides with AI help — all done privately.</p>
+<h3 id="heading-home-assistant-my-smart-home-butler"><strong>🏠 Home Assistant – My Smart Home Butler</strong></h3>
+<p>By integrating with Home Assistant, I can interact with my home using natural language:</p>
+<blockquote>
+<p><em>“Hey Jarvis, how’s the weather?”<br />“Turn off all the lights and summarize today’s news.”</em></p>
+</blockquote>
+<h3 id="heading-n8n-automated-ai-workflows"><strong>🔄 n8n – Automated AI Workflows</strong></h3>
+<p>This no-code/low-code automation platform connects with my stack to run tasks like:</p>
+<ul>
+<li><p>Auto-generating replies</p>
+</li>
+<li><p>Summarizing emails</p>
+</li>
+<li><p>Creating blog outlines from notes</p>
+</li>
+</ul>
+<h3 id="heading-experiments"><strong>🧪 Experiments</strong></h3>
+<p>My AI lab wouldn't be complete without a test bench. I use my stack to prototype new AI use cases — like PDF summarizers, chatbots, or creative writing tools — quickly and without limits.</p>
+<hr />
+<h2 id="heading-hardware-software-stack"><strong>🧰 Hardware + Software Stack</strong></h2>
+<div class="hn-table">
+<table>
+<thead>
+<tr>
+<td><strong>Component</strong></td><td><strong>Details</strong></td></tr>
+</thead>
+<tbody>
+<tr>
+<td>GPU</td><td><strong>NVIDIA GTX 1660 Super</strong></td></tr>
+<tr>
+<td>Host</td><td>Linux container (LXC/Docker)</td></tr>
+<tr>
+<td>AI Support</td><td>NVIDIA Docker + CUDA libraries</td></tr>
+<tr>
+<td>Models</td><td>LLaMA, Mistral, OpenAI GPT, Gemini</td></tr>
+<tr>
+<td>Image Models</td><td>Stable Diffusion, SDXL, DreamShaper</td></tr>
+</tbody>
+</table>
+</div><p>This setup balances power and affordability — and is more than enough for most personal LLM and image generation tasks.</p>
+<hr />
+<h2 id="heading-final-thoughts"><strong>🌟 Final Thoughts</strong></h2>
+<p>Building my own AI stack was one of the most empowering things I’ve done in recent years. It gave me:</p>
+<ul>
+<li><p>Full control over AI tools</p>
+</li>
+<li><p>Endless ways to innovate</p>
+</li>
+<li><p>A privacy-first way to use generative AI</p>
+</li>
+</ul>
+<p>If you're into homelabs, automation, or just want to explore AI beyond APIs — this setup is a great place to start. And you don’t need enterprise GPUs to get started — just a bit of curiosity and tinkering spirit.</p>
+<hr />
+<h2 id="heading-inspired-to-build-your-own"><strong>💡 Inspired to Build Your Own?</strong></h2>
+<p>Feel free to copy this architecture, tweak it, or even ask me questions. Your personal AI assistant is just a homelab away.</p>
+]]></content:encoded></item><item><title><![CDATA[How to Implement a Site-to-Site WireGuard Tunnel for TrueNAS Replication Tasks]]></title><description><![CDATA[Learn to set up a site-to-site WireGuard tunnel for secure TrueNAS replication, enabling efficient data sync across dynamic IPs]]></description><link>https://read.darkshield.co.in/how-to-implement-a-site-to-site-wireguard-tunnel-for-truenas-replication-tasks</link><guid isPermaLink="true">https://read.darkshield.co.in/how-to-implement-a-site-to-site-wireguard-tunnel-for-truenas-replication-tasks</guid><category><![CDATA[TrueNAS]]></category><category><![CDATA[wireguard]]></category><category><![CDATA[vpn]]></category><category><![CDATA[self-hosted]]></category><category><![CDATA[Homelab]]></category><dc:creator><![CDATA[Alok Chatterji]]></dc:creator><pubDate>Sun, 02 Nov 2025 01:01:50 GMT</pubDate><enclosure url="https://cdn.hashnode.com/res/hashnode/image/stock/unsplash/RjPG-_LVmiQ/upload/f61fab2f5f62bf00983501a754261e7b.jpeg" length="0" type="image/jpeg"/><content:encoded><![CDATA[<p>In this blog post, I want to share with you how I implemented a site-to-site WireGuard tunnel for my homelab, which is influenced by Marvel. WireGuard is a modern and secure VPN protocol that allows me to create a private and encrypted network between two servers. TrueNAS is a powerful and reliable NAS (Network Attached Storage) system that allows me to store and backup my data. Replication tasks are a feature of TrueNAS that enables me to sync my data from one server to another.</p>
+<p><img src="https://raw.githubusercontent.com/alokchatterji5/drawio/994077d0fad788bbb58cf253055ae077d2d934d9/render/darkshieldtopologyv2-WireGuardTunnel.drawio.svg" alt class="image--center mx-auto" /></p>
+<p>The main reason why I needed to implement a site-to-site WireGuard tunnel for TrueNAS replication tasks is because I have two servers in different locations, and I want to keep them in sync. One server is my primary server, which is located at my home. The other server is my secondary server, which is located at my friend's house. I use the primary server for my daily activities, such as media streaming, file sharing, and web hosting. I use the secondary server as a backup, in case something happens to my primary server.</p>
+<p>However, to sync my data from the primary server to the secondary server, I need to have a network connection between them. The problem is that both servers have dynamic public IP addresses, which means that they change frequently and unpredictably. This makes it hard to establish a direct connection between them. Moreover, I don't want to expose my servers to the public internet, as that would compromise their security and privacy.</p>
+<p>That's where WireGuard comes in. WireGuard allows me to create a secure and stable network tunnel between my two servers, regardless of their dynamic public IP addresses. WireGuard uses public-key cryptography to authenticate and encrypt the traffic between the servers. WireGuard also uses a lightweight and simple design, which makes it fast and easy to set up and maintain.</p>
+<p>To implement a site-to-site WireGuard tunnel for TrueNAS replication tasks, I followed these steps:</p>
+<ol>
+<li><p>Install WireGuard on both pfSense routers. I used the WireGuard package from the Package Manager on the pfSense web interface.</p>
+</li>
+<li><p>Generate WireGuard keys on both pfSense routers. I used the WireGuard tab on the pfSense web interface to generate a private key and a public key for each router. I copied the public keys and exchanged them between the routers.</p>
+</li>
+<li><p>Configure WireGuard on both pfSense routers. I created a WireGuard tunnel on each router, specifying the interface name, the listening port, the private key, the peer public key, the peer endpoint, and the allowed IPs. I also enabled WireGuard on each router and applied the changes.</p>
+</li>
+<li><p>Configure the WireGuard interface on both pfSense routers. I assigned the WireGuard tunnel to an interface on each router, enabled the interface, and set the IPv4 configuration type to Static IPv4. I assigned an IP address from the same subnet to each interface, and set the MTU as 1420.</p>
+</li>
+<li><p>Configure the firewall rules on both pfSense routers. I added a firewall rule on the WAN interface of each router to allow UDP traffic to the WireGuard port. I also added a firewall rule on the WireGuard interface of each router to allow any traffic from the WireGuard peers.</p>
+</li>
+<li><p>Configure TrueNAS on both servers. I logged into the TrueNAS web interface on each server, and created a dataset for the data that I want to sync. I also created a user account and a SSH key pair for the replication tasks. I added the SSH public key to the authorized keys file on the destination server, and enabled SSH service on both servers.</p>
+</li>
+<li><p>Configure the static routes on both TrueNAS servers. I logged into the TrueNAS web interface on each server, and added a static route for the WireGuard subnet. I entered the destination IP address and CIDR mask, and the gateway IP address of the WireGuard interface on the pfSense router.</p>
+</li>
+<li><p>Create a replication task on the source server. I logged into the TrueNAS web interface on the source server, and created a replication task. I specified the source dataset, the destination server, the destination dataset, the SSH key pair, and the replication schedule. I also enabled the "Replicate over SSH (BETA)" option, which allows me to use the WireGuard tunnel as the replication network.</p>
+</li>
+<li><p>Run the replication task on the source server. I clicked on the "Run Now" button to start the replication task. I monitored the progress and the status of the task on the TrueNAS web interface. I verified that the data was synced from the source server to the destination server.</p>
+</li>
+</ol>
+<p>That's how I implemented a site-to-site WireGuard tunnel for TrueNAS replication tasks. This setup allows me to sync my data from my primary server to my secondary server securely and efficiently, without relying on the public internet or static IP addresses. It also gives me peace of mind, knowing that I have a backup of my data in case of any disaster.</p>
+<p>I hope you enjoyed reading this blog post, and learned something from it. If you have any questions or feedback, please feel free to leave a comment below. Thank you for reading. 😊</p>
+]]></content:encoded></item><item><title><![CDATA[Building a Homelab]]></title><description><![CDATA[Discover the benefits of building a homelab for hands-on tech learning, career advancement, and personal growth in IT skills]]></description><link>https://read.darkshield.co.in/building-a-homelab</link><guid isPermaLink="true">https://read.darkshield.co.in/building-a-homelab</guid><category><![CDATA[Homelab]]></category><category><![CDATA[homelabbing]]></category><category><![CDATA[self-hosted]]></category><dc:creator><![CDATA[Alok Chatterji]]></dc:creator><pubDate>Sun, 02 Nov 2025 00:45:10 GMT</pubDate><enclosure url="https://cdn.hashnode.com/res/hashnode/image/stock/unsplash/M5tzZtFCOfs/upload/be4f9843088c4720b4692fb2e332f7b0.jpeg" length="0" type="image/jpeg"/><content:encoded><![CDATA[<p>Have you ever considered building a homelab? It's more than just a collection of computers; it's a personal workshop for unlocking your technical potential, and a fantastic way to learn, innovate, and grow professionally. My own journey with a homelab began with the simple desire to get hands-on with technology, and it's become an essential part of my professional development.</p>
+<p><img src="https://raw.githubusercontent.com/alokchatterji5/drawio/refs/heads/main/render/darkshield-topologyv2.svg" alt class="image--center mx-auto" /></p>
+<h4 id="heading-why-build-a-homelab"><strong>Why Build a Homelab?</strong></h4>
+<p>A homelab isn't just for tech professionals; it's for anyone with a curious mind. Here are the key benefits:</p>
+<ul>
+<li><p><strong>Hands-On Learning:</strong> You can learn about networking, servers, and virtualization in a real-world, risk-free environment. Theory is great, but practical experience is what truly builds expertise.</p>
+</li>
+<li><p><strong>Cost-Effective Training:</strong> Instead of expensive training courses or certifications, you can use a homelab for a more affordable and personalized learning experience.</p>
+</li>
+<li><p><strong>Career Advancement:</strong> The skills you gain are highly sought after in the IT industry. A homelab can be a powerful tool to showcase your skills in job interviews and advance your career.</p>
+</li>
+<li><p><strong>Innovation:</strong> A homelab provides a safe space to test new ideas, experiment with different software, and even build your own custom applications.</p>
+</li>
+</ul>
+<h4 id="heading-the-core-architecture-of-a-homelab"><strong>The Core Architecture of a Homelab</strong></h4>
+<p>A well-designed homelab typically includes a few key components:</p>
+<ul>
+<li><p><strong>Virtualization:</strong> This is the magic that allows you to run multiple virtual machines (VMs) on a single physical server. Tools like <strong>VMware</strong> or <strong>Proxmox</strong> are popular choices that let you maximize your hardware's potential.</p>
+</li>
+<li><p><strong>VLANs (Virtual LANs):</strong> This is a critical networking concept that allows you to segment your network into smaller, more manageable parts. You can isolate different types of traffic, which is a great security practice.</p>
+</li>
+<li><p><strong>Network Attached Storage (NAS):</strong> A NAS is a dedicated device for data storage. It's a centralized place to store all your files, and you can configure it with features like redundancy (RAID) to protect your data.</p>
+</li>
+</ul>
+<h4 id="heading-getting-started-your-first-steps"><strong>Getting Started: Your First Steps</strong></h4>
+<p>Ready to begin your homelab journey? Here's how to start without breaking the bank:</p>
+<ol>
+<li><p><strong>Define Your Objectives:</strong> What do you want to learn? Do you want to master virtualization, set up a media server, or build a home automation system? Your goals will shape your architecture.</p>
+</li>
+<li><p><strong>Start with Old Hardware:</strong> You don't need the latest and greatest to begin. Old desktops or laptops can be repurposed as servers. This is a great way to learn on a budget.</p>
+</li>
+<li><p><strong>Leverage Free Tools:</strong> Many powerful tools like Proxmox, pfSense, and Docker are free and open-source. There's no need to pay for expensive software when you're just starting out.</p>
+</li>
+<li><p><strong>Embrace Modularity:</strong> Start small and build on your success. As you learn more and your needs grow, you can add more components to your homelab.</p>
+</li>
+</ol>
+<p>A homelab is more than a hobby; it's a commitment to lifelong learning and a tangible investment in your professional growth. Embrace the challenge, enjoy the process, and unlock your own technical expertise.</p>
+]]></content:encoded></item><item><title><![CDATA[Building a Homelab: Unlocking Technical Expertise at Home]]></title><description><![CDATA[Discover how building a homelab enhances technical skills, supports innovation, and fosters professional growth in a personal IT sandbox environment]]></description><link>https://read.darkshield.co.in/building-a-homelab-unlocking-technical-expertise-at-home</link><guid isPermaLink="true">https://read.darkshield.co.in/building-a-homelab-unlocking-technical-expertise-at-home</guid><category><![CDATA[Homelab]]></category><category><![CDATA[self-hosted]]></category><dc:creator><![CDATA[Alok Chatterji]]></dc:creator><pubDate>Fri, 19 Sep 2025 02:02:04 GMT</pubDate><enclosure url="https://cdn.hashnode.com/res/hashnode/image/stock/unsplash/ISG-rUel0Uw/upload/1bfad644ecda00ab06bfe829b8ebfb6d.jpeg" length="0" type="image/jpeg"/><content:encoded><![CDATA[<h2 id="heading-introduction-the-why-behind-a-homelab"><strong>Introduction: The Why Behind a Homelab</strong></h2>
+<p>In the ever-evolving world of technology, staying ahead often requires hands-on experience. A homelab provides a personal environment to experiment, learn, and innovate with cutting-edge technologies. It’s not just a collection of hardware; it’s a gateway to mastering skills that can set you apart in the tech landscape.</p>
+<p>My journey into building a homelab began with a simple desire to deepen my technical knowledge and create a playground for learning. What started as a small experiment has evolved into a robust system architecture with virtualization, VLANs, and innovative storage solutions.</p>
+<hr />
+<h2 id="heading-objectives-of-my-homelab"><strong>Objectives of My Homelab</strong></h2>
+<p>The primary goals of my homelab are:</p>
+<ul>
+<li><p><strong>Skill Development</strong>: Experiment with technologies like virtualization, networking, and containerization.</p>
+</li>
+<li><p><strong>Innovation</strong>: Test ideas and build prototypes in a controlled environment.</p>
+</li>
+<li><p><strong>Storage Solutions</strong>: Learn and implement efficient data storage and management techniques.</p>
+</li>
+<li><p><strong>Networking Expertise</strong>: Explore VLAN configurations and secure network setups.</p>
+</li>
+<li><p><strong>Professional Growth</strong>: Stay ahead by understanding enterprise-grade technologies in a personal sandbox.</p>
+</li>
+</ul>
+<hr />
+<h2 id="heading-overview-of-my-homelab"><strong>Overview of My Homelab</strong></h2>
+<p>At its core, my homelab is designed to mimic real-world IT environments. Key features include:</p>
+<ul>
+<li><p><strong>Virtualization</strong>: Using tools like VMware or Proxmox to run multiple virtual machines on a single host.</p>
+</li>
+<li><p><strong>VLANs</strong>: Segregating network traffic to simulate enterprise-level security and management.</p>
+</li>
+<li><p><strong>Storage Solutions</strong>: Implementing Network Attached Storage (NAS) for scalable and reliable data management.</p>
+</li>
+<li><p><strong>Innovation</strong>: A dedicated environment to test new software, tools, and workflows.</p>
+</li>
+</ul>
+<p>The architecture ensures modularity and scalability, allowing me to start small and expand over time.</p>
+<hr />
+<h2 id="heading-why-invest-in-a-homelab"><strong>Why Invest in a Homelab?</strong></h2>
+<p>A homelab offers several benefits, whether you’re an IT enthusiast or a professional:</p>
+<ol>
+<li><p><strong>Hands-On Learning</strong>: The best way to learn is by doing. A homelab lets you practice and master technical skills without risking live environments.</p>
+</li>
+<li><p><strong>Career Advancement</strong>: It demonstrates initiative and expertise to potential employers.</p>
+</li>
+<li><p><strong>Innovation and Creativity</strong>: Experiment with ideas before deploying them in production.</p>
+</li>
+<li><p><strong>Cost-Effective Training</strong>: Instead of relying solely on expensive certifications, a homelab provides practical, real-world learning.</p>
+</li>
+</ol>
+<hr />
+<h2 id="heading-how-to-get-started"><strong>How to Get Started</strong></h2>
+<p>Starting a homelab might seem daunting, but it doesn’t have to be. Here’s how you can begin:</p>
+<ol>
+<li><p><strong>Define Your Objectives</strong>: Understand what you want to achieve—learning virtualization, mastering networking, or exploring cloud technologies.</p>
+</li>
+<li><p><strong>Start Small</strong>: Use old hardware to set up your first server or virtual machine.</p>
+</li>
+<li><p><strong>Leverage Free Tools</strong>: Begin with free and open-source software like Proxmox or VirtualBox.</p>
+</li>
+<li><p><strong>Focus on Modularity</strong>: Build in phases. Start with basic setups and gradually add complexity.</p>
+</li>
+<li><p><strong>Learn Continuously</strong>: Document your experiments and learn from failures.</p>
+</li>
+</ol>
+<hr />
+<h2 id="heading-how-my-homelab-empowers-me"><strong>How My Homelab Empowers Me</strong></h2>
+<p>Through my homelab, I’ve been able to:</p>
+<ul>
+<li><p>Build practical skills in system administration, networking, and storage.</p>
+</li>
+<li><p>Gain confidence in implementing technologies like VLANs and virtual machines.</p>
+</li>
+<li><p>Create a foundation for long-term projects and innovations.</p>
+</li>
+</ul>
+<hr />
+<h2 id="heading-conclusion-the-power-of-a-homelab"><strong>Conclusion: The Power of a Homelab</strong></h2>
+<p>A homelab is more than just a personal IT setup—it’s an investment in your growth and expertise. Whether you’re a tech professional or a curious learner, starting small and building your homelab can transform your understanding of technology.</p>
+<p>So why wait? Dive in, experiment, and start building your journey toward mastery.</p>
+<p>Feel free to connect or share your own homelab experiences in the comments! Let's grow together.</p>
+]]></content:encoded></item></channel></rss>

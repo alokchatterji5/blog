@@ -1,0 +1,129 @@
+<p>Welcome, fellow homelab enthusiasts! If you're like me, you've probably spent countless hours building, tweaking, and perfecting your home infrastructure. But there's one aspect of the homelab that's absolutely critical: <strong>storage</strong>. In this post, I'm going to walk you through my personal storage solution, a setup that's powerful, resilient, and surprisingly accessible.</p>
+<p>My goal is to show you that you don't need a massive budget or a data center to build a rock-solid storage foundation for your homelab. We'll explore how I use <a target="_blank" href="https://www.truenas.com/truenas-community-edition/">TrueNAS SCALE</a> virtualized on Proxmox, with a few tricks up my sleeve to ensure my data is safe and sound.</p>
+<h2 id="heading-the-stakes-this-is-not-a-drill">The Stakes: This Is Not a Drill</h2>
+<p>Before we dive deep into the nitty-gritty of my setup, let's get one thing straight: this is <strong>not</strong> just a <strong>weekend proof-of-concept</strong>. This is a production system, and my real, irreplaceable data is on the line. My friends and family rely on the services I host—<em>for free, of course!</em>—and those services store critical data on my TrueNAS servers.</p>
+<p>The stakes are <strong>high</strong>. You don't want to be in a situation where you have to explain to your partner why the family photos are suddenly gone, or why their Time Machine backup has vanished into thin air. We've all seen how data footprints are exploding; modern phones record 4K videos where a 30-second clip can run into hundreds of megabytes. Cloud storage gets expensive, fast, and the more your data grows, the more you pay.</p>
+<h2 id="heading-the-philosophy-the-3-2-1-backup-strategy-and-why-redundancy-is-not-a-backup">The Philosophy: The 3-2-1 Backup Strategy and Why Redundancy is Not a Backup</h2>
+<p>Before we dive into the technical details, let's talk about the "why." For any serious data hoarder, the <strong>3-2-1 backup strategy</strong> is non-negotiable. It's simple:</p>
+<ul>
+<li><p>3 copies of your data.</p>
+</li>
+<li><p>2 different types of media.</p>
+</li>
+<li><p>1 copy off-site.</p>
+</li>
+</ul>
+<p>This strategy ensures that you're protected from a wide range of failure scenarios, from a single drive dying to a catastrophic event at your primary location.</p>
+<div data-node-type="callout">
+<div data-node-type="callout-emoji">💡</div>
+<div data-node-type="callout-text">“Redundancy is not a backup”</div>
+</div>
+
+<p>It's also crucial to understand a fundamental concept: RAID arrays are fantastic for high availability, but they won't save you from file corruption, accidental deletion, or a ransomware attack. A true backup is a separate, versioned copy of your data that you can restore in case of disaster.</p>
+<h2 id="heading-the-architecture-a-tale-of-two-sites">The Architecture: A Tale of Two Sites</h2>
+<p>My setup spans two physical locations, providing true off-site backup capabilities. Both sites run Proxmox as the hypervisor, with TrueNAS SCALE running in a virtual machine.</p>
+<p><img src="https://raw.githubusercontent.com/alokchatterji5/drawio/refs/heads/main/render/homelab-storage-solution.drawio.svg" alt="System Architecture Diagram" class="image--center mx-auto" /></p>
+<h3 id="heading-primary-site-darkshield">Primary Site: Darkshield</h3>
+<p>At my primary site, a server named "Darkshield" hosts the main TrueNAS instance. The magic here is <strong>PCIe passthrough</strong>. I've passed an entire Intel SATA controller directly to the TrueNAS VM. This gives TrueNAS raw, direct access to the drives, which is essential for ZFS to work its magic.</p>
+<ul>
+<li><strong>Learn More:</strong> <a target="_blank" href="https://pve.proxmox.com/wiki/PCI_Passthrough">Proxmox PCIe Passthrough</a></li>
+</ul>
+<h3 id="heading-zfs-configuration-on-darkshield">ZFS Configuration on Darkshield</h3>
+<p>Here's how my storage is organized on the primary TrueNAS instance:</p>
+<pre><code class="lang-mermaid">graph TD
+    subgraph "Primary TrueNAS (Darkshield)"
+
+        %% Define all nodes explicitly
+        A[HDD 1]
+        B[HDD 2]
+        C[HDD 3]
+        D[HDD 4]
+        E[8TB HDD]
+        Z1[RAIDZ1 vdev]
+        P1[Pool 1: Main Storage]
+        P2[Pool 2: Critical Backups]
+
+        %% Define the links
+        A --&gt; Z1
+        B --&gt; Z1
+        C --&gt; Z1
+        D --&gt; Z1
+        Z1 --&gt; P1
+
+        E --&gt; P2
+    end
+</code></pre>
+<ul>
+<li><p><strong>Pool 1 (RAIDZ1):</strong> This is my main storage pool, a 4-drive RAIDZ1 array. RAIDZ1 is similar to RAID 5; it can tolerate the failure of a <strong><em>single</em></strong> drive <em>without</em> <strong>data loss</strong>. This gives me a great balance of performance, storage capacity, and redundancy.</p>
+</li>
+<li><p><strong>Pool 2 (Single 8TB HDD):</strong> This drive is dedicated to local backups of my most critical datasets. It's a low-RPM (5400) drive with Smart Spindown enabled, which means it's power-efficient and quiet. Having a local backup means I can restore data much faster than pulling it from the off-site location over the network.</p>
+</li>
+</ul>
+<h3 id="heading-the-importance-of-rapid-recovery">The Importance of Rapid Recovery</h3>
+<p>It's one thing to <em>have</em> an off-site backup; it's another thing entirely to restore from it. An off-site backup is your ultimate safety net against a disaster like a fire or theft, but it's often not a practical solution for a quick recovery. The <strong><em>bottleneck</em></strong> is almost always the internet connection.</p>
+<p>Let's do some quick math. Imagine a worst-case scenario where you lose 20TB of data on your primary storage. You have a full backup at your off-site location, but you need to pull it back over a residential internet connection. While gigabit connections are becoming more common, sustained speeds can vary significantly due to network congestion and ISP throttling. For a realistic estimate, let's consider a common average sustained speed.</p>
+<blockquote>
+<ul>
+<li><p>Data to Restore: <code>20 TB</code></p>
+</li>
+<li><p>Average Internet Speed: <code>300 Mbps</code> (which is approximately <code>37.5 MB/s</code>)</p>
+</li>
+<li><p>Calculation: <code>20 TB</code> is <code>20,480,000 MB</code>. So, <code>20,480,000 MB / 37.5 MB/s = 546,133 seconds.</code></p>
+</li>
+<li><p>Time to Restore: That's approximately <strong>6.3 days</strong> of continuous downloading.</p>
+</li>
+</ul>
+</blockquote>
+<p>This is why having a local backup is a game-changer. I can restore terabytes of data over my local gigabit network in a matter of hours, not weeks.</p>
+<h3 id="heading-secondary-site-starkai">Secondary Site: StarkAI</h3>
+<p>My secondary site features a server named "StarkAI," which also runs a TrueNAS VM. Its primary purpose is to receive backups from Darkshield. The two sites are connected via an encrypted <strong>WireGuard</strong> VPN tunnel, ensuring that all data transferred between them is secure.</p>
+<p>Nightly <code>rsync</code> jobs automatically copy critical datasets from Darkshield to StarkAI, giving me a complete, off-site backup.</p>
+<pre><code class="lang-mermaid">graph LR
+    subgraph Darkshield
+        A[Primary TrueNAS]
+    end
+    subgraph StarkAI
+        B[Secondary TrueNAS]
+    end
+    A -- Encrypted Rsync via WireGuard --&gt; B
+</code></pre>
+<ul>
+<li><strong>Learn More:</strong> <a target="_blank" href="https://www.wireguard.com/">WireGuard</a> | <a target="_blank" href="https://rsync.samba.org/">Rsync</a></li>
+</ul>
+<h2 id="heading-zfs-for-humans">ZFS for Humans</h2>
+<p>If you're new to ZFS, it can seem intimidating. But the core concepts are quite straightforward:</p>
+<ul>
+<li><p><strong>ZFS:</strong> It's a combined file system and logical volume manager. Think of it as a super-powered file system that handles everything from data integrity to snapshots and RAID-like functionality.</p>
+</li>
+<li><p><strong>vdevs (Virtual Devices):</strong> These are the building blocks of a ZFS pool. A vdev can be a single drive, a mirror (like RAID 1), or a RAIDZ array.</p>
+</li>
+<li><p><strong>Cache (L2ARC):</strong> An optional, fast SSD that ZFS can use to cache frequently read data, speeding up read performance.</p>
+</li>
+<li><p><strong>Logs (ZIL):</strong> A dedicated, fast drive (like an NVMe SSD) that ZFS can use to speed up synchronous writes.</p>
+</li>
+</ul>
+<p>The beauty of ZFS is that it's incredibly resilient. It's a copy-on-write file system, which means it's resistant to data corruption. And it has built-in tools for creating snapshots and replicating data.</p>
+<h2 id="heading-service-integration-the-why-of-the-homelab">Service Integration: The "Why" of the Homelab</h2>
+<p>So, what do I do with all this storage? The possibilities are endless! I create different datasets in TrueNAS and expose them to my other services via SMB or NFS:</p>
+<ul>
+<li><p><strong>Immich:</strong> My self-hosted photo management solution.</p>
+</li>
+<li><p><strong>The *Arr Stack:</strong> For all my media management needs.</p>
+</li>
+<li><p><strong>Nextcloud:</strong> My personal cloud for files, contacts, and calendars.</p>
+</li>
+<li><p><strong>Container Configs:</strong> A central location to store configurations for my Docker and Kubernetes containers.</p>
+</li>
+<li><p><strong>Proxmox Backup Server:</strong> I even expose a dataset as a storage target for Proxmox Backup Server, so I can back up my VMs and containers.</p>
+</li>
+<li><p><strong>Time Machine:</strong> My wife's MacBook backs up seamlessly to a dedicated dataset.</p>
+</li>
+</ul>
+<p>The best part? I don't have to worry about managing backups for each individual service. I just create a dataset, expose it, and TrueNAS handles the rest.</p>
+<h2 id="heading-maintenance-and-accountability">Maintenance and Accountability</h2>
+<p>With great power comes great responsibility. Running your own storage solution means you're in charge of keeping it healthy. I have regular <strong>scrubbing</strong> tasks scheduled on both TrueNAS instances to check for data integrity. And I take frequent <strong>snapshots</strong>, which are read-only copies of my datasets that I can roll back to in an instant.</p>
+<p>This setup has evolved beyond a simple proof of concept. It's now a "<code>production</code>" system for my digital life. If it goes down, I risk losing critical data. It's a sobering thought, but it's also a powerful motivator to do things right.</p>
+<h2 id="heading-conclusion-why-build-when-you-can-buy">Conclusion: Why Build When You Can Buy?</h2>
+<p>So, why go to all this trouble when you could just buy a pre-built NAS from a company like Synology or QNAP? For me, it comes down to two things: <strong>control</strong> and <strong>hardware utilization</strong>.</p>
+<p>A custom-built server allows me to run a hypervisor like Proxmox, which means I can run my storage solution alongside other VMs and containers. A pre-built NAS is often a closed box with limited (often inferior) hardware and software capabilities.</p>
+<p>Building your own storage solution is a journey, not a destination. It's a chance to learn, to experiment, and to create something that's uniquely yours. If you're looking for a project that will challenge you and reward you in equal measure, I can't recommend it enough.</p>

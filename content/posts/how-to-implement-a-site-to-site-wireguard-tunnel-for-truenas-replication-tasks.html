@@ -1,0 +1,54 @@
+<!--meta
+{"title":"A Site-to-Site WireGuard Tunnel for TrueNAS Replication","subtitle":"Two pfSense routers, two dynamic IPs, one backup that does not touch the public internet","date":"2025-11-02","summary":"How I joined my home and a friend's house with WireGuard on pfSense so TrueNAS can replicate over SSH without exposing either server.","category":"Storage & Backup","tags":["truenas","wireguard","vpn","pfsense","homelab"],"cover":"img/f61fab2f5f62bf00983501a754261e7b.jpeg"}
+-->
+<div class="tldr"><h4>The short version</h4><p>WireGuard runs on a pfSense router at each site, and the two routers form a tunnel even though both public IPs change. TrueNAS gets a static route to the tunnel subnet and a replication task over SSH. Nothing is exposed to the public internet.</p></div>
+
+<p>My homelab is Marvel-themed, and the primary server is at home. The secondary sits at a friend's house as the backup, in case something happens to mine. The primary does the daily work: media streaming, file sharing, web hosting.</p>
+
+<p>The problem is that both sites have dynamic public IPs, which change often and unpredictably, so a direct connection is awkward. I also did not want to expose either server to the internet. WireGuard fixes both: it authenticates and encrypts with public keys, it is small and fast, and it does not care that the IPs move.</p>
+
+<figure>
+<svg class="wg-svg" viewBox="0 0 780 240" role="img" aria-label="Home TrueNAS behind a pfSense router, connected through a WireGuard tunnel over the internet to a pfSense router and TrueNAS at a friend's house">
+<style>
+.wg-svg text{fill:var(--fg);font:13px ui-sans-serif,system-ui,sans-serif}.wg-svg .m{fill:var(--mute);font-size:11.5px}
+.wg-svg .b{fill:var(--card);stroke:var(--line);stroke-width:1.5}.wg-svg .l{stroke:var(--accent);stroke-width:2;fill:none}
+.wg-svg .t{stroke:var(--accent2);stroke-width:3;fill:none;stroke-dasharray:8 6;animation:wg-d 1s linear infinite}
+@keyframes wg-d{to{stroke-dashoffset:-14}}
+</style>
+<rect class="b" x="10" y="80" width="130" height="70" rx="10"/><text x="75" y="110" text-anchor="middle">TrueNAS</text><text class="m" x="75" y="130" text-anchor="middle">primary, home</text>
+<rect class="b" x="200" y="80" width="130" height="70" rx="10"/><text x="265" y="110" text-anchor="middle">pfSense</text><text class="m" x="265" y="130" text-anchor="middle">WireGuard peer</text>
+<rect class="b" x="450" y="80" width="130" height="70" rx="10"/><text x="515" y="110" text-anchor="middle">pfSense</text><text class="m" x="515" y="130" text-anchor="middle">WireGuard peer</text>
+<rect class="b" x="640" y="80" width="130" height="70" rx="10"/><text x="705" y="110" text-anchor="middle">TrueNAS</text><text class="m" x="705" y="130" text-anchor="middle">secondary, friend's</text>
+<path class="l" d="M140 115 H200"/><path class="l" d="M580 115 H640"/>
+<path class="t" d="M330 115 H450"/><text class="m" x="390" y="100" text-anchor="middle">UDP</text><text class="m" x="390" y="145" text-anchor="middle">dynamic IPs</text>
+<circle r="5" fill="var(--accent)"><animateMotion dur="3.5s" repeatCount="indefinite" path="M75 115 H265 H515 H705"/></circle>
+<text class="m" x="390" y="200" text-anchor="middle">replication over SSH, carried inside the tunnel</text>
+</svg>
+<figcaption>The orange dot is a replication stream going from home to the backup.</figcaption></figure>
+
+<h2>The steps</h2>
+<p>The WireGuard and firewall steps are the same on both routers. Pick a tab for what happens where.</p>
+
+<div class="tabs">
+<section data-title="Both sites">
+<details open><summary>1. Install WireGuard on pfSense</summary><p>I used the WireGuard package from the Package Manager in the pfSense web interface.</p></details>
+<details><summary>2. Generate keys and swap public keys</summary><p>On the WireGuard tab I generated a private and public key on each router, then copied the public keys across so each router has the other's.</p></details>
+<details><summary>3. Create the tunnel</summary><p>One tunnel per router: interface name, listening port, private key, peer public key, peer endpoint and allowed IPs. Enable WireGuard and apply.</p></details>
+<details><summary>4. Assign the interface</summary><p>Assign the tunnel to an interface, enable it, set IPv4 to Static IPv4, give each side an address from the same subnet, and set the MTU to 1420.</p></details>
+<details><summary>5. Firewall rules</summary><p>On the WAN interface, allow UDP to the WireGuard port. On the WireGuard interface, allow any traffic from the WireGuard peers.</p></details>
+<details><summary>6. Static route on each TrueNAS</summary><p>In the TrueNAS web interface, add a static route for the WireGuard subnet. Destination IP and CIDR mask, with the gateway set to the WireGuard interface IP on the pfSense router.</p></details>
+</section>
+<section data-title="Home (source)">
+<details open><summary>Prepare the data</summary><p>Create the dataset for the data to sync, plus a user account and an SSH key pair for replication. Enable the SSH service.</p></details>
+<details open><summary>Create the replication task</summary><p>Set the source dataset, destination server, destination dataset, SSH key pair and schedule. I also enabled "Replicate over SSH (BETA)", which lets the task use the WireGuard tunnel as the replication network.</p></details>
+<details><summary>Run it</summary><p>Hit "Run Now", watch progress and status in the TrueNAS interface, and check that the data actually arrived on the destination.</p></details>
+</section>
+<section data-title="Friend's house (destination)">
+<details open><summary>Prepare the destination</summary><p>Create the dataset and user account, enable the SSH service, and add the source server's SSH public key to the authorized keys file.</p></details>
+<details><summary>Then wait</summary><p>The destination has nothing else to configure. The source drives the replication.</p></details>
+</section>
+</div>
+
+<div class="callout tip"><b>No config files here</b>The original post described these steps in prose and did not include the actual pfSense or WireGuard settings, so I have not made any up. Keys, ports and subnets are yours to choose.</div>
+
+<p>The result is that I sync from the primary to the secondary securely, without leaning on the public internet or static IPs. The real value is knowing there is a copy elsewhere if disaster hits.</p>

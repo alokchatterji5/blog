@@ -1,0 +1,68 @@
+<p>As developers, we're always looking for tools that can streamline our workflow and boost our productivity. AI assistants in the terminal have become the new frontier, promising to bring the power of large language models directly into our development environment. However, many of these tools come with a significant drawback: vendor lock-in. They tie you to a specific set of models and a proprietary ecosystem, limiting your flexibility and control.</p>
+<p>What if there was a better way? What if you could have a powerful AI agent that was not only open-source but also model-agnostic? An agent that lets you use your favorite provider, or even your own local LLMs, without being tied to a single vendor.</p>
+<p><img src="https://cdn.hashnode.com/res/hashnode/image/upload/v1762664142067/d394e62b-93b1-4024-b05b-cafd1dac791d.png" alt class="image--center mx-auto" /></p>
+<div data-node-type="callout">
+<div data-node-type="callout-emoji">💡</div>
+<div data-node-type="callout-text">OpenCode official documentation - <a target="_self" href="https://opencode.ai/docs/">https://opencode.ai/docs/</a></div>
+</div>
+
+<p>That's exactly what I found with OpenCode CLI. It's an open-source AI coding agent that has completely transformed my development workflow by putting the power of choice back in my hands. Here’s a walkthrough of my experience and why I believe it’s a game-changer for any developer.</p>
+<p><img src="https://cdn.hashnode.com/res/hashnode/image/upload/v1762664300539/38de29de-64bd-4412-a14b-67818186e477.gif" alt class="image--center mx-auto" /></p>
+<h2 id="heading-first-steps-installation-and-setup"><strong>First Steps: Installation and Setup</strong></h2>
+<p>Getting OpenCode CLI up and running was incredibly straightforward. It took just a few minutes to go from installation to having a powerful AI agent ready to work on my projects.</p>
+<h3 id="heading-step-1-the-one-liner-install"><strong>Step 1: The One-Liner Install</strong></h3>
+<p>It all starts with a single command in the terminal. This downloads and runs the installation script, which handles everything for you.</p>
+<pre><code class="lang-bash">curl -fsSL https://opencode.ai/install | bash
+</code></pre>
+<p>The process was smooth and completed without any hitches.</p>
+<h3 id="heading-step-2-authentication"><strong>Step 2: Authentication</strong></h3>
+<p>Once the installation was complete, the next step was to authenticate my machine. This links the CLI to your OpenCode account.</p>
+<pre><code class="lang-bash">opencode auth login
+</code></pre>
+<p>This command opens a browser window where you can log in or create a new account. It was a quick and secure process.</p>
+<h3 id="heading-step-3-project-initialization"><strong>Step 3: Project Initialization</strong></h3>
+<p>With the CLI installed and authenticated, I was ready to start my first session. I navigated to my project directory and ran the <code>opencode</code> command. Inside the OpenCode session, I used the <code>/init</code> command to get the agent acquainted with my project.</p>
+<pre><code class="lang-bash">/init
+</code></pre>
+<p>The <code>/init</code> command scans the project, builds a context map, and prepares the agent to answer questions and perform tasks with full awareness of my codebase.</p>
+<h2 id="heading-the-power-of-open-source-and-model-freedom"><strong>The Power of Open Source and Model Freedom</strong></h2>
+<p>This is where OpenCode truly sets itself apart. As an open-source tool, it offers a level of transparency and community involvement that proprietary tools simply can't match. But the real game-changer is its provider-agnostic approach to models.</p>
+<p>With OpenCode, I can:</p>
+<ul>
+<li><p><strong>Use My Preferred Cloud Models:</strong> Whether it's Gemini, OpenAI, or Anthropic, I can easily configure OpenCode to use my existing API keys.</p>
+</li>
+<li><p><strong>Run Local LLMs:</strong> I've been experimenting with Ollama, and OpenCode connects to my local models seamlessly. This is a huge win for privacy, offline work, and cost savings.</p>
+</li>
+<li><p><strong>Access High-Speed Models:</strong> Out of the box, OpenCode is configured to use free Groq models, which are incredibly fast and responsive.</p>
+</li>
+<li><p><strong>Connect to Any Provider:</strong> The freedom to choose is what makes OpenCode so powerful. I'm not locked into a single ecosystem, and I can switch between models and providers as my needs change.</p>
+</li>
+</ul>
+<h2 id="heading-the-brain-discovering-the-zen-agent-architecture"><strong>The Brain: Discovering the Zen Agent Architecture</strong></h2>
+<p>I quickly realized that OpenCode is much more than a simple chat wrapper. It's powered by the Zen agent framework, which gives it true agentic capabilities:</p>
+<ul>
+<li><p><strong>Tool-Use:</strong> OpenCode can interact with my system using tools—reading/writing files, executing commands, and more.</p>
+</li>
+<li><p><strong>Planning:</strong> For any complex task, I can see the agent create a step-by-step plan before it starts making changes.</p>
+</li>
+<li><p><strong>Safety:</strong> The framework is designed with safety first, always asking for my permission before executing any file system modifications.</p>
+</li>
+</ul>
+<p>You can dive deeper into the Zen agent architecture in the documentation: <a target="_blank" href="https://opencode.ai/docs/zen/">https://opencode.ai/docs/zen/</a>.</p>
+<h2 id="heading-game-changing-features-for-my-workflow"><strong>Game-Changing Features for My Workflow</strong></h2>
+<p>Several features have already made a huge impact on my daily work:</p>
+<ul>
+<li><p><strong>Diff-First Code Edits:</strong> Seeing a diff of proposed changes before they're applied is a massive confidence booster.</p>
+</li>
+<li><p><strong>Terminal User Interface (TUI):</strong> The interactive TUI is a joy to use, making it easy to manage the conversation and review the agent's work.</p>
+</li>
+<li><p><strong>Session Persistence:</strong> I can close the terminal and come back later, and my entire session is still there.</p>
+</li>
+<li><p><strong>LSP/Context Awareness:</strong> The agent's ability to use my LSP for context-aware suggestions is incredibly powerful.</p>
+</li>
+</ul>
+<h2 id="heading-deep-integration-my-github-workflow-but-better"><strong>Deep Integration: My GitHub Workflow, But Better</strong></h2>
+<p>OpenCode's GitHub integration is another standout feature. I can now use it to review pull requests and get detailed code analysis right from my terminal. It's like having a dedicated AI code reviewer on my team. Learn more at <a target="_blank" href="https://opencode.ai/docs/github/">https://opencode.ai/docs/github/</a>.</p>
+<h2 id="heading-conclusion-and-whats-next"><strong>Conclusion and What's Next</strong></h2>
+<p>OpenCode CLI has fundamentally changed the way I interact with AI in my development process. It offers the perfect blend of power, flexibility, and open-source transparency. By freeing me from vendor lock-in and allowing me to use the best models for the job—whether in the cloud or on my local machine—it has become an indispensable part of my toolkit.</p>
+<p>And I'm just scratching the surface. I'm now exploring how to use OpenCode's filesystem awareness to run multiple agent terminals concurrently on the same project. Imagine one terminal planning a feature, a second executing the code, and a third reviewing the output. The future of collaborative AI development is here, and it's open-source.</p>

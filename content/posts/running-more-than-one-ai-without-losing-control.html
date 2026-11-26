@@ -1,0 +1,35 @@
+<!--meta
+{"title":"Running More Than One AI Without Losing Control","subtitle":"Matching the model to the task, and keeping it all in git","date":"2026-11-17","summary":"I split the work between Claude and Gemini, then used branches and reviews to keep two AI contributors from colliding.","category":"AI-Led Homelab","series":"AI-Led Homelab","part":4,"tags":["ai","homelab","git","claude","gemini"]}
+-->
+<div class="tldr"><h4>The short version</h4><p>Not every task needs the expensive model. Claude keeps architecture and review, Gemini takes the narrow well-defined work, and plain git branches keep the two from colliding.</p></div>
+
+<p>At some point I noticed I was burning a lot of capacity on work that didn't need it. Writing a repetitive integration script, checking whether a config matched a standard, doing the tenth variation of a task I'd already done nine times. None of that needed the most capable model thinking hard. It just needed to get done.</p>
+<p>That realization changed how I run this project more than any single technical decision did.</p>
+
+<h2>Not every task deserves the expensive model</h2>
+<p>The instinct when you start working with AI on something real is to throw everything at whichever model feels smartest. That's fine for a hobby chat. It's wasteful for a project that runs for months. Architecture decisions, anything ambiguous, anything where being wrong is costly deserves real reasoning. Repetitive, narrowly scoped, well-specified work doesn't need the same thing twice.</p>
+
+<div class="tabs">
+<section data-title="Claude">
+<p>Architecture, review, and keeping an eye on the whole project. Anything ambiguous, or anything where being wrong is costly.</p>
+</section>
+<section data-title="Gemini">
+<p>Narrower, well-defined work where the task is clear enough that it needs execution rather than deep judgment.</p>
+</section>
+</div>
+<p>It's not "one AI does everything." It's matching the size of the tool to the size of the task, on purpose, instead of by default.</p>
+
+<h2>The coordination problem</h2>
+<p>The second you have more than one model touching a real project, you have a new problem: how do changes from two sources not collide, and how do you know what actually landed versus what was only proposed?</p>
+<p>The answer was one I already knew from years of working with human teams: version control.</p>
+<ul>
+<li>Each model works on its own line of work.</li>
+<li>Nothing merges into the main line automatically.</li>
+<li>One side reviews the other's work before it lands, and I review the merges that actually matter.</li>
+</ul>
+<p>It's a completely ordinary engineering workflow. The only twist is that some of the branches belong to an AI instead of a colleague.</p>
+
+<h2>Staying the one watching the whole board</h2>
+<p>This is the part I'm most deliberate about. Splitting work across models makes it easy to end up with a project where nobody, including me, has the full picture. So Claude doesn't just do its own slice. It keeps context on the project as a whole, reviews what the other model produced, and flags when something doesn't fit the architecture we agreed on. I still make the calls that matter, but I'm reviewing a smaller, pre-filtered set of decisions instead of every line of everything.</p>
+
+<div class="callout tip"><b>Why this matters more than it sounds</b>Running AI as a real collaborator isn't free, and pretending otherwise is how projects like this get abandoned. Not because the idea failed, but because the cost crept up and nobody was managing it. Choosing which model does which work, and using branches and reviews to coordinate, is what makes this sustainable past the first exciting week.</div>
