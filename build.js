@@ -20,6 +20,8 @@ const posts = fs.readdirSync('content/posts').filter(f => f.endsWith('.html')).m
 const fmt = d => new Date(d + 'T00:00:00Z').toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' });
 const avatar = fs.existsSync('static/img/alok.jpg') ? '<img class="av" src="ROOTimg/alok.jpg" alt="">' : '<span class="av">AC</span>';
 const ogFor = p => fs.existsSync('static/og/' + p + '.png') ? 'og/' + p + '.png' : (fs.existsSync('static/og/default.png') ? 'og/default.png' : '');
+const ver = f => require('crypto').createHash('md5').update(fs.readFileSync('static/' + f)).digest('hex').slice(0, 8);
+const V = { css: ver('theme.css'), js: ver('site.js') };
 const base = site.baseUrl.replace(/\/$/, '');
 
 const shell = ({ title, desc, body, path: p, root, cover, type = 'website', bar = false }) => `<!doctype html>
@@ -29,14 +31,14 @@ const shell = ({ title, desc, body, path: p, root, cover, type = 'website', bar 
 <meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(desc || site.tagline)}"><meta property="og:type" content="${type}">
 ${cover ? `<meta property="og:image" content="${base}/${cover}"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="${base}/${cover}">` : ''}<meta property="og:site_name" content="${esc(site.title)}">
 <script>document.documentElement.classList.add('js');var t=localStorage.theme;document.documentElement.dataset.theme=t=='dark'||t=='light'?t:(matchMedia('(prefers-color-scheme: light)').matches?'light':'dark')</script>
-<link rel="stylesheet" href="${root}theme.css"></head><body>
+<link rel="stylesheet" href="${root}theme.css?v=${V.css}"></head><body>
 ${bar ? '<div id="progress"></div>' : ''}
 <header class="site"><div class="wrap wide"><a class="brand" href="${root}">${site.brand}</a>
 <nav><a href="${root}#posts">Posts</a><a href="${root}series/">Series</a><a href="${root}about/">About</a></nav>
 <button id="tt" type="button" aria-label="Switch theme">☀</button></div></header>
 ${body}
 <footer class="site"><div class="wrap wide">${avatar.replace('ROOT', root)}<span>${site.author}</span> · ${site.links.map(l => `<a href="${l.url}" rel="me">${l.label}</a>`).join(' · ')} · <a href="${root}feed.xml">RSS</a></div></footer>
-<script src="${root}site.js"></script></body></html>`;
+<script src="${root}site.js?v=${V.js}"></script></body></html>`;
 
 const card = (p, root) => `<a class="card rv" data-cat="${esc(p.category)}" href="${root}${p.slug}/">${p.cover ? `<img loading="lazy" src="${root}${p.cover}" alt="">` : ''}<div><span class="meta"><span class="tag">${esc(p.category)}</span> · ${fmt(p.date)}</span><h3>${esc(p.title)}</h3><p>${esc(p.summary)}</p></div></a>`;
 
