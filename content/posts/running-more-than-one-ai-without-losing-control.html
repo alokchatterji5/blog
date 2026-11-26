@@ -19,6 +19,16 @@
 </div>
 <p>It's not "one AI does everything." It's matching the size of the tool to the size of the task, on purpose, instead of by default.</p>
 
+<!--dg--><figure class="dgf"><svg class="dg" viewBox="0 0 760 300" role="img" aria-label="Claude and Gemini each work on their own branch; reviews gate what reaches main"><defs><marker id="dga" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--mute)"/></marker></defs>
+<text class="m" x="20" y="22">Claude: architecture, review, the whole-project view</text>
+<text class="m" x="20" y="288">Gemini: narrow, well-defined work</text>
+<text class="m" x="20" y="132">main: nothing merges automatically</text>
+<path class="lane" d="M20 150 H740"/><path class="lane c" d="M100 150 C120 150 130 55 160 55 H520 C550 55 560 150 590 150"/><path class="lane g" d="M100 150 C120 150 130 245 160 245 H520 C550 245 560 150 590 150"/>
+<circle class="cm c" cx="200" cy="55" r="7"/><circle class="cm c" cx="320" cy="55" r="7"/><circle class="cm c" cx="440" cy="55" r="7"/><circle class="cm g" cx="240" cy="245" r="7"/><circle class="cm g" cx="360" cy="245" r="7"/><circle class="cm g" cx="480" cy="245" r="7"/><circle class="cm" cx="100" cy="150" r="7"/><circle class="cm" cx="590" cy="150" r="7"/><circle class="cm" cx="660" cy="150" r="7"/>
+<path class="ln flow" d="M380 70 V230" marker-end="url(#dga)"/><text class="m" x="392" y="196">reviews the other's work</text>
+<g class="rv"><rect x="570" y="72" width="68" height="26" rx="13"/><text x="604" y="90" text-anchor="middle">review</text></g><g class="rv"><rect x="570" y="202" width="68" height="26" rx="13"/><text x="604" y="220" text-anchor="middle">review</text></g>
+<g class="me"><circle cx="706" cy="113" r="7"/><path d="M693 135 c0-12 26-12 26 0z"/></g><text class="m" x="706" y="182" text-anchor="middle">I review the</text><text class="m" x="706" y="198" text-anchor="middle">merges that matter</text>
+<circle r="5" class="dot c"><animateMotion dur="5s" repeatCount="indefinite" path="M100 150 C120 150 130 55 160 55 H520 C550 55 560 150 590 150 H740"/></circle><circle r="5" class="dot g"><animateMotion dur="5s" begin="1.6s" repeatCount="indefinite" path="M100 150 C120 150 130 245 160 245 H520 C550 245 560 150 590 150 H740"/></circle></svg><figcaption>Ordinary version control, except some of the branches belong to an AI.</figcaption></figure><!--/dg-->
 <h2>The coordination problem</h2>
 <p>The second you have more than one model touching a real project, you have a new problem: how do changes from two sources not collide, and how do you know what actually landed versus what was only proposed?</p>
 <p>The answer was one I already knew from years of working with human teams: version control.</p>

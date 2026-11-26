@@ -102,3 +102,23 @@ figure.zoom img{cursor:zoom-in;display:block;margin:0 auto;background:#fff}
 #lb{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.88);overflow:auto;cursor:zoom-out;display:none;padding:20px}#lb.on{display:block}
 #lb img{display:block;margin:0 auto;max-width:none;width:max(1400px,100%);background:#fff;border-radius:8px}
 #lb b{position:fixed;top:12px;right:18px;color:#fff;font:600 14px ui-monospace,Consolas,monospace;background:#0008;padding:4px 10px;border-radius:6px}
+/* shared diagram styles (.dg) */
+.dgf{margin:1.8em 0}.dg{display:block;width:100%;height:auto;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:6px}
+.dg text{fill:var(--fg);font:600 13px ui-sans-serif,system-ui,sans-serif}.dg text.m,.dg .m{fill:var(--mute);font-weight:400;font-size:12px}.dg text.h{fill:var(--mute);font:700 12px ui-monospace,Consolas,monospace;letter-spacing:.1em}
+.dg text.h.good{fill:#22c55e}.dg text.h.bad{fill:#ef4444}
+.dg .nd rect{fill:var(--bg2);stroke:var(--line);stroke-width:1.3}.dg .nd.ac rect{stroke:var(--accent);fill:color-mix(in srgb,var(--accent) 10%,var(--bg2))}.dg .nd.bad rect{stroke:#ef4444}
+.dg .okc rect{stroke:#22c55e}.dg .nok rect{stroke:#ef4444}.dg .okc text,.dg .nok text{font-size:13px}
+.dg .ln{stroke:var(--mute);fill:none;stroke-width:1.6}.dg .ln.flow{stroke-dasharray:6 5;animation:dgflow 1.4s linear infinite}.dg .ln.ok{stroke:#22c55e}
+@keyframes dgflow{to{stroke-dashoffset:-22}}
+.dg .gate{stroke:var(--accent);stroke-width:2;stroke-dasharray:4 5}.dg .gl{fill:var(--bg2);stroke:var(--accent)}.dg .gt{font-size:12px}
+.dg .lane{fill:none;stroke:var(--mute);stroke-width:2.2}.dg .lane.c{stroke:var(--accent)}.dg .lane.g{stroke:var(--accent2)}
+.dg .cm{fill:var(--bg2);stroke:var(--mute);stroke-width:2}.dg .cm.c{stroke:var(--accent)}.dg .cm.g{stroke:var(--accent2)}
+.dg .dot{fill:var(--warm)}.dg .dot.c{fill:var(--accent)}.dg .dot.g{fill:var(--accent2)}
+.dg .rv rect{fill:var(--bg2);stroke:var(--warm)}.dg .rv text{font-size:11px;fill:var(--fg)}.dg .me circle,.dg .me path{fill:none;stroke:var(--fg);stroke-width:2}
+.dg .lyr{cursor:pointer;outline:none}.dg .lyr:hover rect,.dg .lyr:focus-visible rect{stroke:var(--mute)}.dg .lyr.sel rect{stroke:var(--accent);stroke-width:2}
+.dg .obs rect{fill:none;stroke-dasharray:5 5}.dg .orbit{stroke-width:1.4;opacity:.55}
+/* series map */
+.smap{margin:18px 0 8px;border:1px solid var(--line);border-radius:var(--r);background:var(--card);padding:14px 18px}
+.smap p{margin:0 0 10px;font-size:14.5px;color:var(--mute)}.smap h4{margin:0 0 6px;font:700 12px ui-monospace,Consolas,monospace;letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+.smap ol{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px}.smap li a{display:block;font:13px ui-monospace,Consolas,monospace;color:var(--mute);border:1px solid var(--line);border-radius:8px;padding:4px 10px;text-decoration:none;background:var(--bg2)}
+.smap li a:hover{border-color:var(--accent);color:var(--fg)}.smap li.cur a{border-color:var(--accent);color:var(--fg);background:color-mix(in srgb,var(--accent) 12%,var(--bg2))}

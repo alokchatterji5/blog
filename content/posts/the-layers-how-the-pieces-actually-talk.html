@@ -13,6 +13,10 @@
 <p class="ly-out" aria-live="polite">Pick a layer to see its one job.</p>
 </div>
 
+<!--dg--><figure class="dgf"><svg class="dg" viewBox="0 0 760 360" role="img" aria-label="Four layers: single entry point, shared identity, services, and observability around all of it"><defs><marker id="dga" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--mute)"/></marker></defs>
+<g class="nd lyr obs" data-i="3" tabindex="0" role="button" aria-label="Observability"><rect x="20" y="14" width="720" height="332" rx="18"/><text class="h" x="40" y="42">OBSERVABILITY</text><text class="m" x="40" y="60">sees everything, changes nothing</text></g>
+<g class="nd lyr" data-i="0" tabindex="0" role="button" aria-label="One front door"><rect x="150" y="84" width="460" height="62" rx="12"/><text class="tt" x="380" y="111" text-anchor="middle">One front door</text><text class="m" x="380" y="131" text-anchor="middle">every request goes through here first</text></g><g class="nd lyr" data-i="1" tabindex="0" role="button" aria-label="One identity decision"><rect x="150" y="168" width="460" height="62" rx="12"/><text class="tt" x="380" y="195" text-anchor="middle">One identity decision</text><text class="m" x="380" y="215" text-anchor="middle">who gets in is decided once, then inherited</text></g><g class="nd lyr" data-i="2" tabindex="0" role="button" aria-label="The services"><rect x="150" y="252" width="460" height="62" rx="12"/><text class="tt" x="380" y="279" text-anchor="middle">The services</text><text class="m" x="380" y="299" text-anchor="middle">the actual homelab: plug in, stay simple</text></g>
+<path class="ln flow" d="M380 146 V168" marker-end="url(#dga)"/><path class="ln flow" d="M380 230 V252" marker-end="url(#dga)"/><path class="ln flow" d="M60 115 H150" marker-end="url(#dga)"/><text class="m" x="58" y="104">request</text></svg><figcaption>The shape of the build, with no tools named. Click a layer.</figcaption></figure><!--/dg-->
 <h2>One front door</h2>
 <p>Every request into the homelab goes through a single point first. Not because it's the only valid way, but because one front door means exactly one place that governs how traffic reaches anything: one place to reason about, to secure, to change. Services don't get their own way in. If it's not through the front door, it doesn't happen.</p>
 <p>This came out of the architecture conversation in part one. "No service should be its own special case" was a principle we agreed on early, and the network layer is where it gets enforced.</p>
@@ -46,4 +50,5 @@
 ["Observability","Sees everything, can change nothing. It should know everything and be able to break nothing."]];
 const b=document.querySelector('.ly-btns'),o=document.querySelector('.ly-out');
 L.forEach(([t,d])=>{const x=document.createElement('button');x.textContent=t;x.onclick=()=>{b.querySelectorAll('button').forEach(y=>y.classList.toggle('on',y===x));o.textContent=d};b.appendChild(x)})})();
+document.querySelectorAll('.dg .lyr').forEach(g=>{const go=()=>{document.querySelectorAll('.dg .lyr').forEach(x=>x.classList.toggle('sel',x===g));document.querySelector('.ly-btns').children[g.dataset.i].click()};g.onclick=go;g.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go()}}});
 </script>

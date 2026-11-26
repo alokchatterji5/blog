@@ -19,5 +19,9 @@
   "handle": "alok@darkshield",
   "firstName": "Alok",
   "lastName": "Chatterji",
-  "role": "Integration architect · homelab tinkerer"
+  "role": "Integration architect · homelab tinkerer",
+  "seriesIntro": {
+    "AI-Led Homelab": "EDITH is what I call my AI-run homelab project, and also the orchestrating agent at its centre. This series is how I build and run it with AI doing the hands-on work while I keep the calls that cannot be undone. New here? Start at part 1.",
+    "Homelab": "The homelab posts, in the order I wrote them: what I run at home, why, and what I learned running it."
+  }
 }

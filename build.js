@@ -22,6 +22,7 @@ const avatar = fs.existsSync('static/img/alok.jpg') ? '<img class="av" src="ROOT
 const ogFor = p => fs.existsSync('static/og/' + p + '.png') ? 'og/' + p + '.png' : (fs.existsSync('static/og/default.png') ? 'og/default.png' : '');
 const ver = f => require('crypto').createHash('md5').update(fs.readFileSync('static/' + f)).digest('hex').slice(0, 8);
 const V = { css: ver('theme.css'), js: ver('site.js') };
+const shortTitle = t => { t = t.split(/[:(]/)[0].trim(); return t.length > 28 ? t.slice(0, 28).replace(/\s+\S*$/, '') + '…' : t; };
 const base = site.baseUrl.replace(/\/$/, '');
 
 const shell = ({ title, desc, body, path: p, root, cover, type = 'website', bar = false }) => `<!doctype html>
@@ -54,11 +55,13 @@ out('index.html', shell({
 posts.forEach((p, i) => {
   const sib = p.series ? posts.filter(x => x.series === p.series).sort((a, b) => (a.part || 0) - (b.part || 0) || a.date.localeCompare(b.date)) : [];
   const j = sib.indexOf(p), prev = sib[j - 1], next = sib[j + 1];
+  const intro = (site.seriesIntro || {})[p.series];
+  const smap = sib.length > 1 ? `<nav class="smap" aria-label="Series"><h4>${esc(p.series)} · part ${j + 1} of ${sib.length}</h4>${intro ? `<p>${esc(intro)}</p>` : ''}<ol>${sib.map((x, k) => `<li${x === p ? ' class="cur"' : ''}><a href="../${x.slug}/" title="${esc(x.title)}">${k + 1}. ${esc(shortTitle(x.title))}</a></li>`).join('')}</ol></nav>` : '';
   const pn = sib.length > 1 ? `<div class="pn"><span>${prev ? `← <a href="../${prev.slug}/">${esc(prev.title)}</a>` : ''}</span><span>${next ? `<a href="../${next.slug}/">${esc(next.title)}</a> →` : ''}</span></div>` : '';
   out(p.slug + '/index.html', shell({
     title: p.title, desc: p.summary, path: `/${p.slug}/`, root: '../', cover: ogFor(p.slug) || p.cover, type: 'article', bar: true,
     body: `<div class="wrap"><article class="post"><span class="meta"><span class="tag">${esc(p.category)}</span> · ${fmt(p.date)}${p.series ? ` · <a href="../series/#${esc(p.series)}">${esc(p.series)}${p.part ? ' part ' + p.part : ''}</a>` : ''}</span>
-<h1>${esc(p.title)}</h1>${p.subtitle ? `<p class="sub">${esc(p.subtitle)}</p>` : ''}${p.body}${pn}</article></div>`
+<h1>${esc(p.title)}</h1>${p.subtitle ? `<p class="sub">${esc(p.subtitle)}</p>` : ''}${smap}${p.body}${pn}</article></div>`
   }));
 });
 
