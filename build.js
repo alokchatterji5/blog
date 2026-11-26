@@ -18,32 +18,45 @@ const parse = f => {
 const posts = fs.readdirSync('content/posts').filter(f => f.endsWith('.html')).map(f => parse('content/posts/' + f))
   .filter(p => !p.draft).sort((a, b) => b.date.localeCompare(a.date));
 const fmt = d => new Date(d + 'T00:00:00Z').toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' });
+const avatar = fs.existsSync('static/img/alok.jpg') ? '<img class="av" src="ROOTimg/alok.jpg" alt="">' : '<span class="av">AC</span>';
+const ogFor = p => fs.existsSync('static/og/' + p + '.png') ? 'og/' + p + '.png' : (fs.existsSync('static/og/default.png') ? 'og/default.png' : '');
 const base = site.baseUrl.replace(/\/$/, '');
 
 const shell = ({ title, desc, body, path: p, root, cover, type = 'website', bar = false }) => `<!doctype html>
-<html lang="en" data-theme="workshop"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<html lang="en" data-theme="dark" class=""><meta name="color-scheme" content="dark light"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${esc(title)}${title === site.title ? '' : ' | ' + site.title}</title><meta name="description" content="${esc(desc || site.tagline)}">
 <link rel="canonical" href="${base}${p}"><link rel="alternate" type="application/rss+xml" href="${base}/feed.xml">
 <meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(desc || site.tagline)}"><meta property="og:type" content="${type}">
-${cover ? `<meta property="og:image" content="${base}/${cover}"><meta name="twitter:card" content="summary_large_image">` : ''}
-<script>document.documentElement.dataset.theme=localStorage.theme||'workshop'</script>
+${cover ? `<meta property="og:image" content="${base}/${cover}"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="${base}/${cover}">` : ''}<meta property="og:site_name" content="${esc(site.title)}">
+<script>document.documentElement.classList.add('js');var t=localStorage.theme;document.documentElement.dataset.theme=t=='dark'||t=='light'?t:(matchMedia('(prefers-color-scheme: light)').matches?'light':'dark')</script>
 <link rel="stylesheet" href="${root}theme.css"></head><body>
 ${bar ? '<div id="progress"></div>' : ''}
 <header class="site"><div class="wrap wide"><a class="brand" href="${root}">${site.brand}</a>
 <nav><a href="${root}#posts">Posts</a><a href="${root}series/">Series</a><a href="${root}about/">About</a></nav>
-<div id="themes" title="Theme"><button data-t="workshop" aria-label="Workshop theme"></button><button data-t="paper" aria-label="Paper theme"></button><button data-t="terminal" aria-label="Terminal theme"></button></div></div></header>
+<button id="tt" type="button" aria-label="Switch theme">☀</button></div></header>
 ${body}
-<footer class="site"><div class="wrap wide">${site.author} · ${site.links.map(l => `<a href="${l.url}" rel="me">${l.label}</a>`).join(' · ')} · <a href="${root}feed.xml">RSS</a></div></footer>
+<footer class="site"><div class="wrap wide">${avatar.replace('ROOT', root)}<span>${site.author}</span> · ${site.links.map(l => `<a href="${l.url}" rel="me">${l.label}</a>`).join(' · ')} · <a href="${root}feed.xml">RSS</a></div></footer>
 <script src="${root}site.js"></script></body></html>`;
 
-const card = (p, root) => `<a class="card" data-cat="${esc(p.category)}" href="${root}${p.slug}/">${p.cover ? `<img loading="lazy" src="${root}${p.cover}" alt="">` : ''}<div><span class="meta"><span class="tag">${esc(p.category)}</span> · ${fmt(p.date)}</span><h3>${esc(p.title)}</h3><p>${esc(p.summary)}</p></div></a>`;
+const card = (p, root) => `<a class="card rv" data-cat="${esc(p.category)}" href="${root}${p.slug}/">${p.cover ? `<img loading="lazy" src="${root}${p.cover}" alt="">` : ''}<div><span class="meta"><span class="tag">${esc(p.category)}</span> · ${fmt(p.date)}</span><h3>${esc(p.title)}</h3><p>${esc(p.summary)}</p></div></a>`;
 
 // home
+const words = posts.reduce((n, p) => n + p.body.replace(/<(script|style)[\s\S]*?<\/\1>/g, ' ').replace(/<[^>]+>/g, ' ').split(/\s+/).filter(Boolean).length, 0);
 const cats = [...new Set(posts.map(p => p.category))];
 out('index.html', shell({
-  title: site.title, desc: site.tagline, path: '/', root: './',
-  body: `<div class="wrap wide"><section class="hero"><h1>${site.heroTitle}</h1><p>${site.tagline}</p></section>
-<div class="chips" id="posts"><span class="chip on" data-f="all">All ${posts.length}</span>${cats.map(c => `<span class="chip" data-f="${esc(c)}">${esc(c)}</span>`).join('')}</div>
+  title: site.title, desc: site.tagline, path: '/', root: './', cover: ogFor('default'),
+  body: `<div class="wrap wide"><section class="hero"><div class="prompt"><b>${site.handle}</b> <i>~</i> $ <span id="typed" data-text="whoami">whoami</span><span class="cursor"></span></div>
+<h1 class="wordmark">${site.firstName}<br><em>${site.lastName}</em></h1><p class="lede">${site.tagline}</p>
+<a class="who" href="${site.links.find(l => /linkedin/i.test(l.label)).url}" rel="me">${avatar.replace('ROOT', './')}<span>${site.author}<small>${site.role}</small></span></a>
+<div class="btns"><a class="btn pri" href="#posts">ls posts/</a><a class="btn" href="./about/">cat about.txt</a></div>
+<div class="stats"><div class="stat"><b>${posts.length}</b><small>posts</small></div><div class="stat"><b>${(words / 1000).toFixed(0)}k</b><small>words</small></div><div class="stat"><b>${Math.max(1, Math.round(words / posts.length / 220))}min</b><small>avg read</small></div><div class="stat"><b>${posts[posts.length - 1].date.slice(0, 4)}</b><small>since</small></div></div>
+<div class="term"><div class="bar"><i></i><i></i><i></i><span>${site.handle}: ~/darkshield</span></div><div class="body">
+<div class="l"><span class="p">$</span> ls categories/</div>
+<div class="l">${cats.map(c => `<a href="#posts" data-go="${esc(c)}">${esc(c.toLowerCase().replace(/[^a-z]+/g, '-'))}/</a> <span class="d">(${posts.filter(p => p.category === c).length})</span>`).join('  ')}</div>
+<div class="l"><span class="p">$</span> tail -n1 latest.log</div>
+<div class="l"><span class="n">${posts[0].date}</span>  <a href="${posts[0].slug}/">${esc(posts[0].title)}</a></div>
+<div class="l"><span class="p">$</span> echo $MOOD</div><div class="l">building things, breaking things, writing it down<span class="cursor"></span></div></div></div></section>
+<div class="chips" id="posts"><span class="chip on" data-f="all">all ${posts.length}</span>${cats.map(c => `<span class="chip" data-f="${esc(c)}">${esc(c)}</span>`).join('')}</div>
 <div class="grid">${posts.map(p => card(p, './')).join('')}</div></div>`
 }));
 
@@ -53,7 +66,7 @@ posts.forEach((p, i) => {
   const j = sib.indexOf(p), prev = sib[j - 1], next = sib[j + 1];
   const pn = sib.length > 1 ? `<div class="pn"><span>${prev ? `← <a href="../${prev.slug}/">${esc(prev.title)}</a>` : ''}</span><span>${next ? `<a href="../${next.slug}/">${esc(next.title)}</a> →` : ''}</span></div>` : '';
   out(p.slug + '/index.html', shell({
-    title: p.title, desc: p.summary, path: `/${p.slug}/`, root: '../', cover: p.cover, type: 'article', bar: true,
+    title: p.title, desc: p.summary, path: `/${p.slug}/`, root: '../', cover: ogFor(p.slug) || p.cover, type: 'article', bar: true,
     body: `<div class="wrap"><article class="post"><span class="meta"><span class="tag">${esc(p.category)}</span> · ${fmt(p.date)}${p.series ? ` · <a href="../series/#${esc(p.series)}">${esc(p.series)}${p.part ? ' part ' + p.part : ''}</a>` : ''}</span>
 <h1>${esc(p.title)}</h1>${p.subtitle ? `<p class="sub">${esc(p.subtitle)}</p>` : ''}${p.body}${pn}</article></div>`
   }));

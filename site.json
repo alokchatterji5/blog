@@ -1,13 +1,23 @@
 {
   "title": "Darkshield",
   "brand": "dark<b>shield</b>",
-  "heroTitle": "Notes from a homelab dungeon, and the AI agents that run it",
-  "tagline": "An enterprise integration architect writes about homelabs, self-hosting and AI agents. The wins, the failures, and the 3 AM fixes.",
+  "heroTitle": "",
+  "tagline": "I design enterprise integrations for a living and run an AI-agent-powered homelab for fun. This is where I write down what worked and what broke.",
   "author": "Alok Chatterji",
   "baseUrl": "https://blog.darkshield.co.in",
   "links": [
-    { "label": "GitHub", "url": "https://github.com/alokchatterji5" },
-    { "label": "LinkedIn", "url": "https://www.linkedin.com/in/alok-chatterji" }
+    {
+      "label": "GitHub",
+      "url": "https://github.com/alokchatterji5"
+    },
+    {
+      "label": "LinkedIn",
+      "url": "https://www.linkedin.com/in/alok-chatterji"
+    }
   ],
-  "redirects": {}
+  "redirects": {},
+  "handle": "alok@darkshield",
+  "firstName": "Alok",
+  "lastName": "Chatterji",
+  "role": "Integration architect · homelab tinkerer"
 }
