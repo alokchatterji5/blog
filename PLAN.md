@@ -67,3 +67,4 @@ Series: `homelab`, `ai-led-homelab`.
 (append here after each work session)
 - 2026-11-26: P1 done. Working folder `C:\01workspaces\darkshield-blog`. `extract.js` regenerates posts from `source/hashnode/rss.xml`.
 - 2026-11-26 (later): shell built; authoring rules in STYLE.md; post format = content/posts/<slug>.html with <!--meta json-->. Next: review agent output, `node build.js`, preview, then P6 (needs gh auth + LinkedIn). Repo local at C:workspacesdarkshield-blog, git init on main, nothing committed yet.
+- 2026-11-26 (done): all 17 posts + About built and LIVE at https://blog.darkshield.co.in. Repo renamed hugo -> blog, default branch main, Pages = GitHub Actions workflow. Old `master` + `gh-pages` branches still exist (safe to delete once happy). TODO: visual QA of each post's widgets, Hashnode redirect stubs (site.json "redirects"; slugs are same so only needed if Hashnode domain moves), add a note on Hashnode pointing to new blog, optional Giscus comments.
