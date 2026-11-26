@@ -45,19 +45,7 @@ const words = posts.reduce((n, p) => n + p.body.replace(/<(script|style)[\s\S]*?
 const cats = [...new Set(posts.map(p => p.category))];
 out('index.html', shell({
   title: site.title, desc: site.tagline, path: '/', root: './', cover: ogFor('default'),
-  body: `<div class="wrap wide"><section class="hero"><div class="prompt"><b>${site.handle}</b> <i>~</i> $ <span id="typed" data-text="whoami">whoami</span><span class="cursor"></span></div>
-<h1 class="wordmark">${site.firstName}<br><em>${site.lastName}</em></h1><p class="lede">${site.tagline}</p>
-<a class="who" href="${site.links.find(l => /linkedin/i.test(l.label)).url}" rel="me">${avatar.replace('ROOT', './')}<span>${site.author}<small>${site.role}</small></span></a>
-<div class="btns"><a class="btn pri" href="#posts">ls posts/</a><a class="btn" href="./about/">cat about.txt</a></div>
-<div class="stats"><div class="stat"><b>${posts.length}</b><small>posts</small></div><div class="stat"><b>${(words / 1000).toFixed(0)}k</b><small>words</small></div><div class="stat"><b>${Math.max(1, Math.round(words / posts.length / 220))}min</b><small>avg read</small></div><div class="stat"><b>${posts[posts.length - 1].date.slice(0, 4)}</b><small>since</small></div></div>
-<div class="term"><div class="bar"><i></i><i></i><i></i><span>${site.handle}: ~/darkshield</span></div><div class="body">
-<div class="l"><span class="p">$</span> ls categories/</div>
-<div class="l">${cats.map(c => `<a href="#posts" data-go="${esc(c)}">${esc(c.toLowerCase().replace(/[^a-z]+/g, '-'))}/</a> <span class="d">(${posts.filter(p => p.category === c).length})</span>`).join('  ')}</div>
-<div class="l"><span class="p">$</span> tail -n1 latest.log</div>
-<div class="l"><span class="n">${posts[0].date}</span>  <a href="${posts[0].slug}/">${esc(posts[0].title)}</a></div>
-<div class="l"><span class="p">$</span> echo $MOOD</div><div class="l">building things, breaking things, writing it down<span class="cursor"></span></div></div></div></section>
-<div class="chips" id="posts"><span class="chip on" data-f="all">all ${posts.length}</span>${cats.map(c => `<span class="chip" data-f="${esc(c)}">${esc(c)}</span>`).join('')}</div>
-<div class="grid">${posts.map(p => card(p, './')).join('')}</div></div>`
+  body: require('./templates/home.js')({ site, posts, cats, words, avatar, esc, card })
 }));
 
 // posts

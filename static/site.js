@@ -20,3 +20,12 @@ if('IntersectionObserver' in window){const io=new IntersectionObserver(es=>es.fo
 // typed prompt
 const ty=document.getElementById('typed');if(ty){const t=ty.dataset.text;if(matchMedia('(prefers-reduced-motion: reduce)').matches)ty.textContent=t;else{let i=0;const k=setInterval(()=>{ty.textContent=t.slice(0,++i);if(i>=t.length)clearInterval(k)},90)}}
 })();
+// hero rack: click a unit -> terminal "runs" its status; auto-cycles until the visitor clicks
+(()=>{const units=[...document.querySelectorAll('.rack .unit')];if(!units.length)return;
+const cmd=document.getElementById('tcmd'),out=document.getElementById('tout');const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;let timer,run=0,idx=0,user=false;
+const show=u=>{units.forEach(x=>x.classList.toggle('on',x===u));const id=++run,text=u.dataset.cmd,lines=u.dataset.out.split('|');out.innerHTML='';
+ if(reduce){cmd.textContent=text;lines.forEach(l=>out.insertAdjacentHTML('beforeend','<div class="l"></div>'));[...out.children].forEach((d,i)=>d.textContent=lines[i]);return}
+ cmd.textContent='';let i=0;const t=setInterval(()=>{if(id!==run)return clearInterval(t);cmd.textContent=text.slice(0,++i);if(i>=text.length){clearInterval(t);lines.forEach((l,k)=>setTimeout(()=>{if(id===run){const d=document.createElement('div');d.className='l';d.textContent=l;out.appendChild(d)}},k*320))}},45)};
+const pick=(u,byUser)=>{if(byUser){user=true;clearInterval(timer)}idx=units.indexOf(u);show(u)};
+units.forEach(u=>{u.addEventListener('click',()=>pick(u,true));u.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();pick(u,true)}})});
+show(units[0]);if(!reduce)timer=setInterval(()=>{if(!user){idx=(idx+1)%units.length;show(units[idx])}},5200)})();
