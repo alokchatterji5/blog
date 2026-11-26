@@ -1,0 +1,142 @@
+<!--meta
+{"title":"The Pocket-Change Dip Engine","subtitle":"Can a tiny brokerage account buy dips and sell the bounce all by itself?","date":"2026-11-26","summary":"A passion project: a small brokerage account that buys dips and sells the bounce on its own, with nobody watching. Not me, not an app, not even the AI that built it.","category":"Experiments","tags":["ai","automation","experiment","mcp"]}
+-->
+<div class="callout warn"><b>Not stock or financial advice.</b> I honestly don't know how stocks work. This is a passion project and a proof of concept: can AI and automation build a trading loop that runs on its own, so I don't have to be in the loop watching the market? It's not about making money.</div>
+
+<div class="tldr"><h4>The short version</h4><p>Can a tiny brokerage account buy dips and sell the bounce all by itself, with nobody watching? Not me, not an app on my phone, not even the AI that helped build it. I'm finding out.</p></div>
+
+<style>
+.de{--buy:#0f9d6b;--sell:#e0533a;--buy-soft:#cdefe1;--sell-soft:#fbdcd5}
+[data-theme=dark] .de{--buy:#3dd39a;--sell:#ff8a70;--buy-soft:#123b2e;--sell-soft:#43211b}
+.de-track{list-style:none;padding:0;margin:1rem 0 0;display:flex;flex-wrap:wrap;gap:.5rem}
+.de-track li{font:500 .8rem/1 ui-monospace,Consolas,monospace;padding:.55rem .75rem;border-radius:999px;border:1px solid var(--line);background:var(--card);display:flex;gap:.45rem;align-items:center}
+.de-track .done{border-color:var(--buy);color:var(--buy)}.de-track .now{border-color:var(--accent);color:var(--accent)}
+.de-track .now i{width:.55rem;height:.55rem;border-radius:50%;background:var(--accent);animation:de-blink 1.4s ease-in-out infinite}
+.de-track .next{color:var(--mute);border-style:dashed}
+.de-svgwrap{overflow-x:auto}svg.de-engine{display:block;width:100%;min-width:640px;height:auto}
+.de .box{fill:var(--card);stroke:var(--line);stroke-width:1.5}.de .hx{fill:var(--card);stroke:var(--accent);stroke-width:2}
+.de .t{fill:var(--fg);font-size:13px}.de .tb{fill:var(--fg);font-size:16px;font-weight:600}.de .ts{fill:var(--mute);font-size:11.5px;font-weight:400}.de .tm{fill:var(--mute);font:500 10.5px ui-monospace,Consolas,monospace;letter-spacing:.06em}
+.de .flow{fill:none;stroke:var(--mute);stroke-width:2;stroke-dasharray:6 7;animation:de-march 1.2s linear infinite}.de .flow.buy{stroke:var(--buy)}.de .flow.sell{stroke:var(--sell)}
+.de .lbl{font:600 12px ui-monospace,Consolas,monospace;fill:var(--mute)}.de .lbl.buy{fill:var(--buy)}.de .lbl.sell{fill:var(--sell)}
+.de .gate{fill:var(--bg2);stroke:var(--line);animation:de-gate 10s infinite}.de .g2{animation-delay:.3s}.de .g3{animation-delay:.6s}.de .g4{animation-delay:.9s}.de .g5{animation-delay:1.2s}
+.de .buyflash{fill:var(--buy);font:600 12.5px ui-monospace,Consolas,monospace;animation:de-flash 10s infinite;animation-delay:1.3s}
+.de .lane{fill:var(--bg2);stroke:var(--line)}.de .lane.auto{animation:de-lane 10s infinite;animation-delay:6.6s}
+.de .tagauto{fill:var(--sell)}.de .tagtxt{fill:var(--card);font:600 10px ui-monospace,Consolas,monospace;letter-spacing:.08em}
+.de .coin{fill:#f2b530;stroke:#b07d0c;stroke-width:1.5}.de .cointxt{fill:#5a3d00;font:700 11px ui-monospace,Consolas,monospace}
+.de .ai{fill:none;stroke:var(--accent);stroke-width:1.5;stroke-dasharray:4 4}.de .core{fill:var(--accent)}
+@keyframes de-march{to{stroke-dashoffset:-26}}@keyframes de-blink{50%{opacity:.25}}
+@keyframes de-gate{0%,11%{fill:var(--bg2);stroke:var(--line)}13%,30%{fill:var(--buy-soft);stroke:var(--buy)}34%,100%{fill:var(--bg2);stroke:var(--line)}}
+@keyframes de-flash{0%,17%{opacity:.25}20%,30%{opacity:1}36%,100%{opacity:.25}}
+@keyframes de-lane{0%,4%{fill:var(--bg2);stroke:var(--line)}6%,18%{fill:var(--sell-soft);stroke:var(--sell)}24%,100%{fill:var(--bg2);stroke:var(--line)}}
+@media(prefers-reduced-motion:reduce){.de .buyflash{opacity:1}.de .coin-g{display:none}}
+.de-rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;margin:1rem 0}
+.de-rule{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:1.1rem 1.2rem;min-width:0}
+.de-rule h3{margin:0 0 .6rem;font:600 .8rem/1 ui-monospace,Consolas,monospace;letter-spacing:.1em;text-transform:uppercase}
+.de-rule.in h3{color:var(--buy)}.de-rule.out h3{color:var(--sell)}.de-rule ol,.de-rule ul{margin:0;padding-left:1.2rem;display:grid;gap:.35rem}.de-rule small{display:block;margin-top:.7rem;color:var(--mute)}
+.de-quote{border-left:3px solid var(--accent);padding:.2rem 0 .2rem 1rem;margin:1.2rem 0;font-size:1.25rem;line-height:1.3;font-weight:700}
+.de-steps{counter-reset:s;list-style:none;padding:0;margin:0;display:grid;gap:.6rem}
+.de-steps li{counter-increment:s;padding-left:2.4rem;position:relative}
+.de-steps li::before{content:counter(s);position:absolute;left:0;top:.1rem;width:1.7rem;height:1.7rem;border-radius:8px;background:var(--buy);color:var(--card);font:600 .85rem/1.7rem ui-monospace,Consolas,monospace;text-align:center}
+</style>
+
+<div class="de">
+<ol class="de-track" aria-label="Project checkpoints">
+<li class="done">✓ Researched</li><li class="done">✓ Rules written</li><li class="done">✓ Second-opinion review</li><li class="done">✓ Flows built</li><li class="done">✓ Funded (small)</li><li class="now"><i></i>Waiting for the first dip</li><li class="next">10 trades</li><li class="next">30 trades: verdict vs index</li>
+</ol>
+
+<figure>
+<div class="de-svgwrap">
+<svg class="de-engine" viewBox="0 0 960 560" role="img" aria-label="The engine is a loop: cash funds buys when all five entry checks pass, holdings are watched by exit flows, and sales return cash to the pool. It all runs on the broker's servers; the AI only built it.">
+<defs>
+<marker id="de-ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker>
+<path id="de-loop" d="M115 230 C115 130 200 125 290 125 L670 125 C760 125 845 130 845 230 L845 330 C845 430 760 440 670 440 L290 440 C200 440 115 430 115 330 Z"/>
+</defs>
+<g class="coin-g"><circle class="coin" r="10"><animateMotion dur="10s" repeatCount="indefinite"><mpath href="#de-loop"/></animateMotion></circle><text class="cointxt" text-anchor="middle" dy="4">$<animateMotion dur="10s" repeatCount="indefinite"><mpath href="#de-loop"/></animateMotion></text></g>
+<path class="flow" d="M115 228 C115 140 200 125 286 125" marker-end="url(#de-ah)" style="color:var(--mute)"/>
+<path class="flow buy" d="M672 125 C760 125 845 135 845 226" marker-end="url(#de-ah)" style="color:var(--buy)"/>
+<path class="flow" d="M845 332 C845 425 760 440 674 440" marker-end="url(#de-ah)" style="color:var(--mute)"/>
+<path class="flow sell" d="M288 440 C200 440 115 425 115 334" marker-end="url(#de-ah)" style="color:var(--sell)"/>
+<text class="lbl" x="128" y="168">funds buys</text>
+<text class="lbl buy" x="770" y="160">BUY 20%</text><text class="lbl buy" x="770" y="176">of the pool</text>
+<text class="lbl" x="752" y="410">watches every</text><text class="lbl" x="752" y="426">holding</text>
+<text class="lbl sell" x="128" y="400">SELL → cash</text><text class="lbl sell" x="128" y="416">back next day</text>
+<rect class="ai" x="24" y="24" width="210" height="76" rx="12"/>
+<text class="tb" x="40" y="52" style="font-size:14px">AI assistant</text><text class="ts" x="40" y="70">researched + built the rules once</text><text class="ts" x="40" y="87" style="fill:var(--accent)">not in the loop</text>
+<rect class="box" x="30" y="230" width="170" height="100" rx="14"/>
+<text class="tb" x="115" y="263" text-anchor="middle">Cash pool</text><text class="ts" x="115" y="285" text-anchor="middle">starts small</text><text class="ts" x="115" y="303" text-anchor="middle">≥15% always kept</text><text class="ts" x="115" y="319" text-anchor="middle">in reserve</text>
+<rect class="hx" x="290" y="30" width="380" height="190" rx="16"/>
+<text class="tb" x="306" y="58">Entry flow × 10</text><text class="tm" x="306" y="78">ONE PER STOCK · ALL 5 MUST PASS</text>
+<rect class="gate" x="305" y="94" width="66" height="84" rx="10"/><rect class="gate g2" x="377" y="94" width="66" height="84" rx="10"/><rect class="gate g3" x="449" y="94" width="66" height="84" rx="10"/><rect class="gate g4" x="521" y="94" width="66" height="84" rx="10"/><rect class="gate g5" x="593" y="94" width="66" height="84" rx="10"/>
+<g text-anchor="middle">
+<text class="t" x="338" y="128" style="font-weight:600;font-size:12px">Uptrend</text><text class="ts" x="338" y="146">above its</text><text class="ts" x="338" y="160">200-day avg</text>
+<text class="t" x="410" y="128" style="font-weight:600;font-size:12px">Dip</text><text class="ts" x="410" y="146">below its</text><text class="ts" x="410" y="160">lower band</text>
+<text class="t" x="482" y="128" style="font-weight:600;font-size:12px">Market</text><text class="ts" x="482" y="146">index above</text><text class="ts" x="482" y="160">200-day avg</text>
+<text class="t" x="554" y="128" style="font-weight:600;font-size:12px">Cash</text><text class="ts" x="554" y="146">more than</text><text class="ts" x="554" y="160">35% of pool</text>
+<text class="t" x="626" y="128" style="font-weight:600;font-size:12px">Fresh</text><text class="ts" x="626" y="146">not already</text><text class="ts" x="626" y="160">owned</text>
+</g>
+<text class="buyflash" x="480" y="204" text-anchor="middle">ALL GREEN → MARKET BUY, NO TAP NEEDED</text>
+<rect class="box" x="760" y="230" width="170" height="100" rx="14"/>
+<text class="tb" x="845" y="263" text-anchor="middle">Holdings</text><text class="ts" x="845" y="285" text-anchor="middle">fractional shares</text><text class="ts" x="845" y="303" text-anchor="middle">each buy = 20% of pool</text><text class="ts" x="845" y="319" text-anchor="middle">so 4 stocks at most</text>
+<rect class="hx" x="290" y="350" width="380" height="180" rx="16" style="stroke:var(--sell)"/>
+<text class="tb" x="306" y="378">Exit flows</text><text class="tm" x="306" y="398">ANY ONE RULE IS ENOUGH</text>
+<rect class="lane auto" x="305" y="410" width="350" height="50" rx="10"/>
+<rect class="tagauto" x="315" y="425" width="58" height="20" rx="5"/><text class="tagtxt" x="344" y="439" text-anchor="middle">AUTO</text>
+<text class="t" x="384" y="432">back above its 20-day avg</text><text class="ts" x="384" y="449">or broke below its 200-day avg → sell all</text>
+<rect class="lane" x="305" y="468" width="350" height="50" rx="10"/>
+<rect class="tagauto" x="315" y="483" width="58" height="20" rx="5"/><text class="tagtxt" x="344" y="497" text-anchor="middle">AUTO</text>
+<text class="t" x="384" y="490">+6% or −8% vs what I paid</text><text class="ts" x="384" y="507">take the win or cut the loss → sell all</text>
+<circle class="core" cx="480" cy="268" r="5"/>
+<text class="tb" x="480" y="296" text-anchor="middle" style="font-size:15px">Runs on the broker's servers</text>
+<text class="ts" x="480" y="316" text-anchor="middle">checked all day, market hours only</text><text class="ts" x="480" y="333" text-anchor="middle">no laptop · no app open · no AI watching</text>
+</svg>
+</div>
+<figcaption>Follow the coin. Cash only leaves the pool when all five entry checks pass for one stock. Every holding is watched by the exit flows, and a sale drops the money back into the pool for the next dip. On a phone, scroll the diagram sideways.</figcaption>
+</figure>
+</div>
+
+<h2>The idea, in one breath</h2>
+<p>Big, healthy companies sometimes have a bad week for no good reason. If the stock is still in a long-term uptrend and the overall market is fine, that dip often snaps back. Buy a small slice during the dip, sell when it recovers, put the cash back in the pool, repeat.</p>
+<p>The engine watches <b>10 of the largest companies on the exchange</b>, picked by size with no more than 2 per sector, so it's a rule and not my gut. Each buy is <b>20% of the pool</b>. Even on a pool as small as $20, that would be $4 a trade, which works because the broker sells fractional shares with no commission.</p>
+
+<h2>The rules</h2>
+<div class="de de-rules">
+<div class="de-rule in"><h3>Buy when all are true</h3><ol>
+<li>The stock is above its 200-day average (uptrend)</li>
+<li>It's below its lower Bollinger band (a real dip for that stock)</li>
+<li>The index fund is above its 200-day average (market is healthy)</li>
+<li>Cash is over 35% of the pool (reserve stays intact)</li>
+<li>I don't already own it</li></ol></div>
+<div class="de-rule out"><h3>Sell when any is true</h3><ul>
+<li>It's back above its 20-day average (the bounce happened)</li>
+<li>It broke below its 200-day average (trend is dead)</li>
+<li>It's up 6% from what I paid (take the win)</li>
+<li>It's down 8% from what I paid (cut the loss)</li></ul><small>All four sell automatically.</small></div>
+</div>
+<p class="meta">These are simple rules Claude came up with to test the proof of concept. They are not financial rules, a trading system or advice of any kind.</p>
+
+<h2>Why the automation lives in the broker</h2>
+<p>I built this with an AI assistant connected to my brokerage through an <a href="https://modelcontextprotocol.io/introduction" target="_blank" rel="noopener">MCP connector</a> (Model Context Protocol, an open standard that lets AI assistants use other apps' tools; <a href="https://www.anthropic.com/news/model-context-protocol" target="_blank" rel="noopener">Anthropic's intro</a>). It researched the strategy, had the rules reviewed by a second AI, and built every rule as a broker "flow". Then it stepped out of the loop.</p>
+<p class="de-quote">Every extra thing between a signal and a trade is another thing that can break.</p>
+<p>If an AI agent had to wake up, check prices and place orders, the engine would depend on my laptop being on, a session staying alive, an API not timing out, and the agent reading the market right. Broker flows run on the broker's own servers, right next to the price data. So the loop is short: the market moves, a rule checks it, an order goes out.</p>
+<p>The AI also never placed a trade. It built everything as alerts, and I flipped the ones I wanted into real orders myself. That split felt right: the AI does the thinking and the building, and the human owns the button that spends money.</p>
+
+<h2>Questrade today, others tomorrow</h2>
+<p>This runs on Questrade, whose flows handle the conditions, the orders and the scheduling, with an MCP connector letting the AI set it up. Nothing here is specific to one broker. Any platform with rule-based order automation and fractional shares should be able to run the same loop, and Robinhood is next on my list to try.</p>
+
+<h2>Maintenance: almost none</h2>
+<p>Once a month I bump the buy size to 20% of whatever the pool is now, and glance at the flow history for anything that paused. It takes two minutes and could just as easily be a calendar reminder. The pool rebalances itself: sales flow back to cash, and the reserve rule stops it from going all in.</p>
+
+<h2>Try it with as little as $20</h2>
+<ol class="de de-steps">
+<li>Pick a broker with fractional shares, rule-based flows and low or no commission.</li>
+<li>Pick your list by a rule (size, sector caps), not by favourites.</li>
+<li>Build every rule as an alert first and watch what it would have done.</li>
+<li>Flip to real orders only when the alerts make sense to you.</li>
+<li>Keep a simple trade log. Taxes want it, and so will future you.</li>
+</ol>
+
+<h2>The honest scoreboard</h2>
+<p>Most professional funds don't beat a plain index fund, and quick dip-buying works least well on the biggest, most-watched stocks. So the bar is simple. After 30 trades, the engine has to beat the same money sitting in an index fund, with no bigger drawdowns. If it can't, the index fund wins and I'll say so here.</p>
+<p><b>Status: the engine is live and waiting for its first dip.</b> I'll check back after the first trades and keep everyone posted.</p>
+
+<p class="meta">An experiment shared for fun and learning, not financial advice. Small amounts only, and only money you're fine losing.</p>
