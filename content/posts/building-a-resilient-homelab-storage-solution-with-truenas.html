@@ -14,43 +14,7 @@
 <h2>The layout</h2>
 <p>Both sites run Proxmox with TrueNAS SCALE in a VM. At the primary site, "Darkshield", I pass an entire Intel SATA controller through to the TrueNAS VM (<a href="https://pve.proxmox.com/wiki/PCI_Passthrough">PCIe passthrough</a>). That gives TrueNAS raw access to the drives, which ZFS needs. The secondary site, "StarkAI", also runs a TrueNAS VM and mostly exists to receive backups. The sites are joined by an encrypted <a href="https://www.wireguard.com/">WireGuard</a> tunnel, and nightly <a href="https://rsync.samba.org/">rsync</a> jobs copy the critical datasets across.</p>
 
-<figure class="ts-fig">
-<style>
-.ts-fig svg{width:100%;background:var(--bg2)}
-.ts-fig .z{fill:none;stroke:var(--line);stroke-width:2;stroke-dasharray:6 4}
-.ts-fig .n{fill:var(--card);stroke:var(--line);stroke-width:1.5}
-.ts-fig .pool{fill:var(--card);stroke:var(--accent);stroke-width:2}
-.ts-fig g.nd{cursor:pointer}.ts-fig g.nd:hover .pool,.ts-fig g.nd.on .pool,.ts-fig g.nd:hover .n,.ts-fig g.nd.on .n{stroke:var(--accent2);stroke-width:3}
-.ts-fig text{fill:var(--fg);font:13px ui-sans-serif,system-ui,sans-serif;pointer-events:none}
-.ts-fig .lbl{fill:var(--mute);font-size:12px}
-.ts-fig .ln{stroke:var(--mute);stroke-width:1.5;fill:none}
-.ts-fig .vpn{stroke:var(--accent2);stroke-width:3;fill:none;stroke-dasharray:8 6;animation:ts-d 1.2s linear infinite}
-@keyframes ts-d{to{stroke-dashoffset:-14}}
-.ts-fig .pk{fill:var(--accent)}
-#ts-info{margin:8px 0 0;padding:10px 14px;background:var(--card);border:1px solid var(--line);border-radius:var(--r);font-size:15px;min-height:3em}
-</style>
-<svg viewBox="0 0 760 380" role="img" aria-label="Storage layout. Darkshield: four HDDs form a RAIDZ1 vdev that makes Pool 1, and a single 8TB HDD makes Pool 2. An encrypted rsync job over WireGuard sends critical datasets to the StarkAI TrueNAS.">
-<rect class="z" x="10" y="15" width="470" height="350" rx="10"/><text class="lbl" x="24" y="38">Darkshield: Proxmox host, TrueNAS SCALE VM</text>
-<rect class="z" x="560" y="15" width="190" height="350" rx="10"/><text class="lbl" x="574" y="38">StarkAI: Proxmox, TrueNAS VM</text>
-<g class="nd" data-k="hdd"><rect class="n" x="28" y="60" width="64" height="34" rx="5"/><text x="40" y="82">HDD 1</text><rect class="n" x="28" y="104" width="64" height="34" rx="5"/><text x="40" y="126">HDD 2</text><rect class="n" x="28" y="148" width="64" height="34" rx="5"/><text x="40" y="170">HDD 3</text><rect class="n" x="28" y="192" width="64" height="34" rx="5"/><text x="40" y="214">HDD 4</text></g>
-<path class="ln" d="M92 77H150M92 121H150M92 165H150M92 209H150"/><path class="ln" d="M150 77V209"/><path class="ln" d="M150 143H180"/>
-<g class="nd" data-k="vdev"><rect class="n" x="180" y="113" width="100" height="60" rx="8"/><text x="196" y="148">RAIDZ1 vdev</text></g>
-<path class="ln" d="M280 143H310"/>
-<g class="nd" data-k="p1"><rect class="pool" x="310" y="103" width="150" height="80" rx="8"/><text x="324" y="138">Pool 1</text><text x="324" y="158">Main storage</text></g>
-<g class="nd" data-k="hdd8"><rect class="n" x="28" y="280" width="64" height="44" rx="5"/><text x="36" y="298">8TB</text><text x="36" y="314">HDD</text></g>
-<path class="ln" d="M92 302H310"/>
-<g class="nd" data-k="p2"><rect class="pool" x="310" y="262" width="150" height="80" rx="8"/><text x="324" y="297">Pool 2</text><text x="324" y="317">Critical backups</text></g>
-<g class="nd" data-k="star"><rect class="n" x="590" y="135" width="130" height="80" rx="8"/><text x="604" y="170">Secondary</text><text x="604" y="190">TrueNAS</text></g>
-<path id="ts-w" class="vpn" d="M460 143H590"/><text class="lbl" x="468" y="128">rsync, nightly</text><text class="lbl" x="468" y="168">via WireGuard</text>
-<circle class="pk" r="4"><animateMotion dur="2.4s" repeatCount="indefinite" path="M460 143H590"/></circle>
-</svg>
-<div id="ts-info">Click a drive, vdev or pool.</div>
-<figcaption>Storage layout at the primary site, and the path to the off-site copy.</figcaption>
-</figure>
-<script>
-(()=>{const I={hdd:"Four drives passed through with the whole Intel SATA controller, so ZFS sees the raw disks.",vdev:"A vdev is a ZFS building block: a single drive, a mirror (like RAID 1) or a RAIDZ array. This one is RAIDZ1, similar to RAID 5.",p1:"Main storage. A 4-drive RAIDZ1 pool that survives the failure of a single drive without data loss. A good balance of performance, capacity and redundancy.",hdd8:"One 8TB drive, low-RPM (5400), with Smart Spindown enabled. Power-efficient and quiet.",p2:"Local backups of my most critical datasets. Restoring from here is much faster than pulling from the off-site location.",star:"The off-site copy. Receives nightly rsync jobs from Darkshield over the encrypted WireGuard tunnel."};
-const box=document.getElementById('ts-info');document.querySelectorAll('.ts-fig g.nd').forEach(g=>g.onclick=()=>{document.querySelectorAll('.ts-fig g.nd').forEach(x=>x.classList.toggle('on',x===g));box.textContent=I[g.dataset.k]})})();
-</script>
+<figure class="zoom"><img src="../img/homelab-storage-solution.svg" alt="Storage architecture across two sites: Proxmox with TrueNAS SCALE at each, replicated over WireGuard" loading="lazy"><figcaption>Two sites, each with Proxmox and a TrueNAS SCALE VM, replicating over WireGuard. Click to zoom.</figcaption></figure>
 
 <h2>Why the local backup matters</h2>
 <p>An off-site backup is the safety net for fire or theft, but it's a poor way to recover quickly. The bottleneck is almost always your internet connection. Try your own numbers:</p>

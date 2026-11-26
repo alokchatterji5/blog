@@ -29,3 +29,7 @@ const show=u=>{units.forEach(x=>x.classList.toggle('on',x===u));const id=++run,t
 const pick=(u,byUser)=>{if(byUser){user=true;clearInterval(timer)}idx=units.indexOf(u);show(u)};
 units.forEach(u=>{u.addEventListener('click',()=>pick(u,true));u.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();pick(u,true)}})});
 show(units[0]);if(!reduce)timer=setInterval(()=>{if(!user){idx=(idx+1)%units.length;show(units[idx])}},5200)})();
+// click-to-zoom for diagrams: <figure class="zoom"><img data-full="optional hi-res"></figure>
+(()=>{const imgs=document.querySelectorAll('figure.zoom img');if(!imgs.length)return;const lb=document.createElement('div');lb.id='lb';lb.innerHTML='<b>esc / click to close</b><img alt="">';document.body.appendChild(lb);const big=lb.querySelector('img');
+const close=()=>lb.classList.remove('on');lb.onclick=close;addEventListener('keydown',e=>{if(e.key==='Escape')close()});
+imgs.forEach(i=>i.onclick=()=>{big.src=i.dataset.full||i.src;big.alt=i.alt;lb.classList.add('on');lb.scrollTo(0,0)})})();

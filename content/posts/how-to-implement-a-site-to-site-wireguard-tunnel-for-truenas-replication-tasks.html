@@ -7,24 +7,7 @@
 
 <p>The problem is that both sites have dynamic public IPs, which change often and unpredictably, so a direct connection is awkward. I also did not want to expose either server to the internet. WireGuard fixes both: it authenticates and encrypts with public keys, it is small and fast, and it does not care that the IPs move.</p>
 
-<figure>
-<svg class="wg-svg" viewBox="0 0 780 240" role="img" aria-label="Home TrueNAS behind a pfSense router, connected through a WireGuard tunnel over the internet to a pfSense router and TrueNAS at a friend's house">
-<style>
-.wg-svg text{fill:var(--fg);font:13px ui-sans-serif,system-ui,sans-serif}.wg-svg .m{fill:var(--mute);font-size:11.5px}
-.wg-svg .b{fill:var(--card);stroke:var(--line);stroke-width:1.5}.wg-svg .l{stroke:var(--accent);stroke-width:2;fill:none}
-.wg-svg .t{stroke:var(--accent2);stroke-width:3;fill:none;stroke-dasharray:8 6;animation:wg-d 1s linear infinite}
-@keyframes wg-d{to{stroke-dashoffset:-14}}
-</style>
-<rect class="b" x="10" y="80" width="130" height="70" rx="10"/><text x="75" y="110" text-anchor="middle">TrueNAS</text><text class="m" x="75" y="130" text-anchor="middle">primary, home</text>
-<rect class="b" x="200" y="80" width="130" height="70" rx="10"/><text x="265" y="110" text-anchor="middle">pfSense</text><text class="m" x="265" y="130" text-anchor="middle">WireGuard peer</text>
-<rect class="b" x="450" y="80" width="130" height="70" rx="10"/><text x="515" y="110" text-anchor="middle">pfSense</text><text class="m" x="515" y="130" text-anchor="middle">WireGuard peer</text>
-<rect class="b" x="640" y="80" width="130" height="70" rx="10"/><text x="705" y="110" text-anchor="middle">TrueNAS</text><text class="m" x="705" y="130" text-anchor="middle">secondary, friend's</text>
-<path class="l" d="M140 115 H200"/><path class="l" d="M580 115 H640"/>
-<path class="t" d="M330 115 H450"/><text class="m" x="390" y="100" text-anchor="middle">UDP</text><text class="m" x="390" y="145" text-anchor="middle">dynamic IPs</text>
-<circle r="5" fill="var(--accent)"><animateMotion dur="3.5s" repeatCount="indefinite" path="M75 115 H265 H515 H705"/></circle>
-<text class="m" x="390" y="200" text-anchor="middle">replication over SSH, carried inside the tunnel</text>
-</svg>
-<figcaption>The orange dot is a replication stream going from home to the backup.</figcaption></figure>
+<figure class="zoom"><img src="../img/wireguard-tunnel.svg" alt="Site-to-site WireGuard tunnel between the two TrueNAS sites" loading="lazy"><figcaption>The tunnel between the two sites. Click to zoom.</figcaption></figure>
 
 <h2>The steps</h2>
 <p>The WireGuard and firewall steps are the same on both routers. Pick a tab for what happens where.</p>

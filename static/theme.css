@@ -97,3 +97,8 @@ footer.site .wrap{display:flex;gap:10px 14px;align-items:center;flex-wrap:wrap}f
 .rackbox .hint{margin:2px 0 0;text-align:center;font:12px ui-monospace,Consolas,monospace;color:var(--mute)}
 #tout .l{animation:reveal .35s both}
 @media(max-width:860px){.hero2{grid-template-columns:1fr;gap:28px;padding-top:36px}}
+/* click-to-zoom figures */
+figure.zoom img{cursor:zoom-in;display:block;margin:0 auto;background:#fff}
+#lb{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.88);overflow:auto;cursor:zoom-out;display:none;padding:20px}#lb.on{display:block}
+#lb img{display:block;margin:0 auto;max-width:none;width:max(1400px,100%);background:#fff;border-radius:8px}
+#lb b{position:fixed;top:12px;right:18px;color:#fff;font:600 14px ui-monospace,Consolas,monospace;background:#0008;padding:4px 10px;border-radius:6px}

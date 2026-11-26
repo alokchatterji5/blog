@@ -8,26 +8,7 @@
 <h2>The setup</h2>
 <p>Two TrueNAS servers in different places. The primary holds the important data in a RAID10 dataset. A second dataset on the same box keeps a local copy, so a recovery does not mean pulling everything over the internet. Every night a batch job replicates the important data to the second server, over SSH keys inside a WireGuard tunnel.</p>
 
-<figure>
-<svg class="pc-svg" viewBox="0 0 760 300" role="img" aria-label="Phones upload to Immich and Nextcloud on the primary TrueNAS, which keeps a local copy and replicates nightly over WireGuard to the secondary TrueNAS">
-<style>
-.pc-svg text{fill:var(--fg);font:13px ui-sans-serif,system-ui,sans-serif}.pc-svg .m{fill:var(--mute);font-size:11.5px}
-.pc-svg .b{fill:var(--card);stroke:var(--line);stroke-width:1.5}.pc-svg .a{stroke:var(--accent);fill:none;stroke-width:2}
-.pc-svg .t{stroke:var(--accent2);fill:none;stroke-width:2;stroke-dasharray:6 6;animation:pc-d 1.2s linear infinite}
-@keyframes pc-d{to{stroke-dashoffset:-12}}
-</style>
-<rect class="b" x="10" y="110" width="110" height="80" rx="10"/><text x="65" y="148" text-anchor="middle">Phones</text><text class="m" x="65" y="166" text-anchor="middle">family + friends</text>
-<rect class="b" x="190" y="30" width="170" height="240" rx="12"/><text x="275" y="55" text-anchor="middle" font-weight="700">Primary TrueNAS</text>
-<rect class="b" x="205" y="70" width="140" height="38" rx="8"/><text x="275" y="94" text-anchor="middle">Immich</text>
-<rect class="b" x="205" y="116" width="140" height="38" rx="8"/><text x="275" y="140" text-anchor="middle">Nextcloud Photos</text>
-<rect class="b" x="205" y="165" width="140" height="42" rx="8"/><text x="275" y="183" text-anchor="middle">RAID10 dataset</text><text class="m" x="275" y="198" text-anchor="middle">important data</text>
-<rect class="b" x="205" y="218" width="140" height="38" rx="8"/><text x="275" y="242" text-anchor="middle">local copy dataset</text>
-<rect class="b" x="560" y="90" width="190" height="120" rx="12"/><text x="655" y="130" text-anchor="middle" font-weight="700">Secondary TrueNAS</text><text class="m" x="655" y="150" text-anchor="middle">other location</text><text class="m" x="655" y="168" text-anchor="middle">off-site copy</text>
-<path class="a" d="M120 140 H190"/><path class="a" d="M120 160 H190"/>
-<path class="t" d="M360 186 H560"/><text class="m" x="460" y="174" text-anchor="middle">nightly replication</text><text class="m" x="460" y="212" text-anchor="middle">SSH keys inside WireGuard</text>
-<circle r="5" fill="var(--accent)"><animateMotion dur="3s" repeatCount="indefinite" path="M360 186 H560"/></circle>
-</svg>
-<figcaption>Phones in, nightly copy out. The off-site leg is the dashed one.</figcaption></figure>
+<figure class="zoom"><img src="../img/photo-backup.svg" alt="Personal photo cloud flow: phones to Immich and Nextcloud on TrueNAS, then backup to the second server" loading="lazy"><figcaption>How the photo cloud works, from phone to backup. Click to zoom.</figcaption></figure>
 
 <h2>Two apps, on purpose</h2>
 <p>For phone backup I run Immich and Nextcloud Photos (the Memories app) side by side. Photos are the one thing I cannot recreate, so I would rather have two working paths than trust one. It also lets me compare them. So far Immich is winning.</p>
